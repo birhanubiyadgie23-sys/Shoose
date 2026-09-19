@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ኢ-ሊስትሮ (E-Listro) | ዜሮ-ክፍተት Production App</title>
+    <title>ኢ-ሊስትሮ (E-Listro) | ፕሪሚየም ሞባይል ሊስትሮ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.08); }
+        }
+        .animate-zoom {
+            animation: slowZoom 5s infinite alternate ease-in-out;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
     <!-- Header -->
-    <header class="bg-blue-900 text-white p-4 shadow-md sticky top-0 z-50">
+    <header class="bg-blue-900 text-white p-3.5 shadow-md sticky top-0 z-50">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold">👞 ኢ-ሊስትሮ (አዲስ አበባ)</h1>
-            <div id="authHeaderBtn">
-                <button onclick="openAuthModal()" class="text-xs bg-blue-800 hover:bg-blue-700 px-3 py-1.5 rounded-lg border border-blue-600 transition">🔐 አስተዳዳሪ ግባ</button>
+            <h1 class="text-base font-extrabold flex items-center gap-1.5">👞 ኢ-ሊስትሮ (አዲስ አበባ)</h1>
+            <div class="flex items-center gap-2">
+                <button onclick="downloadIndexFile()" class="text-[11px] bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">📥 ፋይል አውርድ</button>
+                <button onclick="openAuthModal()" class="text-[11px] bg-blue-800 hover:bg-blue-700 px-2.5 py-1.5 rounded-lg border border-blue-600 transition">🔐 አስተዳዳሪ</button>
             </div>
         </div>
     </header>
@@ -23,86 +33,157 @@
     <main class="max-w-md mx-auto p-4 pb-16">
         
         <!-- Tab Switcher -->
-        <div class="flex bg-white rounded-lg p-1 shadow-sm mb-6 border border-slate-200">
+        <div class="flex bg-white rounded-lg p-1 shadow-sm mb-5 border border-slate-200">
             <button onclick="switchTab('order')" id="tab-order" class="flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition">ትዕዛዝ አዘዝ</button>
             <button onclick="switchTab('loyalty')" id="tab-loyalty" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition">የእኔ ካርድ / CRM</button>
             <button onclick="switchTab('admin-panel')" id="tab-admin" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition hidden">ዳሽቦርድ (Realtime)</button>
         </div>
 
         <!-- 1. ORDER FORM SECTION -->
-        <section id="section-order" class="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
-            <h2 class="text-base font-bold mb-4 text-blue-900">አዲስ የጫማ ማፅዳት ትዕዛዝ</h2>
-            <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="space-y-3.5">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">ሙሉ ስም</label>
-                    <input type="text" id="fullName" required placeholder="ምሳሌ: አበበ ከበደ" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+        <section id="section-order" class="space-y-4">
+            
+            <!-- Dynamic Auto-Zoom Visual Showcase (Door-to-door & Clean shoes) -->
+            <div class="relative h-44 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900">
+                <div id="carouselContainer" class="relative w-full h-full">
+                    <!-- Slide 1: Clean & shining shoes -->
+                    <div class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-700">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Clean shoes">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
+                            <span class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">✨ ጥራት እና ብሩህነት</span>
+                            <p class="text-white text-xs font-semibold">የተወለወሉ እና ፕሪሚየም የሆኑ ቆዳ ጫማዎች</p>
+                        </div>
+                    </div>
+                    <!-- Slide 2: Lined up shoes ready for cleaning -->
+                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
+                        <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Lined up shoes">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
+                            <span class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">🛡️ ስርዓቱን የጠበቀ እንክብካቤ</span>
+                            <p class="text-white text-xs font-semibold">ለመጸዳት እና ጥገና በጥንቃቄ የተደረደሩ ጫማዎች</p>
+                        </div>
+                    </div>
+                    <!-- Slide 3: Door to door service -->
+                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
+                        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Door to door service">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
+                            <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">🚀 በቤል እና ቢሮዎ</span>
+                            <p class="text-white text-xs font-semibold">ሊስትሮው አድራሻዎ ድረስ እየሄደ የሚሰጠው አገልግሎት</p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥር (ቴሌብር - 09/07)</label>
-                    <input type="tel" id="phone" required placeholder="0911223344" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <!-- Trust Badge Overlay -->
+                <div class="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full border border-white/20 font-medium">
+                    ⭐⭐⭐⭐⭐ 4.9/5 (አዲስ አበባ)
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">አድራሻ (ቦሌ፣ ፒያሳ፣ ሜክሲኮ...)</label>
-                    <input type="text" id="location" required placeholder="ቦሌ መድኃኔዓለም ቢሮ ቁ. 402" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-blue-900">አዲስ የጫማ ማፅዳት ትዕዛዝ</h2>
+                    <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">ፈጣን ምላሽ</span>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">የጫማ ዓይነት እና አገልግሎት</label>
-                    <select id="serviceSelect" onchange="updatePriceDisplay()" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="መደበኛ የቆዳ ጫማ|50">መደበኛ የቆዳ ጫማ (ብር 50)</option>
-                        <option value="ስኒከር ጥልቅ ማፅዳት - Deep Clean|150">ስኒከር ጥልቅ ማፅዳት - Deep Clean (ብር 150)</option>
-                        <option value="ቀለም ማደስ እና ጥገና|100">ቀለም ማደስ እና ጥገና (ብር 100)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">አገልግሎት አሰጣጥ ምርጫ</label>
-                    <select id="deliveryType" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                        <option value="በቦታው ተገኝቶ ማፅዳት (On-site)">በቦታው ተገኝቶ ማፅዳት (On-site)</option>
-                        <option value="ወስዶ መመልስ (Pick & Drop +50 ብር)">ወስዶ መመልስ (Pick & Drop +50 ብር)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">የክፍያ ሪፈረንስ ቁጥር (TRX ID)</label>
-                    <input type="text" id="paymentRef" required placeholder="ምሳሌ: FT2409..." class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">የክፍያ ስክሪንሾት (አማራጭ/jpg, png)</label>
-                    <input type="file" id="paymentProof" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-900 hover:file:bg-blue-100">
-                </div>
-                <div class="p-2.5 bg-blue-50 rounded-lg text-xs flex justify-between items-center text-blue-900 font-semibold">
-                    <span>ጠቅላላ ክፍያ:</span>
-                    <span id="priceDisplay">ብር 50</span>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold text-sm hover:bg-blue-800 transition">ትዕዛዝ ላክ</button>
-            </form>
-            <div id="orderStatus" class="mt-3 text-center text-xs font-medium"></div>
+
+                <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">ሙሉ ስም</label>
+                        <input type="text" id="fullName" required placeholder="ምሳሌ: አበበ ከበደ" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥር (09/07)</label>
+                            <input type="tel" id="phone" required placeholder="0911223344" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ሪፈረንስ ቁጥር (TRX ID)</label>
+                            <input type="text" id="paymentRef" required placeholder="FT2409..." class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">አድራሻ (ቦሌ፣ ፒያሳ፣ ሜክሲኮ...)</label>
+                        <input type="text" id="location" required placeholder="ቦሌ መድኃኔዓለም ቢሮ ቁ. 402" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
+                    </div>
+
+                    <!-- Interactive Service Selection Cards -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">የጫማ ዓይነት እና አገልግሎት ይምረጡ</label>
+                        <div class="grid grid-cols-1 gap-2" id="serviceCardsContainer">
+                            <div onclick="selectServiceCard('መደበኛ የቆዳ ጫማ|50', this)" class="service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">መደበኛ የቆዳ ጫማ</p>
+                                    <p class="text-[10px] text-slate-500">ፈጣን አንጸባራቂ ልውጥ</p>
+                                </div>
+                                <span class="text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg shadow-2xs">ብር 50</span>
+                            </div>
+                            <div onclick="selectServiceCard('ስኒከር ጥልቅ ማፅዳት - Deep Clean|150', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">ስኒከር ጥልቅ ማፅዳት (Deep Clean)</p>
+                                    <p class="text-[10px] text-slate-500">ለአገር ውስጥ/ውጭ ስኒከሮች</p>
+                                </div>
+                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 150</span>
+                            </div>
+                            <div onclick="selectServiceCard('ቀለም ማደስ እና ጥገና|100', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
+                                <div>
+                                    <p class="text-xs font-bold text-slate-900">ቀለም ማደስ እና ጥገና</p>
+                                    <p class="text-[10px] text-slate-500">የቆዳ መላላጥ ማስተካከያ</p>
+                                </div>
+                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 100</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="serviceSelect" value="መደበኛ የቆዳ ጫማ|50">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">አገልግሎት አሰጣጥ ምርጫ</label>
+                        <select id="deliveryType" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/55">
+                            <option value="በቦታው ተገኝቶ ማፅዳት (On-site)">በቦታው ተገኝቶ ማፅዳት (On-site)</option>
+                            <option value="ወስዶ መመልስ (Pick & Drop +50 ብር)">ወስዶ መመልስ (Pick & Drop +50 ብር)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">የክፍያ ስክሪንሾት (አማራጭ/jpg, png)</label>
+                        <input type="file" id="paymentProof" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-900 hover:file:bg-blue-100">
+                    </div>
+
+                    <div class="p-3 bg-blue-50/80 rounded-xl text-xs flex justify-between items-center text-blue-900 font-bold border border-blue-100">
+                        <span class="flex items-center gap-1">🛡️ ጠቅላላ ክፍያ:</span>
+                        <span id="priceDisplay" class="text-sm font-extrabold">ብር 50</span>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-blue-800 transition shadow-md shadow-blue-900/10">ትዕዛዝ ላክ</button>
+                </form>
+                <div id="orderStatus" class="mt-3 text-center text-xs font-medium"></div>
+            </div>
         </section>
 
         <!-- 2. LOYALTY / CRM SECTION -->
-        <section id="section-loyalty" class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 hidden">
+        <section id="section-loyalty" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hidden">
             <h2 class="text-base font-bold mb-4 text-blue-900">ቋሚ ደንበኛ መለያ (Loyalty CRM)</h2>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥርዎትን ያስገቡ</label>
                     <div class="flex gap-2">
-                        <input type="tel" id="lookupPhone" placeholder="09..." class="flex-1 px-3 py-2 border rounded-lg text-sm">
-                        <button onclick="checkLoyalty()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium">ፈልግ</button>
+                        <input type="tel" id="lookupPhone" placeholder="09..." class="flex-1 px-3 py-2 border rounded-xl text-sm">
+                        <button onclick="checkLoyalty()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium">ፈልግ</button>
                     </div>
                 </div>
-                <div id="loyaltyResult" class="p-4 bg-slate-50 rounded-lg border border-slate-100 text-sm space-y-2 hidden">
+                <div id="loyaltyResult" class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm space-y-2 hidden">
                     <p><strong>ስም:</strong> <span id="res-name">-</span></p>
                     <p><strong>ጠቅላላ ማፅዳት ብዛት:</strong> <span id="res-count" class="text-blue-900 font-bold">0</span> ጊዜ</p>
-                    <p id="res-reward" class="text-xs text-green-700 font-semibold bg-green-50 p-2 rounded"></p>
+                    <p id="res-reward" class="text-xs text-green-700 font-semibold bg-green-50 p-2.5 rounded-lg border border-green-200"></p>
                 </div>
             </div>
         </section>
 
         <!-- 3. ADMIN / LISTRO DASHBOARD SECTION -->
-        <section id="section-admin" class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hidden">
+        <section id="section-admin" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-base font-bold text-blue-900">የሊስትሮ ገቢ ትዕዛዞች</h2>
                 <div class="flex items-center gap-2">
-                    <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-semibold">● Live</span>
-                    <button onclick="logoutAdmin()" class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">ውጣ</button>
+                    <span class="text-[10px] bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full font-semibold">● Live</span>
+                    <button onclick="logoutAdmin()" class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg">ውጣ</button>
                 </div>
             </div>
             <div id="adminOrdersList" class="space-y-3 text-xs">
@@ -117,21 +198,21 @@
 
     <!-- Supabase Auth Login Modal -->
     <div id="authModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl p-5 max-w-xs w-full shadow-lg space-y-3">
+        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-lg space-y-3">
             <h3 class="font-bold text-sm text-slate-800">የአስተዳዳሪ Supabase Auth ግባ</h3>
             <form onsubmit="handleAdminLogin(event)" class="space-y-3">
-                <input type="email" id="adminEmail" required placeholder="admin@listro.et" class="w-full px-3 py-2 border rounded-lg text-sm">
-                <input type="password" id="adminPassword" required placeholder="password" class="w-full px-3 py-2 border rounded-lg text-sm">
+                <input type="email" id="adminEmail" required placeholder="admin@listro.et" class="w-full px-3 py-2 border rounded-xl text-sm">
+                <input type="password" id="adminPassword" required placeholder="password" class="w-full px-3 py-2 border rounded-xl text-sm">
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 text-white py-2 rounded-lg text-xs font-semibold">ግባ</button>
-                    <button type="button" onclick="closeAuthModal()" class="flex-1 bg-slate-100 text-slate-700 py-2 rounded-lg text-xs font-semibold">ሰርዝ</button>
+                    <button type="submit" class="flex-1 bg-blue-900 text-white py-2 rounded-xl text-xs font-semibold">ግባ</button>
+                    <button type="button" onclick="closeAuthModal()" class="flex-1 bg-slate-100 text-slate-700 py-2 rounded-xl text-xs font-semibold">ሰርዝ</button>
                 </div>
             </form>
             <div id="authError" class="text-xs text-red-600 text-center"></div>
         </div>
     </div>
 
-    <!-- Application Script (Zero-gap 100% fixed) -->
+    <!-- Application Script -->
     <script>
         const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
         const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
@@ -145,7 +226,28 @@
             supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         }
 
-        // Fixed price display indexing (parts)
+        // Auto-zoom/rotate visual carousel logic
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-item');
+        if (slides.length > 0) {
+            setInterval(() => {
+                slides[currentSlide].style.opacity = '0';
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].style.opacity = '1';
+            }, 4500);
+        }
+
+        function selectServiceCard(val, el) {
+            document.querySelectorAll('.service-card').forEach(c => {
+                c.className = "service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center";
+                c.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg";
+            });
+            el.className = "service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center";
+            el.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg shadow-2xs";
+            document.getElementById('serviceSelect').value = val;
+            updatePriceDisplay();
+        }
+
         function updatePriceDisplay() {
             const val = document.getElementById('serviceSelect').value;
             const parts = val.split('|');
@@ -256,7 +358,7 @@
             if (!supabaseClient) {
                 setTimeout(() => {
                     statusDiv.textContent = `✅ ደርሷል! ${fullName}, ትዕዛዝዎ ተመዝግቧል። (Ref: ${paymentRef})`;
-                    statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2 rounded";
+                    statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
                     btn.disabled = false;
                     document.getElementById('orderForm').reset();
                     updatePriceDisplay();
@@ -276,7 +378,6 @@
                     }
                 }
 
-                // Fixed: using maybeSingle() instead of single() to avoid crash on new customers
                 let { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
                 let visits = 1;
                 if (!customer) {
@@ -286,19 +387,18 @@
                     await supabaseClient.from('customers').update({ visit_count: visits, default_location: location }).eq('phone', phone);
                 }
 
-                // Price is server-handled via DB trigger; omitted from client insert payload
                 const { error: orderError } = await supabaseClient.from('orders').insert([{
                     full_name: fullName, phone: phone, location: location, service_type: serviceType, delivery_type: deliveryType, payment_ref: paymentRef, proof_url: proofUrl, status: 'pending'
                 }]);
                 if (orderError) throw orderError;
 
                 statusDiv.textContent = `✅ ትዕዛዝዎ ተመዝግቧል! (ጉብኝት #${visits})`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2 rounded";
+                statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
                 document.getElementById('orderForm').reset();
                 updatePriceDisplay();
             } catch (err) {
                 statusDiv.textContent = `❌ ስህተት: ${err.message || 'እንደገና ይሞክሩ'}`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2 rounded";
+                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
             } finally {
                 btn.disabled = false;
             }
@@ -317,7 +417,6 @@
                 return;
             }
 
-            // Fixed: using maybeSingle() instead of single()
             const { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
             resDiv.classList.remove('hidden');
             if (customer) {
@@ -346,10 +445,10 @@
             }
 
             if (!supabaseClient) {
-                listDiv.innerHTML = `<div class="p-3 border rounded-lg bg-slate-50 space-y-1">
+                listDiv.innerHTML = `<div class="p-3 border rounded-xl bg-slate-50 space-y-1">
                     <p><strong>ናሙና አበበ</strong> (0911000000) - ብር 50</p>
                     <p class="text-slate-500">ቦሌ - Ref: TRX999</p>
-                    <span class="inline-block bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-[10px]">pending</span>
+                    <span class="inline-block bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded text-[10px]">pending</span>
                 </div>`;
                 return;
             }
@@ -373,7 +472,7 @@
 
             orders.forEach(o => {
                 const card = document.createElement('div');
-                card.className = "p-3 border rounded-lg bg-slate-50 space-y-1.5";
+                card.className = "p-3 border rounded-xl bg-slate-50 space-y-1.5";
                 
                 const topRow = document.createElement('div');
                 topRow.className = "flex justify-between items-start";
@@ -416,7 +515,7 @@
                 }
 
                 const selectEl = document.createElement('select');
-                selectEl.className = "text-[11px] border rounded p-1 bg-white font-medium text-blue-900";
+                selectEl.className = "text-[11px] border rounded-lg p-1 bg-white font-medium text-blue-900";
                 ['pending', 'assigned', 'picked_up', 'cleaning', 'completed'].forEach(st => {
                     const opt = document.createElement('option');
                     opt.value = st;
@@ -447,6 +546,19 @@
         async function updateOrderStatus(orderId, newStatus) {
             if (!supabaseClient) return;
             await supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId);
+        }
+
+        function downloadIndexFile() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
