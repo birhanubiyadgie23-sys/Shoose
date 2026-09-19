@@ -42,7 +42,7 @@
         <!-- 1. ORDER FORM SECTION -->
         <section id="section-order" class="space-y-4">
             
-            <!-- Dynamic Auto-Zoom Visual Showcase (Door-to-door & Clean shoes) -->
+            <!-- Dynamic Auto-Zoom Visual Showcase -->
             <div class="relative h-44 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900">
                 <div id="carouselContainer" class="relative w-full h-full">
                     <!-- Slide 1: Clean & shining shoes -->
@@ -95,7 +95,7 @@
                             <input type="tel" id="phone" required placeholder="0911223344" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">ሪፈረንስ ቁጥር (TRX ID)</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">ሪፈረንስ ቁጥር (FT/TRX)</label>
                             <input type="text" id="paymentRef" required placeholder="FT2409..." class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
                         </div>
                     </div>
@@ -114,7 +114,7 @@
                                     <p class="text-xs font-bold text-slate-900">መደበኛ የቆዳ ጫማ</p>
                                     <p class="text-[10px] text-slate-500">ፈጣን አንጸባራቂ ልውጥ</p>
                                 </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg shadow-2xs">ብር 50</span>
+                                <span class="text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg">ብር 50</span>
                             </div>
                             <div onclick="selectServiceCard('ስኒከር ጥልቅ ማፅዳት - Deep Clean|150', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
                                 <div>
@@ -251,7 +251,7 @@
         function updatePriceDisplay() {
             const val = document.getElementById('serviceSelect').value;
             const parts = val.split('|');
-            document.getElementById('priceDisplay').textContent = `ብር ${parts || 50}`;
+            document.getElementById('priceDisplay').textContent = `ብር ${parts[1] || 50}`;
         }
 
         function isValidEthPhone(phone) {
@@ -347,7 +347,15 @@
 
             if (!isValidEthPhone(phone)) {
                 statusDiv.textContent = '❌ እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ (09/07)';
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2 rounded";
+                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
+                return;
+            }
+
+            // 🛡️ ጥብቅ የቴሌብር/ባንክ ሪፈረንስ ቫሊዴሽን (በ FT የሚጀምር ወይም ከ10-20 አልፋኑመርክ)
+            const refRegex = /^(FT[A-Za-z0-9]{8,15}|[A-Za-z0-9]{10,20})$/i;
+            if (!refRegex.test(paymentRef)) {
+                statusDiv.textContent = '❌ ትክክለኛ የቴሌብር/ባንክ ሪፈረንስ ቁጥር ያስገቡ (በ FT የሚጀምር ወይም 10-20 ፊደል/ቁጥር)';
+                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
                 return;
             }
 
