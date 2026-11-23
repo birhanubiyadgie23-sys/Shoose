@@ -4,7 +4,7 @@
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const PUBLIC_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J';
-const ALLOWED_STATUSES = new Set(['pending', 'accepted', 'confirmed', 'assigned', 'in_progress', 'completed', 'cancelled']);
+const ADMIN_TRANSITIONS = { pending: new Set(['accepted','confirmed','cancelled']), accepted: new Set(['cancelled']), confirmed: new Set(['cancelled']) };
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function reply(res, status, body) {
@@ -77,10 +77,19 @@ module.exports = async function handler(req, res) {
     if (!UUID_RE.test(id)) return reply(res, 400, { error: 'A valid order ID is required.' });
 
     if (req.method === 'PATCH') {
-      if (typeof body.status !== 'string' || !ALLOWED_STATUSES.has(body.status)) {
+      if (typeof body.status !== 'string') {
         return reply(res, 400, { error: 'Choose a valid order status.' });
       }
-      // Status is the only field either administrator role may change.
+      const currentResponse = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id) + '&select=id,status,assigned_professional_id', { headers });
+      const currentRows = await currentResponse.json().catch(() => []);
+      if (!currentResponse.ok) return reply(res, 502, { error: 'Current order status could not be checked.' });
+      const current = Array.isArray(currentRows) ? currentRows[0] : null;
+      if (!current) return reply(res, 404, { error: 'Order not found.' });
+      const permitted = ADMIN_TRANSITIONS[current.status];
+      if (!permitted || !permitted.has(body.status)) {
+        return reply(res, 409, { error: 'This status change is not allowed. Assignment and job progress must be completed through the professional workflow.' });
+      }
+      // Admin may confirm or cancel; assignment and work progress are controlled by their dedicated workflows.
       const response = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id), {
         method: 'PATCH',
         headers: { ...headers, Prefer: 'return=representation' },

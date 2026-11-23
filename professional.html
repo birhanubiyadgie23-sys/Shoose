@@ -49,7 +49,7 @@ label{font-size:13px;font-weight:700}.login{max-width:430px;margin:42px auto}
  }
  async function load(){ $('notice').textContent='Loading your jobs…';try{const d=await api();render(d);$('notice').textContent='Your work list is up to date.';}catch(e){$('notice').textContent=e.message;}}
  async function show(){const {data:{session:s}}=await client.auth.getSession();session=s;if(!s){login.hidden=false;dashboard.hidden=true;logout.hidden=true;return;}try{const d=await api();login.hidden=true;setPassword.hidden=true;dashboard.hidden=false;logout.hidden=false;render(d);$('notice').textContent='Your work list is up to date.';}catch(e){login.hidden=false;dashboard.hidden=true;logout.hidden=false;$('loginStatus').textContent=e.message;}}
- try{const sdk=await sdk();client=sdk.createClient(SUPABASE_URL,SUPABASE_KEY);const {data:{session:s}}=await client.auth.getSession();
+ try{const supabaseModule=await sdk();client=supabaseModule.createClient(SUPABASE_URL,SUPABASE_KEY);const {data:{session:s}}=await client.auth.getSession();
   const invite=/type=invite/i.test(location.hash);
   if(s&&invite){login.hidden=true;setPassword.hidden=false;logout.hidden=false;}
   else if(s){await show();}
