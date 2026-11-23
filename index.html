@@ -1,578 +1,137 @@
-<!DOCTYPE html>
-<html lang="am">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ኢ-ሊስትሮ (E-Listro) | ፕሪሚየም ሞባይል ሊስትሮ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @keyframes slowZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.08); }
-        }
-        .animate-zoom {
-            animation: slowZoom 5s infinite alternate ease-in-out;
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
-
-    <!-- Header -->
-    <header class="bg-blue-900 text-white p-3.5 shadow-md sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-base font-extrabold flex items-center gap-1.5">👞 ኢ-ሊስትሮ (አዲስ አበባ)</h1>
-            <div class="flex items-center gap-2">
-                <button onclick="downloadIndexFile()" class="text-[11px] bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">📥 ፋይል አውርድ</button>
-                <button onclick="openAuthModal()" class="text-[11px] bg-blue-800 hover:bg-blue-700 px-2.5 py-1.5 rounded-lg border border-blue-600 transition">🔐 አስተዳዳሪ</button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-md mx-auto p-4 pb-16">
-        
-        <!-- Tab Switcher -->
-        <div class="flex bg-white rounded-lg p-1 shadow-sm mb-5 border border-slate-200">
-            <button onclick="switchTab('order')" id="tab-order" class="flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition">ትዕዛዝ አዘዝ</button>
-            <button onclick="switchTab('loyalty')" id="tab-loyalty" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition">የእኔ ካርድ / CRM</button>
-            <button onclick="switchTab('admin-panel')" id="tab-admin" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition hidden">ዳሽቦርድ (Realtime)</button>
-        </div>
-
-        <!-- 1. ORDER FORM SECTION -->
-        <section id="section-order" class="space-y-4">
-            
-            <!-- Dynamic Auto-Zoom Visual Showcase -->
-            <div class="relative h-44 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900">
-                <div id="carouselContainer" class="relative w-full h-full">
-                    <!-- Slide 1: Clean & shining shoes -->
-                    <div class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Clean shoes">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">✨ ጥራት እና ብሩህነት</span>
-                            <p class="text-white text-xs font-semibold">የተወለወሉ እና ፕሪሚየም የሆኑ ቆዳ ጫማዎች</p>
-                        </div>
-                    </div>
-                    <!-- Slide 2: Lined up shoes ready for cleaning -->
-                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Lined up shoes">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">🛡️ ስርዓቱን የጠበቀ እንክብካቤ</span>
-                            <p class="text-white text-xs font-semibold">ለጽዳት እና ጥገና የገቡ ጫማዎች</p>
-                        </div>
-                    </div>
-                    <!-- Slide 3: Door to door service -->
-                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Door to door service">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">🚀 በቤል እና ቢሮዎ</span>
-                            <p class="text-white text-xs font-semibold">ሊስትሮው አድራሻዎ ድረስ እየሄደ የሚሰጠው አገልግሎት</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Trust Badge Overlay -->
-                <div class="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full border border-white/20 font-medium">
-                    ⭐⭐⭐⭐⭐ 4.9/5 (አዲስ አበባ)
-                </div>
-            </div>
-
-            <!-- Form Card -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-base font-bold text-blue-900">አዲስ የጫማ ማፅዳት ትዕዛዝ</h2>
-                    <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">ፈጣን ምላሽ</span>
-                </div>
-
-                <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="space-y-3.5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">ሙሉ ስም</label>
-                        <input type="text" id="fullName" required placeholder="ምሳሌ: አበበ ከበደ" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥር (09/07)</label>
-                            <input type="tel" id="phone" required placeholder="0911223344" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">ሪፈረንስ ቁጥር (FT/TRX)</label>
-                            <input type="text" id="paymentRef" required placeholder="FT2409..." class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">አድራሻ (ቦሌ፣ ፒያሳ፣ ሜክሲኮ...)</label>
-                        <input type="text" id="location" required placeholder="ቦሌ መድኃኔዓለም ቢሮ ቁ. 402" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                    </div>
-
-                    <!-- Interactive Service Selection Cards -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">የጫማ ዓይነት እና አገልግሎት ይምረጡ</label>
-                        <div class="grid grid-cols-1 gap-2" id="serviceCardsContainer">
-                            <div onclick="selectServiceCard('መደበኛ የቆዳ ጫማ|50', this)" class="service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">መደበኛ የቆዳ ጫማ</p>
-                                    <p class="text-[10px] text-slate-500">ፈጣን አንጸባራቂ ልውጥ</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg">ብር 50</span>
-                            </div>
-                            <div onclick="selectServiceCard('ስኒከር ጥልቅ ማፅዳት - Deep Clean|3000', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">ስኒከር ጥልቅ ማፅዳት (Deep Clean)</p>
-                                    <p class="text-[10px] text-slate-500">ለአገር ውስጥ/ውጭ ስኒከሮች</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 3000</span>
-                            </div>
-                            <div onclick="selectServiceCard('ቀለም ማደስ እና ጥገና|100', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">ቀለም ማደስ እና ጥገና</p>
-                                    <p class="text-[10px] text-slate-500">የቆዳ መላላጥ ማስተካከያ</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 100</span>
-                            </div>
-                        </div>
-                        <input type="hidden" id="serviceSelect" value="መደበኛ የቆዳ ጫማ|50">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">አገልግሎት አሰጣጥ ምርጫ</label>
-                        <select id="deliveryType" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/55">
-                            <option value="በቦታው ተገኝቶ ማፅዳት (On-site)">በቦታው ተገኝቶ ማፅዳት (On-site)</option>
-                            <option value="ወስዶ መመልስ (Pick & Drop +50 ብር)">ወስዶ መመለስ (Pick & Drop +50 ብር)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">የክፍያ ስክሪንሾት (አማራጭ/jpg, png)</label>
-                        <input type="file" id="paymentProof" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-900 hover:file:bg-blue-100">
-                    </div>
-
-                    <div class="p-3 bg-blue-50/80 rounded-xl text-xs flex justify-between items-center text-blue-900 font-bold border border-blue-100">
-                        <span class="flex items-center gap-1">🛡️ ጠቅላላ ክፍያ:</span>
-                        <span id="priceDisplay" class="text-sm font-extrabold">ብር 50</span>
-                    </div>
-
-                    <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-blue-800 transition shadow-md shadow-blue-900/10">ትዕዛዝ ላክ</button>
-                </form>
-                <div id="orderStatus" class="mt-3 text-center text-xs font-medium"></div>
-            </div>
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b49"><meta name="description" content="LYSTRO — የጫማ ማጽጃ አገልግሎት በቤትዎ ደጃፍ። Clean Shoes. Confident You!"><title>LYSTRO | Clean Steps, Happy You</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Ethiopic:wght@400;500;600;700;800;900&display=swap');
+:root{--navy:#071b49;--blue:#0758ef;--yellow:#ffc400;--ink:#10204b;--muted:#65718b;--pale:#f3f6ff;--line:#dfe6fb;--white:#fff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,'Noto Sans Ethiopic',sans-serif;color:var(--ink);background:#f6f8ff}a{text-decoration:none;color:inherit}button,input,select{font:inherit}.wrap{width:min(1240px,92%);margin:auto}.top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 5px 24px #06163d30}.nav{height:76px;display:flex;align-items:center;gap:28px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:29px;letter-spacing:-1.4px;white-space:nowrap}.brand-mark{font-size:35px;filter:drop-shadow(0 3px 2px #0004)}.brand small{display:block;font-size:11px;font-weight:600;letter-spacing:.1px;margin-top:-5px}.links{display:flex;gap:24px;align-items:center;margin:auto;font-size:13px;font-weight:700}.links a{opacity:.92}.links a:hover{color:var(--yellow)}.navright{display:flex;align-items:center;gap:14px}.lang{background:transparent;border:0;color:white;font-weight:700;cursor:pointer}.btn{border:0;border-radius:999px;padding:14px 22px;background:var(--yellow);color:#091b45;font-weight:900;cursor:pointer;box-shadow:0 7px 18px #ffc40045;transition:.2s}.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px #ffc40065}.btn.blue{background:var(--blue);color:#fff;box-shadow:0 7px 18px #0758ef35}.hero{background:linear-gradient(115deg,#071b49 0%,#0c3c8b 48%,#1269d6 100%);color:#fff;position:relative;overflow:hidden;padding:54px 0 34px}.hero:before{content:'';position:absolute;width:650px;height:650px;border-radius:50%;background:#ffffff0b;right:4%;top:-370px}.hero-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:24px;align-items:center;position:relative}.eyebrow{color:#ffdb35;font-size:12px;letter-spacing:2px;font-weight:900;text-transform:uppercase}.hero h1{font-family:'Noto Sans Ethiopic',Inter,sans-serif;font-size:clamp(30px,4vw,54px);line-height:1.35;margin:14px 0 8px;font-weight:900}.hero h1 span{color:var(--yellow)}.hero h2{font-size:clamp(20px,2.3vw,29px);margin:10px 0;font-weight:900}.hero p{color:#e1eaff;line-height:1.8;max-width:530px}.actions{display:flex;gap:14px;align-items:center;margin-top:25px;flex-wrap:wrap}.watch{color:white;font-weight:700;border:1px solid #ffffff65;background:#ffffff12;padding:12px 18px;border-radius:999px}.hero-art{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center}.shoe-photo{width:100%;height:340px;object-fit:cover;border-radius:34px;mix-blend-mode:screen;filter:drop-shadow(0 25px 25px #0006);mask-image:radial-gradient(ellipse,black 48%,transparent 78%)}.scribble{position:absolute;right:0;top:3px;background:var(--yellow);color:#091b45;padding:14px 18px;transform:rotate(5deg);font-weight:900;border-radius:8px 22px 8px 20px}.proof{background:white;border-radius:18px;box-shadow:0 12px 35px #05194a22;padding:22px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;margin-top:-4px}.proof-item{display:flex;gap:12px;align-items:center;border-right:1px solid var(--line);padding-right:10px}.proof-item:last-child{border:0}.ico{font-size:30px;color:var(--blue)}.proof b{display:block;font-size:14px}.proof small{color:var(--blue);font-weight:600}.section{padding:64px 0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:25px}.section h2{font-size:30px;margin:0 0 8px;font-weight:900}.section-head p{color:var(--muted);margin:0}.howgrid{display:grid;grid-template-columns:220px 1fr 300px;gap:18px;align-items:stretch}.how-title{border-left:7px solid var(--yellow);padding:14px 18px}.steps{display:grid;grid-template-columns:repeat(4,1fr);background:white;border:1px solid var(--line);border-radius:20px;padding:20px 10px;gap:8px}.step{text-align:center;position:relative;padding:8px}.num{background:var(--blue);color:white;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:900;margin:0 auto 10px}.step .emoji{font-size:40px}.step b{display:block;margin-top:8px;font-size:13px}.step small{color:var(--muted)}.offer{border-radius:20px;background:linear-gradient(120deg,#061b4b,#0b4fb6);color:white;padding:20px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}.offer:after{content:'🎁';font-size:95px;position:absolute;right:8px;bottom:20px;opacity:.9}.offer .tag{color:var(--yellow);font-weight:900}.offer strong{font-size:43px;line-height:1.05;margin:8px 0}.offer .btn{align-self:flex-start;position:relative;z-index:1}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:white;border-radius:17px;overflow:hidden;box-shadow:0 8px 26px #0b28600d;border:1px solid var(--line);transition:.2s}.card:hover{transform:translateY(-5px);box-shadow:0 16px 35px #0b28601b}.card img{width:100%;height:175px;object-fit:cover}.card-body{padding:17px}.card h3{font-size:17px;margin:0 0 8px}.card p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}.date{font-size:11px;color:var(--blue);font-weight:700;margin-top:12px}.lower-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}.review,.stats{background:white;border:1px solid var(--line);border-radius:20px;padding:24px}.quote{font-size:17px;line-height:1.8}.stars{color:#ffb900;letter-spacing:3px}.booking{background:white;border-radius:22px;padding:24px;box-shadow:0 14px 36px #071b4920;border:1px solid var(--line)}.booking h3{margin:0 0 16px;font-size:21px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}.field input,.field select{width:100%;padding:13px;border:1px solid #d4def7;border-radius:11px;background:#fbfcff;color:var(--ink)}.booking .btn{width:100%;border-radius:11px;margin-top:14px}.stats{background:linear-gradient(120deg,#082456,#0758c8);color:white;display:flex;align-items:center;justify-content:space-between;gap:15px}.stats h3{font-size:21px}.statrow{display:flex;gap:25px;flex-wrap:wrap}.stat strong{display:block;font-size:29px;color:var(--yellow)}.stat small{color:#e2ecff}.footer{background:#06183f;color:white;padding:36px 0}.footrow{display:flex;align-items:center;justify-content:space-between;gap:25px;flex-wrap:wrap}.footlinks{display:flex;gap:20px;flex-wrap:wrap;font-size:13px}.footnote{color:#b9c8e8;font-size:12px;margin-top:22px;border-top:1px solid #ffffff24;padding-top:18px}.mobile-menu{display:none}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#09204f;color:#fff;padding:14px 20px;border-radius:12px;box-shadow:0 10px 30px #0004;display:none;z-index:20;max-width:90%;text-align:center}
+@media(max-width:980px){.links{gap:12px;font-size:11px}.nav{gap:12px}.brand{font-size:23px}.hero-grid{grid-template-columns:1fr 1fr}.howgrid{grid-template-columns:1fr}.how-title{padding:0 14px}.offer{min-height:170px}.proof{grid-template-columns:repeat(2,1fr)}.proof-item:nth-child(2){border:0}.proof-item{padding:8px}}
+@media(max-width:700px){.nav{height:66px}.links{display:none}.mobile-menu{display:block;background:none;border:0;color:white;font-size:25px}.navright .btn{padding:11px 14px;font-size:12px}.brand{font-size:22px}.hero{padding:34px 0 25px}.hero-grid{grid-template-columns:1fr}.hero-art{min-height:210px;order:-1}.shoe-photo{height:225px}.scribble{right:5%;font-size:12px}.hero h1{font-size:30px}.proof{grid-template-columns:1fr 1fr;padding:15px}.proof-item{font-size:12px}.ico{font-size:23px}.section{padding:44px 0}.section h2{font-size:24px}.steps{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}.card img{height:190px}.lower-grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.stats{align-items:flex-start;flex-direction:column}.footrow{align-items:flex-start;flex-direction:column}}
+</style></head><body>
+<header class="top"><div class="wrap nav"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><nav class="links"><a href="#">Home</a><a href="#services">Our Services⌄</a><a href="#before">Before & After</a><a href="#tips">Shoe Care Tips</a><a href="#why">Why LYSTRO?</a><a href="#reviews">Reviews</a><a href="#contact">Contact</a></nav><div class="navright"><button class="lang" id="lang">◎ EN | አማርኛ</button><a class="btn" href="#book">▦ Book Now</a><button class="mobile-menu" onclick="document.querySelector('.links').style.display=document.querySelector('.links').style.display==='flex'?'none':'flex'">☰</button></div></div></header>
+<main><section class="hero"><div class="wrap hero-grid"><div><div class="eyebrow">LYSTRO SHOE CARE • ADDIS ABABA</div><h1>ጫማዎ ንጹህ ሲሆን፣<br><span>የእርስዎ ውበት ይጨምራል!</span></h1><h2>Clean Shoes. Confident You! ☺</h2><p>ንጽህናን፣ ውበትን እና ምቾትን ከቤትዎ ሳይወጡ ያግኙ። ጫማዎን በባለሙያ እንንከባከብልዎ!</p><div class="actions"><a class="btn" href="#book">🚀 አገልግሎት ያስይዙ →</a><a class="watch" href="#how">▷ እንዴት ይሰራል?</a></div></div><div class="hero-art"><img class="shoe-photo" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=85&auto=format&fit=crop" alt="Fresh sneakers"><div class="scribble">ጫማዎ ይገባዋል<br>ተለየ እንክብካቤ! ♥</div></div></div></section>
+<div class="wrap"><div class="proof" id="why"><div class="proof-item"><span class="ico">🛡️</span><div><b>Trusted & Reliable</b><small>You can count on us</small></div></div><div class="proof-item"><span class="ico">◷</span><div><b>On-Time Service</b><small>Always on schedule</small></div></div><div class="proof-item"><span class="ico">⌂</span><div><b>At Your Doorstep</b><small>Anywhere in Addis Ababa</small></div></div><div class="proof-item"><span class="ico">★</span><div><b>Premium Quality</b><small>For a lasting clean</small></div></div></div></div>
+<section class="section" id="how"><div class="wrap howgrid"><div class="how-title"><h2>How It Works?</h2><p>ቀላል ነው!</p></div><div class="steps"><div class="step"><div class="num">1</div><div class="emoji">📱</div><b>ትዕዛዝ ያስይዙ</b><small>Book Your Service</small></div><div class="step"><div class="num">2</div><div class="emoji">🛵</div><b>እንመጣለን</b><small>We Pick Up</small></div><div class="step"><div class="num">3</div><div class="emoji">🧼</div><b>በጥንቃቄ እናጸዳለን</b><small>We Clean Professionally</small></div><div class="step"><div class="num">4</div><div class="emoji">👟</div><b>ንጹህ ጫማዎን ይቀበሉ</b><small>Get Your Clean Shoes</small></div></div><aside class="offer"><div class="tag">🎁 Special Offer!</div><strong>30% <span style="color:#ffd21b">OFF</span></strong><b>on Your First Order</b><a class="btn" href="#book">Get Offer →</a></aside></div></section>
+<section class="section" id="tips" style="padding-top:12px"><div class="wrap"><div class="section-head"><div><h2>⭐ Shoe Care Tips</h2><p>ጫማዎን የሚጠብቁ ጠቃሚ ምክሮችና አዝናኝ እውቀቶች።</p></div><a class="btn blue" href="#tips">View All →</a></div><div class="cards"><article class="card"><img src="https://images.unsplash.com/photo-1520256862855-398228c41684?w=800&q=80&auto=format&fit=crop" alt="Clean white sneakers"><div class="card-body"><h3>5 Tips to Keep Your White Sneakers Clean</h3><p>ነጭ ጫማዎን ንጹህና ውብ እንዲቆይ የሚረዱ ቀላል ልምዶችን ይወቁ።</p><div class="date">▦ Shoe Care Guide</div></div></article><article class="card"><img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&q=80&auto=format&fit=crop" alt="Sneaker care"><div class="card-body"><h3>Common Mistakes in Shoe Cleaning</h3><p>ጫማዎን ሲያጸዱ ሳያውቁ ሊፈጽሟቸው የሚችሉ ስህተቶችን ይወቁ።</p><div class="date">▦ Shoe Care Guide</div></div></article><article class="card"><img src="https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=800&q=80&auto=format&fit=crop" alt="Sneaker collection"><div class="card-body"><h3>How to Extend Your Sneaker's Life</h3><p>ተገቢ እንክብካቤ ጫማዎ ረጅም ጊዜ እንዲያገለግል ይረዳል።</p><div class="date">▦ Shoe Care Guide</div></div></article></div>
+<div class="lower-grid"><div class="review" id="reviews"><h3>❝ What Our Customers Say</h3><p class="quote">“LYSTRO አገልግሎት በጣም ጥሩ ነው! ጫማዬ እንደ አዲስ ሆኖ ተመለሰ።”</p><b>የደንበኛ አስተያየት</b><div class="stars">★★★★★</div><small style="color:#78839b">ምሳሌ የማሳያ አስተያየት</small></div><div class="stats"><div><h3>LYSTRO in Numbers</h3><div class="statrow"><div class="stat"><strong>At Home</strong><small>Convenient service</small></div><div class="stat"><strong>24/7</strong><small>Online booking</small></div><div class="stat"><strong>100%</strong><small>Care & attention</small></div></div></div><div style="font-size:68px">👟✨</div></div></div></div></section>
+<section class="section" id="book" style="padding-top:10px"><div class="wrap"><div class="section-head"><div><h2>✨ Ready for a Fresh Step?</h2><p>ጫማዎ ትኩረት ይፈልጋል? አሁኑኑ ያስይዙ!</p></div></div><div class="booking"><h3>▦ Book Your Service Now</h3><form id="bookingForm"><div class="formgrid"><div class="field"><label>ስም / Full Name</label><input name="customer_name" required maxlength="120" autocomplete="name" placeholder="ሙሉ ስምዎ"></div><div class="field"><label>ስልክ / Phone</label><input name="phone" required type="tel" maxlength="30" autocomplete="tel" placeholder="+251 9..."></div><div class="field"><label>Select Service</label><select name="service_type" required><option value="">Choose a service</option><option>Basic Shoe Cleaning</option><option>Deep Cleaning</option><option>Premium Shoe Care</option></select></div><div class="field"><label>Select Sub-City</label><select name="sub_city" required><option value="">Choose Sub-City</option><option>Bole</option><option>Yeka</option><option>Arada</option><option>Kirkos</option><option>Addis Ketema</option><option>Akaki-Kaliti</option><option>Gullele</option><option>Kolfe Keranio</option><option>Lideta</option><option>Nifas Silk-Lafto</option><option>Lemi Kura</option><option>Other Addis Ababa Sub-city</option></select></div><div class="field"><label>ወረዳ / Woreda</label><input name="woreda" required maxlength="80" placeholder="ወረዳ ያስገቡ"></div><div class="field"><label>የቤት አድራሻ / Address</label><input name="address" required maxlength="500" autocomplete="street-address" placeholder="የመገኛ አድራሻ"></div></div><button class="btn blue" type="submit">➤ Book Now →</button><small id="bookingStatus" role="status" aria-live="polite" style="display:block;color:#7a8499;margin-top:10px">ትዕዛዝዎ ከተላከ በኋላ በዳታቤዝ ይመዘገባል።</small></form></div></div></section>
+</main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a><a href="/admin/login">Admin</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
+<script>
+const toast=document.getElementById('toast');function notify(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',4200)}
+const bookingForm=document.getElementById('bookingForm');
+bookingForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const submitButton=bookingForm.querySelector('button[type="submit"]');
+  const status=document.getElementById('bookingStatus');
+  if(submitButton.disabled)return;
+  submitButton.disabled=true;
+  submitButton.textContent='Sending...';
+  status.textContent='ትዕዛዝዎ በመላክ ላይ ነው...';
+  try{
+    const payload=Object.fromEntries(new FormData(bookingForm).entries());
+    const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||'Order could not be saved.');
+    bookingForm.reset();
+    status.textContent='ትዕዛዝዎ ተመዝግቧል። የLYSTRO ቡድን በቅርቡ ያነጋግርዎታል።';
+    notify('ትዕዛዝዎ በተሳካ ሁኔታ ተመዝግቧል!');
+  }catch(error){
+    status.textContent='ትዕዛዙ አልተመዘገበም። እባክዎ እንደገና ይሞክሩ።';
+    notify(error.message||'ስህተት ተፈጥሯል።');
+  }finally{
+    submitButton.disabled=false;
+    submitButton.textContent='➤ Book Now →';
+  }
+});
+document.getElementById('lang').addEventListener('click',()=>notify('Amharic / English language selector — full translation will be connected in the next implementation stage.'));
+if(location.pathname.startsWith('/admin')){
+  document.body.innerHTML = \`
+    <main style="min-height:100vh;background:#f3f6ff;padding:28px;font-family:Inter,'Noto Sans Ethiopic',Arial,sans-serif;color:#10204b">
+      <section style="max-width:1100px;margin:auto">
+        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+          <div><div style="font-size:12px;font-weight:800;letter-spacing:2px;color:#0758ef">LYSTRO CONTROL CENTER</div><h1 style="margin:5px 0">Super Admin</h1><p style="margin:0;color:#65718b">የትዕዛዝ አስተዳደር</p></div>
+          <a href="/" style="color:#0758ef;font-weight:700">← ወደ ድረገጹ</a>
+        </header>
+        <section id="adminLogin" style="max-width:430px;margin:8vh auto;background:white;padding:30px;border-radius:20px;box-shadow:0 12px 40px #071b4918">
+          <h2 style="margin-top:0">Admin Login</h2><p style="color:#65718b">Authorized administrators only.</p>
+          <form id="adminLoginForm">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Email</label><input id="adminEmail" type="email" autocomplete="username" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <button id="loginButton" style="width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#0758ef;color:white;font-weight:800;cursor:pointer">Sign in</button>
+          </form><p id="loginMessage" role="status" style="font-size:13px;color:#b42318"></p>
         </section>
-
-        <!-- 2. LOYALTY / CRM SECTION -->
-        <section id="section-loyalty" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hidden">
-            <h2 class="text-base font-bold mb-4 text-blue-900">ቋሚ ደንበኛ መለያ (Loyalty CRM)</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥርዎትን ያስገቡ</label>
-                    <div class="flex gap-2">
-                        <input type="tel" id="lookupPhone" placeholder="09..." class="flex-1 px-3 py-2 border rounded-xl text-sm">
-                        <button onclick="checkLoyalty()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium">ፈልግ</button>
-                    </div>
-                </div>
-                <div id="loyaltyResult" class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm space-y-2 hidden">
-                    <p><strong>ስም:</strong> <span id="res-name">-</span></p>
-                    <p><strong>ጠቅላላ ማፅዳት ብዛት:</strong> <span id="res-count" class="text-blue-900 font-bold">0</span> ጊዜ</p>
-                    <p id="res-reward" class="text-xs text-green-700 font-semibold bg-green-50 p-2.5 rounded-lg border border-green-200"></p>
-                </div>
-            </div>
+        <section id="adminPanel" hidden>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+            <div><h2 style="margin:0">Orders Overview</h2><p id="adminIdentity" style="color:#65718b;margin:5px 0"></p></div>
+            <div style="display:flex;gap:8px"><button id="refreshOrders" style="padding:11px 16px;border:1px solid #dfe6fb;background:white;border-radius:9px;cursor:pointer">↻ Refresh</button><button id="logoutAdmin" style="padding:11px 16px;border:0;background:#071b49;color:white;border-radius:9px;cursor:pointer">Sign out</button></div>
+          </div>
+          <div id="adminNotice" role="status" style="margin:10px 0;color:#65718b"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px">
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Total Orders</small><h2 id="totalOrders" style="margin:8px 0 0">—</h2></article>
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Pending</small><h2 id="pendingOrders" style="margin:8px 0 0">—</h2></article>
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Other Status</small><h2 id="otherOrders" style="margin:8px 0 0">—</h2></article>
+          </div>
+          <input id="orderSearch" placeholder="Search customer, phone, sub-city or status…" style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px;margin-bottom:12px">
+          <div style="overflow:auto;background:white;border:1px solid #dfe6fb;border-radius:14px">
+            <table style="border-collapse:collapse;width:100%;min-width:780px;text-align:left;font-size:13px">
+              <thead style="background:#f3f6ff"><tr><th style="padding:13px">Customer</th><th style="padding:13px">Phone</th><th style="padding:13px">Service</th><th style="padding:13px">Location</th><th style="padding:13px">Status</th><th style="padding:13px">Created</th></tr></thead>
+              <tbody id="ordersBody"><tr><td colspan="6" style="padding:18px">Sign in to load orders.</td></tr></tbody>
+            </table>
+          </div>
+          <p style="font-size:12px;color:#65718b;margin-top:12px">This is the initial admin release: secure sign-in, admin-role check, and read-only order overview.</p>
         </section>
-
-        <!-- 3. ADMIN / LISTRO DASHBOARD SECTION -->
-        <section id="section-admin" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-base font-bold text-blue-900">የሊስትሮ ገቢ ትዕዛዞች</h2>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full font-semibold">● Live</span>
-                    <button onclick="logoutAdmin()" class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg">ውጣ</button>
-                </div>
-            </div>
-            <div id="adminOrdersList" class="space-y-3 text-xs">
-                <p class="text-slate-500 text-center py-4">ትዕዛዞች በመጫን ላይ...</p>
-            </div>
-            <div class="mt-4 text-center">
-                <button id="loadMoreBtn" onclick="loadMoreAdminOrders()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hidden">ተጨማሪ ጫን (Load More)</button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Supabase Auth Login Modal -->
-    <div id="authModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-lg space-y-3">
-            <h3 class="font-bold text-sm text-slate-800">የአስተዳዳሪ Supabase Auth ግባ</h3>
-            <form onsubmit="handleAdminLogin(event)" class="space-y-3">
-                <input type="email" id="adminEmail" required placeholder="admin@listro.et" class="w-full px-3 py-2 border rounded-xl text-sm">
-                <input type="password" id="adminPassword" required placeholder="password" class="w-full px-3 py-2 border rounded-xl text-sm">
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 text-white py-2 rounded-xl text-xs font-semibold">ግባ</button>
-                    <button type="button" onclick="closeAuthModal()" class="flex-1 bg-slate-100 text-slate-700 py-2 rounded-xl text-xs font-semibold">ሰርዝ</button>
-                </div>
-            </form>
-            <div id="authError" class="text-xs text-red-600 text-center"></div>
-        </div>
-    </div>
-
-    <!-- Application Script -->
-    <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
-
-        let supabaseClient = null;
-        let realtimeChannel = null;
-        let currentOffset = 0;
-        const PAGE_SIZE = 15;
-
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE') {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-
-        // Auto-zoom/rotate visual carousel logic
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.carousel-item');
-        if (slides.length > 0) {
-            setInterval(() => {
-                slides[currentSlide].style.opacity = '0';
-                currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].style.opacity = '1';
-            }, 4500);
-        }
-
-        function selectServiceCard(val, el) {
-            document.querySelectorAll('.service-card').forEach(c => {
-                c.className = "service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center";
-                c.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg";
-            });
-            el.className = "service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center";
-            el.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg shadow-2xs";
-            document.getElementById('serviceSelect').value = val;
-            updatePriceDisplay();
-        }
-
-        function updatePriceDisplay() {
-            const val = document.getElementById('serviceSelect').value;
-            const parts = val.split('|');
-            document.getElementById('priceDisplay').textContent = `ብር ${parts[1] || 50}`;
-        }
-
-        function isValidEthPhone(phone) {
-            return /^0[79]\d{8}$/.test(phone.trim());
-        }
-
-        function switchTab(tab) {
-            ['order', 'loyalty', 'admin'].forEach(t => {
-                document.getElementById('tab-' + t).className = "flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition";
-                document.getElementById('section-' + t).classList.add('hidden');
-            });
-
-            if (tab === 'order') {
-                document.getElementById('tab-order').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-order').classList.remove('hidden');
-            } else if (tab === 'loyalty') {
-                document.getElementById('tab-loyalty').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-loyalty').classList.remove('hidden');
-            } else if (tab === 'admin-panel') {
-                document.getElementById('tab-admin').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-admin').classList.remove('hidden');
-                currentOffset = 0;
-                loadAdminOrders(true);
-            }
-        }
-
-        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            const errDiv = document.getElementById('authError');
-
-            if (!supabaseClient) {
-                alert('Mock Admin logged in!');
-                closeAuthModal();
-                document.getElementById('tab-admin').classList.remove('hidden');
-                switchTab('admin-panel');
-                return;
-            }
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                errDiv.textContent = error.message;
-            } else {
-                closeAuthModal();
-                document.getElementById('tab-admin').classList.remove('hidden');
-                switchTab('admin-panel');
-            }
-        }
-
-        async function logoutAdmin() {
-            if (supabaseClient) await supabaseClient.auth.signOut();
-            document.getElementById('tab-admin').classList.add('hidden');
-            switchTab('order');
-        }
-
-        async function checkAuthSession() {
-            if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                document.getElementById('tab-admin').classList.remove('hidden');
-                setupRealtimeListener();
-            }
-        }
-
-        function setupRealtimeListener() {
-            if (!supabaseClient) return;
-            if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
-            realtimeChannel = supabaseClient
-                .channel('db-orders-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
-                    currentOffset = 0;
-                    loadAdminOrders(true);
-                })
-                .subscribe();
-        }
-
-        async function handleOrderSubmit(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const statusDiv = document.getElementById('orderStatus');
-            const fullName = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const serviceRaw = document.getElementById('serviceSelect').value.split('|');
-            const serviceType = serviceRaw[0];
-            const deliveryType = document.getElementById('deliveryType').value;
-            const paymentRef = document.getElementById('paymentRef').value.trim();
-            const fileInput = document.getElementById('paymentProof');
-
-            if (!isValidEthPhone(phone)) {
-                statusDiv.textContent = '❌ እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ (09/07)';
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-                return;
-            }
-
-            // 🛡️ ጥብቅ የቴሌብር/ባንክ ሪፈረንስ ቫሊዴሽን (በ FT የሚጀምር ወይም ከ10-20 አልፋኑመርክ)
-            const refRegex = /^(FT[A-Za-z0-9]{8,15}|[A-Za-z0-9]{10,20})$/i;
-            if (!refRegex.test(paymentRef)) {
-                statusDiv.textContent = '❌ ትክክለኛ የቴሌብር/ባንክ ሪፈረንስ ቁጥር ያስገቡ (በ FT የሚጀምር ወይም 10-20 ፊደል/ቁጥር)';
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-                return;
-            }
-
-            statusDiv.textContent = "ትዕዛዝዎ በመመዝገብ ላይ ነው...";
-            statusDiv.className = "mt-3 text-center text-xs font-medium text-blue-600";
-            btn.disabled = true;
-
-            if (!supabaseClient) {
-                setTimeout(() => {
-                    statusDiv.textContent = `✅ ደርሷል! ${fullName}, ትዕዛዝዎ ተመዝግቧል። (Ref: ${paymentRef})`;
-                    statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
-                    btn.disabled = false;
-                    document.getElementById('orderForm').reset();
-                    updatePriceDisplay();
-                }, 800);
-                return;
-            }
-
-            try {
-                let proofUrl = null;
-                if (fileInput.files.length > 0 && supabaseClient) {
-                    const file = fileInput.files[0];
-                    const fileName = `${Date.now()}_${file.name}`;
-                    const { data: uploadData, error: uploadErr } = await supabaseClient.storage.from('payment-proofs').upload(fileName, file);
-                    if (!uploadErr && uploadData) {
-                        const { data: pubUrl } = supabaseClient.storage.from('payment-proofs').getPublicUrl(uploadData.path);
-                        proofUrl = pubUrl.publicUrl;
-                    }
-                }
-
-                let { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
-                let visits = 1;
-                if (!customer) {
-                    await supabaseClient.from('customers').insert([{ full_name: fullName, phone: phone, default_location: location, visit_count: 1 }]);
-                } else {
-                    visits = (customer.visit_count || 1) + 1;
-                    await supabaseClient.from('customers').update({ visit_count: visits, default_location: location }).eq('phone', phone);
-                }
-
-                const { error: orderError } = await supabaseClient.from('orders').insert([{
-                    full_name: fullName, phone: phone, location: location, service_type: serviceType, delivery_type: deliveryType, payment_ref: paymentRef, proof_url: proofUrl, status: 'pending'
-                }]);
-                if (orderError) throw orderError;
-
-                statusDiv.textContent = `✅ ትዕዛዝዎ ተመዝግቧል! (ጉብኝት #${visits})`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
-                document.getElementById('orderForm').reset();
-                updatePriceDisplay();
-            } catch (err) {
-                statusDiv.textContent = `❌ ስህተት: ${err.message || 'እንደገና ይሞክሩ'}`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        async function checkLoyalty() {
-            const phone = document.getElementById('lookupPhone').value.trim();
-            const resDiv = document.getElementById('loyaltyResult');
-            if (!isValidEthPhone(phone)) return alert('እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ');
-
-            if (!supabaseClient) {
-                resDiv.classList.remove('hidden');
-                document.getElementById('res-name').textContent = 'ናሙና ደንበኛ';
-                document.getElementById('res-count').textContent = '3';
-                document.getElementById('res-reward').textContent = '🎁 ነፃ ማፅዳት ለማግኘት 2 ጊዜ ይቀሩታል!';
-                return;
-            }
-
-            const { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
-            resDiv.classList.remove('hidden');
-            if (customer) {
-                const count = customer.visit_count || 1;
-                const rem = 5 - (count % 5);
-                document.getElementById('res-name').textContent = customer.full_name;
-                document.getElementById('res-count').textContent = count;
-                if (count % 5 === 0) {
-                    document.getElementById('res-reward').textContent = '🔥 እንኳን ደስ አለዎት! 5ተኛው ጉብኝትዎ ነፃ ነው (Free Clean)';
-                } else {
-                    document.getElementById('res-reward').textContent = `🎉 ነፃ ማፅዳት ለማግኘት ${rem} ጊዜ ይቀሩታል!`;
-                }
-            } else {
-                document.getElementById('res-name').textContent = 'አልተገኘም';
-                document.getElementById('res-count').textContent = '0';
-                document.getElementById('res-reward').textContent = 'እባክዎ መጀመሪያ ትዕዛዝ ይስጡ።';
-            }
-        }
-
-        async function loadAdminOrders(reset = false) {
-            const listDiv = document.getElementById('adminOrdersList');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            if (reset) {
-                currentOffset = 0;
-                listDiv.innerHTML = '';
-            }
-
-            if (!supabaseClient) {
-                listDiv.innerHTML = `<div class="p-3 border rounded-xl bg-slate-50 space-y-1">
-                    <p><strong>ናሙና አበበ</strong> (0911000000) - ብር 50</p>
-                    <p class="text-slate-500">ቦሌ - Ref: TRX999</p>
-                    <span class="inline-block bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded text-[10px]">pending</span>
-                </div>`;
-                return;
-            }
-
-            const { data: orders, error } = await supabaseClient
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .range(currentOffset, currentOffset + PAGE_SIZE - 1);
-
-            if (error) {
-                if (currentOffset === 0) listDiv.innerHTML = '<p class="text-center text-red-500 py-4">ትዕዛዞችን መጫን አልተቻለም።</p>';
-                return;
-            }
-
-            if (currentOffset === 0 && (!orders || orders.length === 0)) {
-                listDiv.innerHTML = '<p class="text-center text-slate-500 py-4">ምንም ትዕዛዝ የለም።</p>';
-                loadMoreBtn.classList.add('hidden');
-                return;
-            }
-
-            orders.forEach(o => {
-                const card = document.createElement('div');
-                card.className = "p-3 border rounded-xl bg-slate-50 space-y-1.5";
-                
-                const topRow = document.createElement('div');
-                topRow.className = "flex justify-between items-start";
-                
-                const infoDiv = document.createElement('div');
-                
-                const namePhone = document.createElement('p');
-                namePhone.className = "font-bold text-slate-800";
-                namePhone.textContent = `${o.full_name} `;
-                const phoneLink = document.createElement('a');
-                phoneLink.href = `tel:${o.phone}`;
-                phoneLink.className = "text-blue-600 font-normal";
-                phoneLink.textContent = `📞 ${o.phone}`;
-                namePhone.appendChild(phoneLink);
-                
-                const locP = document.createElement('p');
-                locP.className = "text-slate-600";
-                locP.textContent = `📍 ${o.location}`;
-
-                const srvP = document.createElement('p');
-                srvP.className = "text-slate-700 font-medium";
-                srvP.innerHTML = `🧼 ${o.service_type} (<strong>ብር ${o.price}</strong>)`;
-
-                const refP = document.createElement('p');
-                refP.className = "text-[11px] text-purple-700 font-semibold";
-                refP.textContent = `💳 Ref: ${o.payment_ref || 'N/A'}`;
-                
-                infoDiv.appendChild(namePhone);
-                infoDiv.appendChild(locP);
-                infoDiv.appendChild(srvP);
-                infoDiv.appendChild(refP);
-
-                if (o.proof_url) {
-                    const proofLink = document.createElement('a');
-                    proofLink.href = o.proof_url;
-                    proofLink.target = '_blank';
-                    proofLink.className = "text-[11px] text-blue-600 underline block mt-0.5";
-                    proofLink.textContent = "🖼️ ስክሪንሾት ይመልከቱ";
-                    infoDiv.appendChild(proofLink);
-                }
-
-                const selectEl = document.createElement('select');
-                selectEl.className = "text-[11px] border rounded-lg p-1 bg-white font-medium text-blue-900";
-                ['pending', 'assigned', 'picked_up', 'cleaning', 'completed'].forEach(st => {
-                    const opt = document.createElement('option');
-                    opt.value = st;
-                    opt.textContent = st;
-                    if (o.status === st) opt.selected = true;
-                    selectEl.appendChild(opt);
-                });
-                selectEl.onchange = (e) => updateOrderStatus(o.id, e.target.value);
-
-                topRow.appendChild(infoDiv);
-                topRow.appendChild(selectEl);
-                card.appendChild(topRow);
-                listDiv.appendChild(card);
-            });
-
-            currentOffset += orders.length;
-            if (orders.length === PAGE_SIZE) {
-                loadMoreBtn.classList.remove('hidden');
-            } else {
-                loadMoreBtn.classList.add('hidden');
-            }
-        }
-
-        function loadMoreAdminOrders() {
-            loadAdminOrders(false);
-        }
-
-        async function updateOrderStatus(orderId, newStatus) {
-            if (!supabaseClient) return;
-            await supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId);
-        }
-
-        function downloadIndexFile() {
-            const htmlContent = document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            updatePriceDisplay();
-            checkAuthSession();
-        });
-    </script>
-</body>
-</html>
+      </section>
+    </main>\`;
+  const loadSupabase = () => new Promise((resolve,reject) => {
+    if(window.supabase?.createClient) return resolve(window.supabase);
+    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);
+  });
+  (async()=>{
+    const login=document.getElementById('adminLogin'), panel=document.getElementById('adminPanel'), message=document.getElementById('loginMessage');
+    const loginForm=document.getElementById('adminLoginForm'), loginButton=document.getElementById('loginButton'), notice=document.getElementById('adminNotice');
+    const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let client,orders=[];
+    try {
+      const sdk=await loadSupabase();
+      client=sdk.createClient('https://molvnallhdhmmubqbkqq.supabase.co','sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J');
+    } catch(e) { message.textContent=e.message; return; }
+    async function showDashboard(user){
+      const {data:admin,error}=await client.from('admin_users').select('role').eq('user_id',user.id).maybeSingle();
+      if(error) throw new Error('Admin permission check failed: '+error.message);
+      if(!admin || !['super_admin','admin'].includes(admin.role)){
+        await client.auth.signOut(); throw new Error('This account does not have administrator access.');
+      }
+      login.hidden=true;panel.hidden=false;
+      document.getElementById('adminIdentity').textContent=user.email+' • '+admin.role;
+      await refresh();
+    }
+    async function refresh(){
+      notice.textContent='Loading orders…';
+      const {data,error}=await client.from('orders').select('*').order('created_at',{ascending:false}).limit(200);
+      if(error){notice.textContent='Orders could not be loaded. Check the authenticated SELECT policy on public.orders. ('+error.message+')';return;}
+      orders=data||[];
+      document.getElementById('totalOrders').textContent=orders.length;
+      document.getElementById('pendingOrders').textContent=orders.filter(o=>o.status==='pending').length;
+      document.getElementById('otherOrders').textContent=orders.filter(o=>o.status!=='pending').length;
+      notice.textContent='Showing the latest '+orders.length+' orders.';
+      renderOrders();
+    }
+    function renderOrders(){
+      const q=document.getElementById('orderSearch').value.trim().toLowerCase();
+      const filtered=orders.filter(o=>[o.customer_name,o.phone,o.service_type,o.sub_city,o.woreda,o.status].some(v=>String(v||'').toLowerCase().includes(q)));
+      document.getElementById('ordersBody').innerHTML=filtered.length?filtered.map(o=>'<tr style="border-top:1px solid #edf0f8"><td style="padding:13px">'+esc(o.customer_name)+'</td><td style="padding:13px">'+esc(o.phone)+'</td><td style="padding:13px">'+esc(o.service_type)+'</td><td style="padding:13px">'+esc([o.sub_city,o.woreda].filter(Boolean).join(' / '))+'</td><td style="padding:13px">'+esc(o.status)+'</td><td style="padding:13px">'+esc(o.created_at?new Date(o.created_at).toLocaleString():'—')+'</td></tr>').join(''):'<tr><td colspan="6" style="padding:18px">No matching orders.</td></tr>';
+    }
+    loginForm.addEventListener('submit',async e=>{
+      e.preventDefault();message.textContent='';loginButton.disabled=true;loginButton.textContent='Signing in…';
+      try{
+        const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('adminEmail').value.trim(),password:document.getElementById('adminPassword').value});
+        if(error) throw error;
+        await showDashboard(data.user);
+      }catch(e){message.textContent=e.message||'Sign-in failed.';}
+      finally{loginButton.disabled=false;loginButton.textContent='Sign in';}
+    });
+    document.getElementById('refreshOrders').addEventListener('click',refresh);
+    document.getElementById('orderSearch').addEventListener('input',renderOrders);
+    document.getElementById('logoutAdmin').addEventListener('click',async()=>{await client.auth.signOut();panel.hidden=true;login.hidden=false;loginForm.reset();message.textContent='You have signed out.';});
+    try{const {data:{session}}=await client.auth.getSession();if(session?.user) await showDashboard(session.user);}catch(e){message.textContent=e.message;}
+  })();
+}
+</script></body></html>
