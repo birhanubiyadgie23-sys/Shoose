@@ -55,6 +55,27 @@ module.exports=async function(req,res){
   let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{b=null}}
   if(!b||typeof b!=='object'||Array.isArray(b))return reply(res,400,{error:'Invalid request body.'});
   if(req.method==='POST'){
+   if(resource==='invite'){
+    if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can invite professionals.'});
+    const professionalId=clean(b.professional_id,50);
+    if(!uuid.test(professionalId))return reply(res,400,{error:'Valid professional ID is required.'});
+    const rows=await db('lystro_professionals?id=eq.'+professionalId+'&select=id,email,status,auth_user_id&limit=1');
+    const person=rows?.[0];
+    if(!person||person.status!=='approved')return reply(res,409,{error:'Approve the professional before sending a portal invitation.'});
+    if(!person.email||!/^\S+@\S+\.\S+$/.test(person.email))return reply(res,400,{error:'A valid email address is required on the professional profile.'});
+    if(person.auth_user_id)return reply(res,409,{error:'This professional already has a linked portal account.'});
+    const inviteUrl='https://shoose-roan.vercel.app/professional';
+    const inviteResponse=await fetch(URL+'/auth/v1/invite?redirect_to='+encodeURIComponent(inviteUrl),{
+     method:'POST',headers:{apikey:SERVICE,Authorization:'Bearer '+SERVICE,'Content-Type':'application/json'},
+     body:JSON.stringify({email:person.email,data:{lystro_professional_id:person.id,full_name:person.full_name}})
+    });
+    const invited=await inviteResponse.json().catch(()=>({}));
+    if(!inviteResponse.ok){console.error('LYSTRO professional invite failed',inviteResponse.status,invited?.msg||invited?.message||'');return reply(res,409,{error:'Invitation could not be sent. Check whether this email already has an account and whether the portal URL is allowed in Supabase Auth settings.'});}
+    const authUserId=invited.id||invited.user?.id;
+    if(!uuid.test(String(authUserId||'')))return reply(res,502,{error:'Invitation was created but the account ID could not be confirmed. Contact support before retrying.'});
+    await db('lystro_professionals?id=eq.'+professionalId,'PATCH',{auth_user_id:authUserId},'return=minimal');
+    return reply(res,200,{success:true,message:'Professional portal invitation sent.'});
+   }
    if(resource==='professional'){
     const full_name=clean(b.full_name,120),phone=clean(b.phone,30),sub_city_id=clean(b.sub_city_id,50),woreda_id=clean(b.woreda_id,50);
     if(!full_name||!phone||!/^\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Enter a valid name, phone, sub-city and woreda.'});
