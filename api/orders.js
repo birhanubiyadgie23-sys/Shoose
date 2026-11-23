@@ -1,5 +1,5 @@
 // LYSTRO order API — privileged credentials remain server-side.
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/+$/, '').replace(/\\/rest\\/v1$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const clean = (value, max) => typeof value === 'string' ? value.trim().slice(0, max) : '';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
