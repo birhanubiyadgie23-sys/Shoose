@@ -89,6 +89,23 @@ module.exports = async function handler(req, res) {
       const data = await response.json().catch(() => null);
       if (!response.ok) return reply(res, 502, { error: 'Order status could not be updated.' });
       if (!Array.isArray(data) || data.length === 0) return reply(res, 404, { error: 'Order not found.' });
+      // Release the assigned professional when the job reaches a terminal state.
+      if (['completed', 'cancelled'].includes(body.status) && data[0].assigned_professional_id) {
+        const professionalId = encodeURIComponent(data[0].assigned_professional_id);
+        const terminal = body.status;
+        const release = await fetch(SUPABASE_URL + '/rest/v1/lystro_professionals?id=eq.' + professionalId + '&availability=eq.busy', {
+          method: 'PATCH',
+          headers: { ...headers, Prefer: 'return=minimal' },
+          body: JSON.stringify({ availability: 'available' })
+        });
+        if (!release.ok) console.error('LYSTRO professional availability release failed:', release.status);
+        const history = await fetch(SUPABASE_URL + '/rest/v1/lystro_assignment_history?order_id=eq.' + encodeURIComponent(id) + '&status=eq.accepted', {
+          method: 'PATCH',
+          headers: { ...headers, Prefer: 'return=minimal' },
+          body: JSON.stringify({ status: terminal, responded_at: new Date().toISOString() })
+        });
+        if (!history.ok) console.error('LYSTRO assignment history close failed:', history.status);
+      }
       return reply(res, 200, { success: true, order: data[0] });
     }
 
