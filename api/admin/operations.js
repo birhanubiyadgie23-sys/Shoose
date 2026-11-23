@@ -1,5 +1,5 @@
 // LYSTRO operations API. Privileged access stays server-side.
-const URL=(process.env.SUPABASE_URL||'').replace(/\\/+$/,'').replace(/\\/rest\\/v1$/,'');
+const URL=(process.env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
 const SERVICE=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
 const PUBLIC=process.env.SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||'sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J';
 const reply=(res,n,b)=>res.status(n).json(b);
@@ -8,7 +8,7 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 module.exports=async function(req,res){
  res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');
  if(!URL||!SERVICE||!PUBLIC)return reply(res,500,{error:'Server database configuration is incomplete.'});
- const token=(req.headers.authorization||'').match(/^Bearer\\s+(.+)$/i)?.[1];if(!token)return reply(res,401,{error:'Authentication required.'});
+ const token=(req.headers.authorization||'').match(/^Bearer\s+(.+)$/i)?.[1];if(!token)return reply(res,401,{error:'Authentication required.'});
  try{
   const auth=await fetch(URL+'/auth/v1/user',{headers:{apikey:PUBLIC,Authorization:'Bearer '+token}});
   if(!auth.ok)return reply(res,401,{error:'Your session is invalid or expired.'});
@@ -40,7 +40,7 @@ module.exports=async function(req,res){
   if(req.method==='POST'){
    if(resource==='professional'){
     const full_name=clean(b.full_name,120),phone=clean(b.phone,30),sub_city_id=clean(b.sub_city_id,50),woreda_id=clean(b.woreda_id,50);
-    if(!full_name||!phone||!/^\\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Enter a valid name, phone, sub-city and woreda.'});
+    if(!full_name||!phone||!/^\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Enter a valid name, phone, sub-city and woreda.'});
     const [area,woreda]=await Promise.all([
      db('lystro_sub_cities?id=eq.'+sub_city_id+'&is_active=eq.true&select=id'),
      db('lystro_woredas?id=eq.'+woreda_id+'&sub_city_id=eq.'+sub_city_id+'&is_active=eq.true&select=id')
