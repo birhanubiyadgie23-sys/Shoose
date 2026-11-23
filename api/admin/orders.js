@@ -39,7 +39,11 @@ module.exports = async function handler(req, res) {
       SUPABASE_URL + '/rest/v1/admin_users?user_id=eq.' + encodeURIComponent(user.id) + '&select=role&limit=1',
       { headers: { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY } }
     );
-    if (!roleResponse.ok) return reply(res, 500, { error: 'Could not verify administrator permissions.' });
+    if (!roleResponse.ok) {
+      const diagnostic = await roleResponse.text().catch(() => '');
+      console.error('LYSTRO admin role lookup failed:', roleResponse.status, diagnostic.slice(0, 500));
+      return reply(res, 500, { error: 'Could not verify administrator permissions.' });
+    }
     const roles = await roleResponse.json();
     const role = Array.isArray(roles) ? roles[0]?.role : null;
     if (!['admin', 'super_admin'].includes(role)) {
