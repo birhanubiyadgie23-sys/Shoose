@@ -4,7 +4,7 @@
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const PUBLIC_KEY = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J';
-const ALLOWED_STATUSES = new Set(['pending', 'confirmed', 'in_progress', 'completed', 'cancelled']);
+const ALLOWED_STATUSES = new Set(['pending', 'accepted', 'confirmed', 'assigned', 'in_progress', 'completed', 'cancelled']);
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function reply(res, status, body) {
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
       const response = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id), {
         method: 'PATCH',
         headers: { ...headers, Prefer: 'return=representation' },
-        body: JSON.stringify({ status: body.status })
+        body: JSON.stringify({ status: body.status, ...(body.status === 'accepted' ? { accepted_at: new Date().toISOString() } : {}), ...(body.status === 'in_progress' ? { started_at: new Date().toISOString() } : {}), ...(body.status === 'completed' ? { completed_at: new Date().toISOString() } : {}) })
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) return reply(res, 502, { error: 'Order status could not be updated.' });
