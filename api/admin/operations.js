@@ -56,11 +56,27 @@ module.exports=async function(req,res){
     catch(e){await db('lystro_professionals?id=eq.'+item.id,'DELETE',undefined,'return=minimal').catch(()=>{});throw e;}
     return reply(res,201,{success:true,professional:item});
    }
-   if(resource==='sub_city'||resource==='woreda'||resource==='service'){
+   if(resource==='woreda'){
+    if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can manage woredas.'});
+    const sub_city_id=clean(b.sub_city_id,50);
+    if(!uuid.test(sub_city_id))return reply(res,400,{error:'Select a valid sub-city.'});
+    const namesRaw=Array.isArray(b.names)?b.names:(typeof b.names==='string'?b.names.split(/\r?\n/):[b.name]);
+    const names=[...new Map(namesRaw.map(v=>clean(v,100)).filter(Boolean).map(name=>[name.toLocaleLowerCase(),name])).values()];
+    if(!names.length)return reply(res,400,{error:'Enter at least one woreda name.'});
+    if(names.length>250)return reply(res,400,{error:'Add up to 250 woredas per batch. You can submit more batches; there is no overall woreda limit.'});
+    const area=await db('lystro_sub_cities?id=eq.'+sub_city_id+'&is_active=eq.true&select=id');
+    if(!area?.length)return reply(res,400,{error:'Selected sub-city is not active.'});
+    const existing=await db('lystro_woredas?sub_city_id=eq.'+sub_city_id+'&select=name');
+    const existingNames=new Set((existing||[]).map(x=>clean(x.name,100).toLocaleLowerCase()));
+    const newNames=names.filter(name=>!existingNames.has(name.toLocaleLowerCase()));
+    if(!newNames.length)return reply(res,200,{success:true,requested:names.length,inserted:0,duplicates:names.length,items:[]});
+    const items=await db('lystro_woredas','POST',newNames.map(name=>({name,sub_city_id})),'return=representation');
+    return reply(res,201,{success:true,requested:names.length,inserted:items?.length||0,duplicates:names.length-newNames.length,items:items||[]});
+   }
+   if(resource==='sub_city'||resource==='service'){
     if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can manage service areas and catalogue.'});
     let path,record;
     if(resource==='sub_city'){record={name:clean(b.name,100)};path='lystro_sub_cities';}
-    if(resource==='woreda'){if(!uuid.test(clean(b.sub_city_id,50)))return reply(res,400,{error:'Select a valid sub-city.'});record={name:clean(b.name,100),sub_city_id:b.sub_city_id};path='lystro_woredas';}
     if(resource==='service'){record={name:clean(b.name,100),description:clean(b.description,500),price:Math.max(0,Number(b.price)||0),duration_minutes:Math.max(1,Math.min(1440,Number(b.duration_minutes)||60))};path='lystro_services';}
     if(!record.name)return reply(res,400,{error:'A name is required.'});
     const data=await db(path,'POST',record,'return=representation');return reply(res,201,{success:true,item:data?.[0]});
