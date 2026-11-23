@@ -43,7 +43,7 @@ bookingForm.addEventListener('submit',async e=>{
 });
 document.getElementById('lang').addEventListener('click',()=>notify('Amharic / English language selector — full translation will be connected in the next implementation stage.'));
 if(location.pathname.startsWith('/admin')){
-  document.body.innerHTML = \`
+  document.body.innerHTML = `
     <main style="min-height:100vh;background:#f3f6ff;padding:28px;font-family:Inter,'Noto Sans Ethiopic',Arial,sans-serif;color:#10204b">
       <section style="max-width:1100px;margin:auto">
         <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px">
@@ -79,7 +79,7 @@ if(location.pathname.startsWith('/admin')){
           <p style="font-size:12px;color:#65718b;margin-top:12px">This is the initial admin release: secure sign-in, admin-role check, and read-only order overview.</p>
         </section>
       </section>
-    </main>\`;
+    </main>`;
   const loadSupabase = () => new Promise((resolve,reject) => {
     if(window.supabase?.createClient) return resolve(window.supabase);
     const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);
