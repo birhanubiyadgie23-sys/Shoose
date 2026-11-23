@@ -25,13 +25,15 @@ module.exports=async function(req,res){
    return data;
   }
   async function assignmentScope(professional,order){
-   const [areas,woredas,people]=await Promise.all([
+   const [areas,woredas,people,activeOrders]=await Promise.all([
     db('lystro_sub_cities?name=eq.'+encodeURIComponent(order.sub_city)+'&select=id&limit=1'),
     db('lystro_woredas?name=eq.'+encodeURIComponent(order.woreda)+'&select=id,sub_city_id&limit=1'),
-    db('lystro_professionals?status=eq.approved&availability=eq.available&select=id,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))')
+    db('lystro_professionals?status=eq.approved&availability=neq.unavailable&select=id,sub_city_id,woreda_id,max_active_jobs,lystro_professional_services(lystro_services(name))'),
+    db('orders?status=in.(assigned,in_progress)&select=assigned_professional_id')
    ]);
+   const counts={};(activeOrders||[]).forEach(x=>{if(x.assigned_professional_id)counts[x.assigned_professional_id]=(counts[x.assigned_professional_id]||0)+1;});
    const areaId=areas?.[0]?.id,woredaRow=woredas?.find(x=>x.sub_city_id===areaId);
-   const eligible=(people||[]).filter(x=>(x.lystro_professional_services||[]).some(s=>s.lystro_services?.name===order.service_type));
+   const eligible=(people||[]).filter(x=>(counts[x.id]||0)<(Number(x.max_active_jobs)||20)&&(x.lystro_professional_services||[]).some(s=>s.lystro_services?.name===order.service_type));
    const sameWoreda=eligible.filter(x=>x.sub_city_id===areaId&&x.woreda_id===woredaRow?.id);
    const sameSubCity=eligible.filter(x=>x.sub_city_id===areaId);
    const tier=sameWoreda.length?'same_woreda':sameSubCity.length?'same_sub_city':'other_sub_city';
@@ -40,14 +42,15 @@ module.exports=async function(req,res){
   }
   const resource=clean(req.query?.resource,40);
   if(req.method==='GET'){
-   const [areas,woredas,services,professionals,assignments]=await Promise.all([
+   const [areas,woredas,services,professionals,assignments,activeOrders]=await Promise.all([
     db('lystro_sub_cities?select=*&order=name.asc'),
     db('lystro_woredas?select=*&order=name.asc'),
     db('lystro_services?select=*&order=name.asc'),
     db('lystro_professionals?select=*,lystro_professional_services(lystro_services(id,name))&order=created_at.desc'),
-    db('lystro_assignment_history?select=*&order=created_at.desc&limit=300')
+    db('lystro_assignment_history?select=*&order=created_at.desc&limit=300'),
+    db('orders?status=in.(assigned,in_progress)&select=id,assigned_professional_id,status')
    ]);
-   return reply(res,200,{sub_cities:areas,woredas,services,professionals,assignments,role});
+   return reply(res,200,{sub_cities:areas,woredas,services,professionals,assignments,active_orders:activeOrders,role});
   }
   let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{b=null}}
   if(!b||typeof b!=='object'||Array.isArray(b))return reply(res,400,{error:'Invalid request body.'});
@@ -98,11 +101,13 @@ module.exports=async function(req,res){
    if(resource==='assign'){
     if(!uuid.test(clean(b.order_id,50))||!uuid.test(clean(b.professional_id,50)))return reply(res,400,{error:'Valid order and professional are required.'});
     const [pro,order]=await Promise.all([
-     db('lystro_professionals?id=eq.'+b.professional_id+'&select=id,status,availability,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))'),
+     db('lystro_professionals?id=eq.'+b.professional_id+'&select=id,status,availability,max_active_jobs,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))'),
      db('orders?id=eq.'+b.order_id+'&select=id,status,sub_city,woreda,service_type,assigned_professional_id')
     ]);
     const p=pro?.[0],o=order?.[0];
-    if(!p||p.status!=='approved'||p.availability!=='available')return reply(res,409,{error:'Professional is not approved and available.'});
+    if(!p||p.status!=='approved'||p.availability==='unavailable')return reply(res,409,{error:'Professional is not approved or is marked unavailable.'});
+    const load=await db('orders?assigned_professional_id=eq.'+p.id+'&status=in.(assigned,in_progress)&select=id');
+    if(load.length>=(Number(p.max_active_jobs)||20))return reply(res,409,{error:'Professional has reached the active-job limit.'});
     if(!o||!['accepted','confirmed'].includes(o.status)||o.assigned_professional_id)return reply(res,409,{error:'Order must be accepted or confirmed and not already assigned.'});
     const [area,woreda]=await Promise.all([
      db('lystro_sub_cities?id=eq.'+p.sub_city_id+'&select=name'),
@@ -131,11 +136,11 @@ module.exports=async function(req,res){
      return reply(res,200,{success:true});
     }
     const [pro,orders]=await Promise.all([
-     db('lystro_professionals?id=eq.'+a.professional_id+'&select=id,status,availability,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))'),
+     db('lystro_professionals?id=eq.'+a.professional_id+'&select=id,status,availability,max_active_jobs,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))'),
      db('orders?id=eq.'+a.order_id+'&select=id,status,sub_city,woreda,service_type,assigned_professional_id')
     ]);
     const p=pro?.[0],o=orders?.[0];
-    if(!p||p.status!=='approved'||p.availability!=='available')return reply(res,409,{error:'Professional is no longer available.'});
+    if(!p||p.status!=='approved'||p.availability==='unavailable')return reply(res,409,{error:'Professional is no longer eligible or is marked unavailable.'});
     if(!o||!['accepted','confirmed'].includes(o.status)||o.assigned_professional_id)return reply(res,409,{error:'Order is no longer eligible for assignment.'});
     const [area,woreda]=await Promise.all([
      db('lystro_sub_cities?id=eq.'+p.sub_city_id+'&select=name'),
@@ -145,19 +150,20 @@ module.exports=async function(req,res){
     if(!area?.[0]||!woreda?.[0]||woreda[0].sub_city_id!==p.sub_city_id||!names.includes(o.service_type))return reply(res,409,{error:'Professional no longer offers the requested service or has an invalid area.'});
     const scope=await assignmentScope(p,o);
     if(!scope)return reply(res,409,{error:'A closer available professional exists. Review the suggested service area before approval.'});
-    const claimed=await db('lystro_professionals?id=eq.'+p.id+'&availability=eq.available&status=eq.approved','PATCH',{availability:'busy'},'return=representation');
-    if(!claimed?.length)return reply(res,409,{error:'Professional has already been assigned another job.'});
-    const assigned=await db('orders?id=eq.'+o.id+'&assigned_professional_id=is.null&status=in.(accepted,confirmed)','PATCH',{assigned_professional_id:p.id,status:'assigned',assigned_at:new Date().toISOString()},'return=representation');
-    if(!assigned?.length){await db('lystro_professionals?id=eq.'+p.id,'PATCH',{availability:'available'},'return=minimal').catch(()=>{});return reply(res,409,{error:'Order was changed or assigned by another administrator.'});}
-    const updated=await db('lystro_assignment_history?id=eq.'+id+'&status=eq.suggested','PATCH',{status:'accepted',responded_at:new Date().toISOString()},'return=representation');
-    if(!updated?.length)return reply(res,409,{error:'Order assigned, but assignment history needs administrator review.'});
-    return reply(res,200,{success:true,order:assigned[0]});
+    const result=await db('rpc/lystro_approve_assignment','POST',{p_assignment_id:id,p_admin_id:user.id});
+    return reply(res,200,result||{success:true});
    }
    if(resource==='professional'){
     const status=clean(b.status,30);if(!['approved','rejected','suspended','pending_review'].includes(status))return reply(res,400,{error:'Invalid professional status.'});
     if(status!=='pending_review'&&role!=='super_admin')return reply(res,403,{error:'Only Super Admin can review professionals.'});
     const patch={status,reviewed_by:user.id,reviewed_at:new Date().toISOString()};
     if(b.availability!==undefined){if(!['available','busy','unavailable'].includes(b.availability))return reply(res,400,{error:'Invalid availability.'});patch.availability=b.availability;}
+    if(b.max_active_jobs!==undefined){
+     if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can change workload capacity.'});
+     const cap=Number(b.max_active_jobs);
+     if(!Number.isInteger(cap)||cap<1||cap>20)return reply(res,400,{error:'Capacity must be a whole number from 1 to 20.'});
+     patch.max_active_jobs=cap;
+    }
     const d=await db('lystro_professionals?id=eq.'+id,'PATCH',patch,'return=representation');return reply(res,200,{success:true,professional:d?.[0]});
    }
    if(resource==='service'||resource==='sub_city'||resource==='woreda'){
