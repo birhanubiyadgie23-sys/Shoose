@@ -77,6 +77,23 @@ module.exports = async function handler(req, res) {
     if (!UUID_RE.test(id)) return reply(res, 400, { error: 'A valid order ID is required.' });
 
     if (req.method === 'PATCH') {
+      if (typeof body.cash_payment_status === 'string') {
+        if (!['paid','unpaid'].includes(body.cash_payment_status)) return reply(res, 400, { error: 'Choose paid or unpaid.' });
+        const currentResponse = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id) + '&select=id,status', { headers });
+        const currentRows = await currentResponse.json().catch(() => []);
+        if (!currentResponse.ok) return reply(res, 502, { error: 'Current order could not be checked.' });
+        const current = Array.isArray(currentRows) ? currentRows[0] : null;
+        if (!current) return reply(res, 404, { error: 'Order not found.' });
+        if (body.cash_payment_status === 'paid' && current.status !== 'completed') return reply(res, 409, { error: 'Cash can only be marked paid after the service is completed.' });
+        if (body.cash_payment_status === 'unpaid' && role !== 'super_admin') return reply(res, 403, { error: 'Only Super Admin can reverse a cash payment record.' });
+        const paymentResponse = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id), {
+          method: 'PATCH', headers: { ...headers, Prefer: 'return=representation' },
+          body: JSON.stringify({ cash_payment_status: body.cash_payment_status, cash_paid_at: body.cash_payment_status === 'paid' ? new Date().toISOString() : null })
+        });
+        const paymentRows = await paymentResponse.json().catch(() => null);
+        if (!paymentResponse.ok) return reply(res, 502, { error: 'Cash payment could not be recorded.' });
+        return reply(res, 200, { success: true, order: Array.isArray(paymentRows) ? paymentRows[0] : paymentRows });
+      }
       if (typeof body.status !== 'string') {
         return reply(res, 400, { error: 'Choose a valid order status.' });
       }

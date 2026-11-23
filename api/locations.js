@@ -14,18 +14,20 @@ module.exports = async function handler(req, res) {
   }
   try {
     const headers = { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: 'Bearer ' + SUPABASE_SERVICE_ROLE_KEY };
-    const [areasResponse, woredasResponse] = await Promise.all([
+    const [areasResponse, woredasResponse, servicesResponse] = await Promise.all([
       fetch(SUPABASE_URL + '/rest/v1/lystro_sub_cities?is_active=eq.true&select=id,name,is_active&order=name.asc', { headers }),
-      fetch(SUPABASE_URL + '/rest/v1/lystro_woredas?is_active=eq.true&select=id,name,sub_city_id,is_active&order=name.asc', { headers })
+      fetch(SUPABASE_URL + '/rest/v1/lystro_woredas?is_active=eq.true&select=id,name,sub_city_id,is_active&order=name.asc', { headers }),
+      fetch(SUPABASE_URL + '/rest/v1/lystro_services?is_active=eq.true&select=id,name,price&order=name.asc', { headers })
     ]);
-    if (!areasResponse.ok || !woredasResponse.ok) {
+    if (!areasResponse.ok || !woredasResponse.ok || !servicesResponse.ok) {
       console.error('LYSTRO location lookup failed:', areasResponse.status, woredasResponse.status);
       return res.status(502).json({ error: 'Location options could not be loaded.' });
     }
-    const [sub_cities, woredas] = await Promise.all([areasResponse.json(), woredasResponse.json()]);
+    const [sub_cities, woredas, services] = await Promise.all([areasResponse.json(), woredasResponse.json(), servicesResponse.json()]);
     return res.status(200).json({
       sub_cities: Array.isArray(sub_cities) ? sub_cities : [],
-      woredas: Array.isArray(woredas) ? woredas : []
+      woredas: Array.isArray(woredas) ? woredas : [],
+      services: Array.isArray(services) ? services : []
     });
   } catch (error) {
     console.error('LYSTRO locations API error:', error?.message || 'Unknown error');
