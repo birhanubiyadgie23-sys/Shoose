@@ -36,6 +36,19 @@ module.exports=async function(req,res){
   }
   let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{b=null}}if(!b||typeof b!=='object'||Array.isArray(b))return reply(res,400,{error:'Invalid request body.'});
   if(req.method==='POST'){
+   if(resource==='assignment'){
+    if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can approve or decline assignments.'});
+    const status=clean(b.status,20);if(!['accepted','declined'].includes(status))return reply(res,400,{error:'Choose accepted or declined.'});
+    const rows=await db('lystro_assignment_history?id=eq.'+id+'&select=id,order_id,professional_id,status');
+    const assignment=rows?.[0];if(!assignment||assignment.status!=='suggested')return reply(res,404,{error:'Pending assignment suggestion not found.'});
+    if(status==='accepted'){
+      const p=await db('lystro_professionals?id=eq.'+assignment.professional_id+'&select=id,status,availability');
+      if(!p?.[0]||p[0].status!=='approved'||p[0].availability!=='available')return reply(res,409,{error:'Professional is no longer available.'});
+      await db('orders?id=eq.'+assignment.order_id,'PATCH',{assigned_professional_id:assignment.professional_id,status:'assigned',assigned_at:new Date().toISOString()},'return=minimal');
+    }
+    await db('lystro_assignment_history?id=eq.'+id,'PATCH',{status,responded_at:new Date().toISOString()},'return=minimal');
+    return reply(res,200,{success:true});
+   }
    if(resource==='professional'){
     const full_name=clean(b.full_name,120),phone=clean(b.phone,30),sub_city_id=clean(b.sub_city_id,50),woreda_id=clean(b.woreda_id,50);
     if(!full_name||!phone||!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Name, phone, sub-city and woreda are required.'});
@@ -54,15 +67,14 @@ module.exports=async function(req,res){
     const data=await db(path,'POST',record,'return=representation');return reply(res,201,{success:true,item:data?.[0]});
    }
    if(resource==='assign'){
-    if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can approve assignments.'});
+
     if(!uuid.test(clean(b.order_id,50))||!uuid.test(clean(b.professional_id,50)))return reply(res,400,{error:'Valid order and professional are required.'});
     const pro=await db('lystro_professionals?id=eq.'+b.professional_id+'&select=id,status,availability');
     if(!pro?.[0]||pro[0].status!=='approved'||pro[0].availability!=='available')return reply(res,409,{error:'Professional is not approved and available.'});
     const order=await db('orders?id=eq.'+b.order_id+'&select=id,status');
     if(!order?.[0]||!['accepted','confirmed','pending'].includes(order[0].status))return reply(res,409,{error:'Order cannot be assigned in its current status.'});
-    await db('orders?id=eq.'+b.order_id,'PATCH',{assigned_professional_id:b.professional_id,status:'assigned',assigned_at:new Date().toISOString()},'return=minimal');
-    await db('lystro_assignment_history','POST',{order_id:b.order_id,professional_id:b.professional_id,assigned_by:user.id,status:'assigned',note:clean(b.note,500)},'return=minimal');
-    return reply(res,200,{success:true});
+    await db('lystro_assignment_history','POST',{order_id:b.order_id,professional_id:b.professional_id,assigned_by:user.id,status:'suggested',note:clean(b.note,500)},'return=minimal');
+    return reply(res,200,{success:true,message:'Suggestion submitted for Super Admin approval.'});
    }
    return reply(res,400,{error:'Unknown resource.'});
   }
