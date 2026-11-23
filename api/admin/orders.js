@@ -93,12 +93,24 @@ module.exports = async function handler(req, res) {
       if (['completed', 'cancelled'].includes(body.status) && data[0].assigned_professional_id) {
         const professionalId = encodeURIComponent(data[0].assigned_professional_id);
         const terminal = body.status;
-        const release = await fetch(SUPABASE_URL + '/rest/v1/lystro_professionals?id=eq.' + professionalId + '&availability=eq.busy', {
-          method: 'PATCH',
-          headers: { ...headers, Prefer: 'return=minimal' },
-          body: JSON.stringify({ availability: 'available' })
-        });
-        if (!release.ok) console.error('LYSTRO professional availability release failed:', release.status);
+        // Recalculate workload after completion/cancellation; never override an explicit unavailable flag.
+        const [remainingResponse, professionalResponse] = await Promise.all([
+          fetch(SUPABASE_URL + '/rest/v1/orders?assigned_professional_id=eq.' + professionalId + '&status=in.(assigned,in_progress)&select=id', { headers }),
+          fetch(SUPABASE_URL + '/rest/v1/lystro_professionals?id=eq.' + professionalId + '&select=availability,max_active_jobs', { headers })
+        ]);
+        const remaining = remainingResponse.ok ? await remainingResponse.json().catch(() => []) : [];
+        const professionalRows = professionalResponse.ok ? await professionalResponse.json().catch(() => []) : [];
+        const professional = professionalRows[0];
+        if (professional && professional.availability !== 'unavailable') {
+          const capacity = Math.max(1, Math.min(20, Number(professional.max_active_jobs) || 20));
+          const nextAvailability = remaining.length >= capacity ? 'busy' : 'available';
+          const release = await fetch(SUPABASE_URL + '/rest/v1/lystro_professionals?id=eq.' + professionalId, {
+            method: 'PATCH',
+            headers: { ...headers, Prefer: 'return=minimal' },
+            body: JSON.stringify({ availability: nextAvailability })
+          });
+          if (!release.ok) console.error('LYSTRO professional workload refresh failed:', release.status);
+        }
         const history = await fetch(SUPABASE_URL + '/rest/v1/lystro_assignment_history?order_id=eq.' + encodeURIComponent(id) + '&status=eq.accepted', {
           method: 'PATCH',
           headers: { ...headers, Prefer: 'return=minimal' },
