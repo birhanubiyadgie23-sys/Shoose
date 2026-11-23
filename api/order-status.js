@@ -1,5 +1,5 @@
 // Public order tracking by high-entropy tracking code. Never expose customer PII.
-const URL=(process.env.SUPABASE_URL||'').replace(/\\/+$/,'').replace(/\\/rest\\/v1$/,'');
+const URL=(process.env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
 const KEY=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
 module.exports=async function(req,res){
  res.setHeader('Content-Type','application/json; charset=utf-8');

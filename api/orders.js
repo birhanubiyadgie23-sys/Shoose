@@ -1,6 +1,6 @@
 // LYSTRO public booking API. Privileged credentials remain server-side.
 const crypto = require('crypto');
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/+$/, '').replace(/\\/rest\\/v1$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const clean = (value, max) => typeof value === 'string' ? value.trim().slice(0, max) : '';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -21,7 +21,7 @@ async function notifyTelegram(order) {
     'Shoes: ' + order.shoe_count,
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
-  ].join('\\n');
+  ].join('\n');
   try {
     const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
   if(!/^[+0-9() -]{7,30}$/.test(phone))return reply(res,400,{error:'Please enter a valid phone number.'});
   if(!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Please select a valid sub-city and woreda.'});
   if(!Number.isInteger(shoe_count)||shoe_count<1||shoe_count>30)return reply(res,400,{error:'Shoe quantity must be between 1 and 30.'});
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(pickup_date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(pickup_time))
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(pickup_date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(pickup_time))
     return reply(res,400,{error:'Choose a valid pickup date and time.'});
   if(pickup_date < new Date().toISOString().slice(0,10))return reply(res,400,{error:'Pickup date cannot be in the past.'});
 
