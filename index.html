@@ -68,7 +68,7 @@ if(location.pathname.startsWith('/admin')){
 <div class="ad-wide" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><small id="professionalWoredaHelp" class="ad-muted">Select a sub-city to load its woredas.</small><button id="manageWoredasFromProfessional" class="ad-action" type="button" hidden>Add / manage woredas</button></div>
 <label>Experience (years)<input name="experience_years" type="number" min="0" max="60" value="0"></label>
 <label class="ad-wide">Address<input name="address" maxlength="400"></label><label class="ad-wide">Services offered<select name="service_ids" id="professionalServices" multiple size="3"></select></label>
-<label class="ad-wide">Notes<textarea name="notes" rows="2" maxlength="1000"></textarea></label><div class="ad-wide"><button class="ad-primary" type="submit">Register Professional</button></div></form></section>
+<label class="ad-wide">Notes<textarea name="notes" rows="2" maxlength="1000"></textarea></label><div class="ad-wide"><p id="professionalFormStatus" class="ad-muted" role="status" aria-live="polite"></p><button id="professionalSubmitButton" class="ad-primary" type="submit">Register Professional</button></div></form></section>
 <section class="ad-card"><div class="ad-card-head"><h2>Professional Directory</h2><button id="refreshOperations" class="ad-action">Refresh</button></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Name</th><th>Phone</th><th>Area</th><th>Services</th><th>Status</th><th>Action</th></tr></thead><tbody id="professionalsBody"></tbody></table></div></section></section>
 <section id="view-assignments" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2>Assign Professional to Order</h2><span class="ad-muted">Automatic area/service matching is used to shortlist approved, available staff</span></div><form id="assignmentForm" class="ad-form-grid" style="padding:20px"><label>Order<select id="assignmentOrder" name="order_id" required><option value="">Select accepted order</option></select></label><label>Professional<select id="assignmentProfessional" name="professional_id" required><option value="">Select suggested professional</option></select></label><label class="ad-wide">Assignment note<input name="note" maxlength="500"></label><div class="ad-wide"><button class="ad-primary" type="submit">Submit Assignment for Approval</button></div></form><div id="assignmentSuggestions" style="padding:0 20px 20px"></div></section><section class="ad-card"><div class="ad-card-head"><h2>Assignment History</h2></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Order</th><th>Professional</th><th>Status</th><th>Date</th><th>Review</th></tr></thead><tbody id="assignmentsBody"></tbody></table></div></section></section>
 <section id="view-settings" class="ad-view">
@@ -205,7 +205,44 @@ if(location.pathname.startsWith('/admin')){
     document.getElementById('refreshOperations').addEventListener('click',loadOperations);
     document.getElementById('assignmentsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-assignment-review]');if(!b)return;try{await operationsApi('PATCH','assignment',{id:b.dataset.assignmentReview,status:b.dataset.status});await refresh();await loadOperations();notice.textContent='Assignment decision saved.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('professionalsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-review]');if(!b)return;try{await operationsApi('PATCH','professional',{id:b.dataset.review,status:b.dataset.status});await loadOperations();notice.textContent='Professional review saved.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('professionalForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());d.service_ids=[...document.getElementById('professionalServices').selectedOptions].map(o=>o.value);try{await operationsApi('POST','professional',d);e.target.reset();await loadOperations();notice.textContent='Professional registered; pending Super Admin review.';}catch(err){notice.textContent=err.message;}});
+    const professionalForm=document.getElementById('professionalForm');
+    const professionalFormStatus=document.getElementById('professionalFormStatus');
+    const professionalSubmitButton=document.getElementById('professionalSubmitButton');
+    professionalForm.noValidate=true;
+    professionalForm.addEventListener('submit',async e=>{
+      e.preventDefault();
+      professionalFormStatus.textContent='';
+      if(!professionalForm.checkValidity()){
+        professionalForm.reportValidity();
+        const invalid=professionalForm.querySelector(':invalid');
+        professionalFormStatus.textContent='Please complete the required field: '+(invalid?.closest('label')?.childNodes?.[0]?.textContent?.trim()||invalid?.name||'check the form');
+        invalid?.focus();
+        return;
+      }
+      const d=Object.fromEntries(new FormData(professionalForm).entries());
+      d.service_ids=[...document.getElementById('professionalServices').selectedOptions].map(o=>o.value);
+      if(!d.service_ids.length){
+        professionalFormStatus.textContent='Please select at least one service offered.';
+        document.getElementById('professionalServices').focus();
+        return;
+      }
+      professionalSubmitButton.disabled=true;
+      professionalSubmitButton.textContent='Registering…';
+      professionalFormStatus.textContent='Submitting professional registration…';
+      try{
+        await operationsApi('POST','professional',d);
+        professionalForm.reset();
+        professionalFormStatus.textContent='Registration submitted successfully. It is pending Super Admin review.';
+        await loadOperations();
+        notice.textContent='Professional registered; pending Super Admin review.';
+      }catch(err){
+        professionalFormStatus.textContent='Registration failed: '+(err?.message||'Please try again.');
+        notice.textContent=err?.message||'Professional registration failed.';
+      }finally{
+        professionalSubmitButton.disabled=false;
+        professionalSubmitButton.textContent='Register Professional';
+      }
+    });
     document.getElementById('subCityForm').addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','sub_city',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='Sub-city added.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('woredaForm').addEventListener('submit',async e=>{
       e.preventDefault();
