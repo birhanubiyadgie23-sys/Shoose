@@ -25,10 +25,15 @@ module.exports=async function(req,res){
    return data;
   }
   async function assignmentScope(professional,order){
-   const people=await db('lystro_professionals?status=eq.approved&availability=eq.available&select=id,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))');
+   const [areas,woredas,people]=await Promise.all([
+    db('lystro_sub_cities?name=eq.'+encodeURIComponent(order.sub_city)+'&select=id&limit=1'),
+    db('lystro_woredas?name=eq.'+encodeURIComponent(order.woreda)+'&select=id,sub_city_id&limit=1'),
+    db('lystro_professionals?status=eq.approved&availability=eq.available&select=id,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))')
+   ]);
+   const areaId=areas?.[0]?.id,woredaRow=woredas?.find(x=>x.sub_city_id===areaId);
    const eligible=(people||[]).filter(x=>(x.lystro_professional_services||[]).some(s=>s.lystro_services?.name===order.service_type));
-   const sameWoreda=eligible.filter(x=>x.sub_city_id===professional.sub_city_id&&x.woreda_id===professional.woreda_id);
-   const sameSubCity=eligible.filter(x=>x.sub_city_id===professional.sub_city_id);
+   const sameWoreda=eligible.filter(x=>x.sub_city_id===areaId&&x.woreda_id===woredaRow?.id);
+   const sameSubCity=eligible.filter(x=>x.sub_city_id===areaId);
    const tier=sameWoreda.length?'same_woreda':sameSubCity.length?'same_sub_city':'other_sub_city';
    const allowed=tier==='same_woreda'?sameWoreda:tier==='same_sub_city'?sameSubCity:eligible;
    return allowed.some(x=>x.id===professional.id)?tier:null;
