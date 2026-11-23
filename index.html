@@ -161,7 +161,7 @@ if(location.pathname.startsWith('/admin')){
       const order=document.getElementById('assignmentOrder')?.value,selectedOrder=orders.find(o=>o.id===order);
       const serviceReady=ready.filter(p=>!selectedOrder||(p.lystro_professional_services||[]).some(x=>x.lystro_services?.name===selectedOrder.service_type));
       const orderArea=selectedOrder&&operations.sub_cities.find(x=>x.name===selectedOrder.sub_city)?.id;
-      const orderWoreda=selectedOrder&&operations.woredas.find(x=>x.name===selectedOrder.woreda)?.id;
+      const orderWoreda=selectedOrder&&operations.woredas.find(x=>x.name===selectedOrder.woreda&&x.sub_city_id===orderArea)?.id;
       const exact=selectedOrder?serviceReady.filter(p=>p.sub_city_id===orderArea&&p.woreda_id===orderWoreda):[];
       const sameArea=selectedOrder?serviceReady.filter(p=>p.sub_city_id===orderArea&&p.woreda_id!==orderWoreda):[];
       const otherArea=selectedOrder?serviceReady.filter(p=>p.sub_city_id!==orderArea):serviceReady;
