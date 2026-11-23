@@ -64,7 +64,8 @@ if(location.pathname.startsWith('/admin')){
 <form id="professionalForm" class="ad-form-grid" style="padding:20px">
 <label>Full name<input name="full_name" required maxlength="120"></label><label>Phone<input name="phone" required maxlength="30"></label><label>Email (optional)<input name="email" type="email" maxlength="160"></label>
 <label>Sub-city<select name="sub_city_id" id="professionalSubCity" required><option value="">Select sub-city</option></select></label>
-<label>Woreda<select name="woreda_id" id="professionalWoreda" required><option value="">Select woreda</option></select></label>
+<label>Woreda<select name="woreda_id" id="professionalWoreda" required disabled><option value="">Select sub-city first</option></select></label>
+<div class="ad-wide" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><small id="professionalWoredaHelp" class="ad-muted">Select a sub-city to load its woredas.</small><button id="manageWoredasFromProfessional" class="ad-action" type="button" hidden>Add / manage woredas</button></div>
 <label>Experience (years)<input name="experience_years" type="number" min="0" max="60" value="0"></label>
 <label class="ad-wide">Address<input name="address" maxlength="400"></label><label class="ad-wide">Services offered<select name="service_ids" id="professionalServices" multiple size="3"></select></label>
 <label class="ad-wide">Notes<textarea name="notes" rows="2" maxlength="1000"></textarea></label><div class="ad-wide"><button class="ad-primary" type="submit">Register Professional</button></div></form></section>
@@ -72,7 +73,7 @@ if(location.pathname.startsWith('/admin')){
 <section id="view-assignments" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2>Assign Professional to Order</h2><span class="ad-muted">Automatic area/service matching is used to shortlist approved, available staff</span></div><form id="assignmentForm" class="ad-form-grid" style="padding:20px"><label>Order<select id="assignmentOrder" name="order_id" required><option value="">Select accepted order</option></select></label><label>Professional<select id="assignmentProfessional" name="professional_id" required><option value="">Select suggested professional</option></select></label><label class="ad-wide">Assignment note<input name="note" maxlength="500"></label><div class="ad-wide"><button class="ad-primary" type="submit">Submit Assignment for Approval</button></div></form><div id="assignmentSuggestions" style="padding:0 20px 20px"></div></section><section class="ad-card"><div class="ad-card-head"><h2>Assignment History</h2></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Order</th><th>Professional</th><th>Status</th><th>Date</th><th>Review</th></tr></thead><tbody id="assignmentsBody"></tbody></table></div></section></section>
 <section id="view-settings" class="ad-view">
 <section class="ad-card"><div class="ad-card-head"><h2><span>⚙</span>Settings & Service Areas</h2></div><div style="padding:20px"><p>Administrator: <b id="settingsIdentity"></b></p><p>Super Admin manages the official service areas and service catalogue. Admin users can register professionals and process orders.</p>
-<div class="ad-form-grid"><form id="subCityForm"><label>Add Sub-city<input name="name" required maxlength="100"></label><button class="ad-primary" type="submit">Add Sub-city</button></form><form id="woredaForm"><label>Sub-city<select name="sub_city_id" id="woredaSubCity" required><option value="">Select sub-city</option></select></label><label>Woreda name<input name="name" required maxlength="100"></label><button class="ad-primary" type="submit">Add Woreda</button></form><form id="serviceForm"><label>Service name<input name="name" required maxlength="100"></label><label>Description<input name="description" maxlength="500"></label><label>Price (ETB)<input name="price" type="number" min="0" step="0.01" value="0"></label><label>Duration (minutes)<input name="duration_minutes" type="number" min="1" value="60"></label><button class="ad-primary" type="submit">Add Service</button></form></div></div></section>
+<div class="ad-form-grid"><form id="subCityForm"><label>Add Sub-city<input name="name" required maxlength="100"></label><button class="ad-primary" type="submit">Add Sub-city</button></form><form id="woredaForm"><label>Sub-city<select name="sub_city_id" id="woredaSubCity" required><option value="">Select sub-city</option></select></label><label class="ad-wide">Woreda names (one per line)<textarea name="names" rows="5" required maxlength="30000" placeholder="Woreda 01&#10;Woreda 02&#10;Woreda 03"></textarea></label><small class="ad-wide ad-muted">Add up to 250 names in one batch. You can add more batches at any time; there is no overall limit.</small><button class="ad-primary ad-wide" type="submit">Add Woredas</button></form><form id="serviceForm"><label>Service name<input name="name" required maxlength="100"></label><label>Description<input name="description" maxlength="500"></label><label>Price (ETB)<input name="price" type="number" min="0" step="0.01" value="0"></label><label>Duration (minutes)<input name="duration_minutes" type="number" min="1" value="60"></label><button class="ad-primary" type="submit">Add Service</button></form></div></div></section>
 <section class="ad-card"><div class="ad-card-head"><h2>Configured Areas & Services</h2></div><div id="operationsSettingsSummary" style="padding:20px"></div></section></section>`+
   '</div><footer class="ad-footer"><span>© 2026 LYSTRO. Clean Steps, Happy You.</span><span>📍 Admin Panel • Addis Ababa, Ethiopia</span></footer></main></div>';
   const loadSupabase=()=>new Promise((resolve,reject)=>{if(window.supabase?.createClient)return resolve(window.supabase);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);});
@@ -101,11 +102,23 @@ if(location.pathname.startsWith('/admin')){
     function fillSelect(el,items,label,selected){
       if(!el)return;const value=el.value;el.innerHTML='<option value="">Select '+label+'</option>'+items.filter(x=>x.is_active!==false).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');if(selected)el.value=selected;else if(items.some(x=>x.id===value))el.value=value;
     }
+    function refreshProfessionalWoreda(selectedId){
+      const subId=document.getElementById('professionalSubCity')?.value||'';
+      const select=document.getElementById('professionalWoreda');
+      const choices=subId?operations.woredas.filter(w=>w.sub_city_id===subId&&w.is_active!==false):[];
+      fillSelect(select,choices,'woreda',selectedId);
+      select.disabled=!subId||choices.length===0;
+      const help=document.getElementById('professionalWoredaHelp');
+      const manage=document.getElementById('manageWoredasFromProfessional');
+      if(!subId)help.textContent='Select a sub-city first; its woredas will load here.';
+      else if(!choices.length)help.textContent='No woredas are registered for this sub-city yet. A Super Admin must add them in Settings.';
+      else help.textContent=choices.length+' woreda(s) available for the selected sub-city.';
+      manage.hidden=currentRole!=='super_admin'||!subId;
+    }
     function renderOperations(){
       fillSelect(document.getElementById('professionalSubCity'),operations.sub_cities,'sub-city');
       fillSelect(document.getElementById('woredaSubCity'),operations.sub_cities,'sub-city');
-      const sub=document.getElementById('professionalSubCity')?.value;
-      fillSelect(document.getElementById('professionalWoreda'),operations.woredas.filter(w=>!sub||w.sub_city_id===sub),'woreda');
+      refreshProfessionalWoreda();
       const ps=document.getElementById('professionalServices');if(ps)ps.innerHTML=operations.services.filter(x=>x.is_active).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
       const areaName=id=>operations.sub_cities.find(x=>x.id===id)?.name||'—',woredaName=id=>operations.woredas.find(x=>x.id===id)?.name||'—';
       document.getElementById('professionalsBody').innerHTML=operations.professionals.map(p=>'<tr><td>'+esc(p.full_name)+'</td><td>'+esc(p.phone)+'</td><td>'+esc(areaName(p.sub_city_id)+' / '+woredaName(p.woreda_id))+'</td><td>'+esc((p.lystro_professional_services||[]).map(x=>x.lystro_services?.name).filter(Boolean).join(', '))+'</td><td>'+esc(p.status)+'</td><td>'+(currentRole==='super_admin'&&p.status==='pending_review'?'<button class="ad-action" data-review="'+esc(p.id)+'" data-status="approved">Approve</button> <button class="ad-delete" data-review="'+esc(p.id)+'" data-status="rejected">Reject</button>':'—')+'</td></tr>').join('')||'<tr><td colspan="6">No professionals registered.</td></tr>';
@@ -116,7 +129,8 @@ if(location.pathname.startsWith('/admin')){
       fillSelect(document.getElementById('assignmentProfessional'),suggested.map(p=>({id:p.id,name:p.full_name+' — '+(operations.sub_cities.find(x=>x.id===p.sub_city_id)?.name||'')+'/'+(operations.woredas.find(x=>x.id===p.woreda_id)?.name||'')})),'professional');
       document.getElementById('assignmentSuggestions').textContent='Suggested matches are filtered by service area and availability. Super Admin approval is required to finalize assignment.';
       document.getElementById('assignmentsBody').innerHTML=operations.assignments.map(a=>'<tr><td>'+esc(a.order_id)+'</td><td>'+esc(operations.professionals.find(p=>p.id===a.professional_id)?.full_name||a.professional_id)+'</td><td>'+esc(a.status)+'</td><td>'+dateText(a.created_at)+'</td><td>'+(currentRole==='super_admin'&&a.status==='suggested'?'<button class="ad-action" data-assignment-review="'+esc(a.id)+'" data-status="accepted">Approve</button> <button class="ad-delete" data-assignment-review="'+esc(a.id)+'" data-status="declined">Decline</button>':'—')+'</td></tr>').join('')||'<tr><td colspan="5">No assignment history yet.</td></tr>';
-      document.getElementById('operationsSettingsSummary').innerHTML='<b>Sub-cities ('+operations.sub_cities.length+')</b><p>'+operations.sub_cities.map(x=>esc(x.name)).join(' • ')+'</p><b>Woredas ('+operations.woredas.length+')</b><p>'+operations.woredas.map(x=>esc((operations.sub_cities.find(a=>a.id===x.sub_city_id)?.name||'')+' / '+x.name)).join(' • ')+'</p><b>Services ('+operations.services.length+')</b><p>'+operations.services.map(x=>esc(x.name+' — '+Number(x.price).toFixed(2)+' ETB')).join(' • ')+'</p>';
+      const woredaCounts=operations.sub_cities.map(area=>({name:area.name,count:operations.woredas.filter(w=>w.sub_city_id===area.id&&w.is_active!==false).length}));
+      document.getElementById('operationsSettingsSummary').innerHTML='<b>Sub-cities ('+operations.sub_cities.length+')</b><p>'+operations.sub_cities.map(x=>esc(x.name)).join(' • ')+'</p><b>Woredas ('+operations.woredas.length+')</b><p>'+woredaCounts.map(x=>esc(x.name)+': '+x.count).join(' • ')+'</p><b>Services ('+operations.services.length+')</b><p>'+operations.services.map(x=>esc(x.name+' — '+Number(x.price).toFixed(2)+' ETB')).join(' • ')+'</p>';
     }
     async function loadOperations(){
       try{operations=await operationsApi('GET');renderOperations();}
@@ -180,14 +194,32 @@ if(location.pathname.startsWith('/admin')){
       try{await adminApi('DELETE',{id});await refresh();notice.textContent='Order deleted successfully.';}
       catch(e){notice.textContent=e.message;}
     }
-    document.getElementById('professionalSubCity').addEventListener('change',()=>{fillSelect(document.getElementById('professionalWoreda'),operations.woredas.filter(w=>w.sub_city_id===document.getElementById('professionalSubCity').value),'woreda');});
+    document.getElementById('professionalSubCity').addEventListener('change',()=>refreshProfessionalWoreda());
+    document.getElementById('manageWoredasFromProfessional').addEventListener('click',()=>{
+      const subId=document.getElementById('professionalSubCity').value;
+      navigate('settings');
+      document.getElementById('woredaSubCity').value=subId;
+      document.querySelector('#woredaForm textarea[name="names"]').focus();
+    });
     document.getElementById('assignmentOrder').addEventListener('change',renderOperations);
     document.getElementById('refreshOperations').addEventListener('click',loadOperations);
     document.getElementById('assignmentsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-assignment-review]');if(!b)return;try{await operationsApi('PATCH','assignment',{id:b.dataset.assignmentReview,status:b.dataset.status});await refresh();await loadOperations();notice.textContent='Assignment decision saved.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('professionalsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-review]');if(!b)return;try{await operationsApi('PATCH','professional',{id:b.dataset.review,status:b.dataset.status});await loadOperations();notice.textContent='Professional review saved.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('professionalForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());d.service_ids=[...document.getElementById('professionalServices').selectedOptions].map(o=>o.value);try{await operationsApi('POST','professional',d);e.target.reset();await loadOperations();notice.textContent='Professional registered; pending Super Admin review.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('subCityForm').addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','sub_city',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='Sub-city added.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('woredaForm').addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','woreda',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='Woreda added.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('woredaForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const data=Object.fromEntries(new FormData(e.target).entries()),subId=data.sub_city_id;
+      try{
+        const result=await operationsApi('POST','woreda',data);
+        e.target.reset();
+        await loadOperations();
+        document.getElementById('woredaSubCity').value=subId;
+        document.getElementById('professionalSubCity').value=subId;
+        refreshProfessionalWoreda(result.items?.[0]?.id);
+        notice.textContent='Woredas added: '+(result.inserted||0)+' new; '+(result.duplicates||0)+' already existed.';
+      }catch(err){notice.textContent=err.message;}
+    });
     document.getElementById('serviceForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','service',d);e.target.reset();await loadOperations();notice.textContent='Service added.';}catch(err){notice.textContent=err.message;}});
     document.getElementById('assignmentForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','assign',d);await refresh();await loadOperations();notice.textContent='Assignment suggestion submitted for Super Admin approval.';}catch(err){notice.textContent=err.message;}});
     document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
