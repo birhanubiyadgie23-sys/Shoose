@@ -42,5 +42,96 @@ bookingForm.addEventListener('submit',async e=>{
   }
 });
 document.getElementById('lang').addEventListener('click',()=>notify('Amharic / English language selector — full translation will be connected in the next implementation stage.'));
-if(location.pathname.startsWith('/admin')){document.body.innerHTML='<main style="min-height:100vh;display:grid;place-items:center;background:#071b49;padding:24px;font-family:Inter,Arial"><form style="background:white;padding:32px;border-radius:20px;width:min(420px,100%)" onsubmit="event.preventDefault();alert(\'Admin authentication is not connected yet.\')"><h1 style="color:#071b49">LYSTRO Admin</h1><p>Authorized administrators only</p><label>Email</label><input required type="email" style="display:block;width:100%;padding:13px;margin:8px 0 16px;border:1px solid #ccd5ea;border-radius:8px"><label>Password</label><input required type="password" style="display:block;width:100%;padding:13px;margin:8px 0 20px;border:1px solid #ccd5ea;border-radius:8px"><button style="width:100%;padding:14px;background:#0758ef;color:white;border:0;border-radius:9px;font-weight:800">Sign in</button><p style="font-size:12px;color:#778">Login UI preview only — secure authentication is not connected.</p><a href="/" style="color:#0758ef">← Back to website</a></form></main>'}
+if(location.pathname.startsWith('/admin')){
+  document.body.innerHTML = \`
+    <main style="min-height:100vh;background:#f3f6ff;padding:28px;font-family:Inter,'Noto Sans Ethiopic',Arial,sans-serif;color:#10204b">
+      <section style="max-width:1100px;margin:auto">
+        <header style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:24px">
+          <div><div style="font-size:12px;font-weight:800;letter-spacing:2px;color:#0758ef">LYSTRO CONTROL CENTER</div><h1 style="margin:5px 0">Super Admin</h1><p style="margin:0;color:#65718b">የትዕዛዝ አስተዳደር</p></div>
+          <a href="/" style="color:#0758ef;font-weight:700">← ወደ ድረገጹ</a>
+        </header>
+        <section id="adminLogin" style="max-width:430px;margin:8vh auto;background:white;padding:30px;border-radius:20px;box-shadow:0 12px 40px #071b4918">
+          <h2 style="margin-top:0">Admin Login</h2><p style="color:#65718b">Authorized administrators only.</p>
+          <form id="adminLoginForm">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Email</label><input id="adminEmail" type="email" autocomplete="username" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <button id="loginButton" style="width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#0758ef;color:white;font-weight:800;cursor:pointer">Sign in</button>
+          </form><p id="loginMessage" role="status" style="font-size:13px;color:#b42318"></p>
+        </section>
+        <section id="adminPanel" hidden>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
+            <div><h2 style="margin:0">Orders Overview</h2><p id="adminIdentity" style="color:#65718b;margin:5px 0"></p></div>
+            <div style="display:flex;gap:8px"><button id="refreshOrders" style="padding:11px 16px;border:1px solid #dfe6fb;background:white;border-radius:9px;cursor:pointer">↻ Refresh</button><button id="logoutAdmin" style="padding:11px 16px;border:0;background:#071b49;color:white;border-radius:9px;cursor:pointer">Sign out</button></div>
+          </div>
+          <div id="adminNotice" role="status" style="margin:10px 0;color:#65718b"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px">
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Total Orders</small><h2 id="totalOrders" style="margin:8px 0 0">—</h2></article>
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Pending</small><h2 id="pendingOrders" style="margin:8px 0 0">—</h2></article>
+            <article style="background:white;padding:18px;border:1px solid #dfe6fb;border-radius:14px"><small>Other Status</small><h2 id="otherOrders" style="margin:8px 0 0">—</h2></article>
+          </div>
+          <input id="orderSearch" placeholder="Search customer, phone, sub-city or status…" style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px;margin-bottom:12px">
+          <div style="overflow:auto;background:white;border:1px solid #dfe6fb;border-radius:14px">
+            <table style="border-collapse:collapse;width:100%;min-width:780px;text-align:left;font-size:13px">
+              <thead style="background:#f3f6ff"><tr><th style="padding:13px">Customer</th><th style="padding:13px">Phone</th><th style="padding:13px">Service</th><th style="padding:13px">Location</th><th style="padding:13px">Status</th><th style="padding:13px">Created</th></tr></thead>
+              <tbody id="ordersBody"><tr><td colspan="6" style="padding:18px">Sign in to load orders.</td></tr></tbody>
+            </table>
+          </div>
+          <p style="font-size:12px;color:#65718b;margin-top:12px">This is the initial admin release: secure sign-in, admin-role check, and read-only order overview.</p>
+        </section>
+      </section>
+    </main>\`;
+  const loadSupabase = () => new Promise((resolve,reject) => {
+    if(window.supabase?.createClient) return resolve(window.supabase);
+    const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);
+  });
+  (async()=>{
+    const login=document.getElementById('adminLogin'), panel=document.getElementById('adminPanel'), message=document.getElementById('loginMessage');
+    const loginForm=document.getElementById('adminLoginForm'), loginButton=document.getElementById('loginButton'), notice=document.getElementById('adminNotice');
+    const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let client,orders=[];
+    try {
+      const sdk=await loadSupabase();
+      client=sdk.createClient('https://molvnallhdhmmubqbkqq.supabase.co','sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J');
+    } catch(e) { message.textContent=e.message; return; }
+    async function showDashboard(user){
+      const {data:admin,error}=await client.from('admin_users').select('role').eq('user_id',user.id).maybeSingle();
+      if(error) throw new Error('Admin permission check failed: '+error.message);
+      if(!admin || !['super_admin','admin'].includes(admin.role)){
+        await client.auth.signOut(); throw new Error('This account does not have administrator access.');
+      }
+      login.hidden=true;panel.hidden=false;
+      document.getElementById('adminIdentity').textContent=user.email+' • '+admin.role;
+      await refresh();
+    }
+    async function refresh(){
+      notice.textContent='Loading orders…';
+      const {data,error}=await client.from('orders').select('*').order('created_at',{ascending:false}).limit(200);
+      if(error){notice.textContent='Orders could not be loaded. Check the authenticated SELECT policy on public.orders. ('+error.message+')';return;}
+      orders=data||[];
+      document.getElementById('totalOrders').textContent=orders.length;
+      document.getElementById('pendingOrders').textContent=orders.filter(o=>o.status==='pending').length;
+      document.getElementById('otherOrders').textContent=orders.filter(o=>o.status!=='pending').length;
+      notice.textContent='Showing the latest '+orders.length+' orders.';
+      renderOrders();
+    }
+    function renderOrders(){
+      const q=document.getElementById('orderSearch').value.trim().toLowerCase();
+      const filtered=orders.filter(o=>[o.customer_name,o.phone,o.service_type,o.sub_city,o.woreda,o.status].some(v=>String(v||'').toLowerCase().includes(q)));
+      document.getElementById('ordersBody').innerHTML=filtered.length?filtered.map(o=>'<tr style="border-top:1px solid #edf0f8"><td style="padding:13px">'+esc(o.customer_name)+'</td><td style="padding:13px">'+esc(o.phone)+'</td><td style="padding:13px">'+esc(o.service_type)+'</td><td style="padding:13px">'+esc([o.sub_city,o.woreda].filter(Boolean).join(' / '))+'</td><td style="padding:13px">'+esc(o.status)+'</td><td style="padding:13px">'+esc(o.created_at?new Date(o.created_at).toLocaleString():'—')+'</td></tr>').join(''):'<tr><td colspan="6" style="padding:18px">No matching orders.</td></tr>';
+    }
+    loginForm.addEventListener('submit',async e=>{
+      e.preventDefault();message.textContent='';loginButton.disabled=true;loginButton.textContent='Signing in…';
+      try{
+        const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('adminEmail').value.trim(),password:document.getElementById('adminPassword').value});
+        if(error) throw error;
+        await showDashboard(data.user);
+      }catch(e){message.textContent=e.message||'Sign-in failed.';}
+      finally{loginButton.disabled=false;loginButton.textContent='Sign in';}
+    });
+    document.getElementById('refreshOrders').addEventListener('click',refresh);
+    document.getElementById('orderSearch').addEventListener('input',renderOrders);
+    document.getElementById('logoutAdmin').addEventListener('click',async()=>{await client.auth.signOut();panel.hidden=true;login.hidden=false;loginForm.reset();message.textContent='You have signed out.';});
+    try{const {data:{session}}=await client.auth.getSession();if(session?.user) await showDashboard(session.user);}catch(e){message.textContent=e.message;}
+  })();
+}
 </script></body></html>
