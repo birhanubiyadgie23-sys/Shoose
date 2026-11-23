@@ -96,6 +96,7 @@ revoke all on public.lystro_sub_cities,public.lystro_woredas,public.lystro_servi
  public.lystro_professionals,public.lystro_professional_services,public.lystro_assignment_history from anon,authenticated;
 grant select,insert,update,delete on public.lystro_sub_cities,public.lystro_woredas,public.lystro_services,
  public.lystro_professionals,public.lystro_professional_services,public.lystro_assignment_history to service_role;
-grant select,insert,update on public.orders to service_role;
+grant select on public.admin_users to service_role;
+grant select,insert,update,delete on public.orders to service_role;
 
 -- Keep the existing order records and legacy 'confirmed' values intact.
