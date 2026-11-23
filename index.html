@@ -56,7 +56,20 @@ if(location.pathname.startsWith('/admin')){
             <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Email</label><input id="adminEmail" type="email" autocomplete="username" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
             <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
             <button id="loginButton" style="width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#0758ef;color:white;font-weight:800;cursor:pointer">Sign in</button>
-          </form><p id="loginMessage" role="status" style="font-size:13px;color:#b42318"></p>
+          </form><button id="forgotPassword" type="button" style="margin-top:14px;padding:0;border:0;background:none;color:#0758ef;font-weight:700;cursor:pointer">Forgot password?</button><p id="loginMessage" role="status" style="font-size:13px;color:#b42318"></p>
+        </section>
+        <section id="adminResetPanel" hidden style="max-width:430px;margin:8vh auto;background:white;padding:30px;border-radius:20px;box-shadow:0 12px 40px #071b4918">
+          <h2 style="margin-top:0">Set a new admin password</h2>
+          <p style="color:#65718b">Use a new password for your administrator account.</p>
+          <form id="adminResetForm">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">New password</label>
+            <input id="newAdminPassword" type="password" autocomplete="new-password" minlength="8" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <label style="display:block;font-size:13px;font-weight:700;margin:14px 0 6px">Confirm new password</label>
+            <input id="confirmAdminPassword" type="password" autocomplete="new-password" minlength="8" required style="width:100%;padding:13px;border:1px solid #dfe6fb;border-radius:10px">
+            <button id="saveAdminPassword" style="width:100%;margin-top:18px;padding:14px;border:0;border-radius:10px;background:#0758ef;color:white;font-weight:800;cursor:pointer">Save new password</button>
+          </form>
+          <p id="resetMessage" role="status" style="font-size:13px;color:#b42318"></p>
+          <a href="/admin/login" style="display:inline-block;margin-top:8px;color:#0758ef;font-weight:700">Back to Admin Login</a>
         </section>
         <section id="adminPanel" hidden>
           <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px">
@@ -86,6 +99,7 @@ if(location.pathname.startsWith('/admin')){
   });
   (async()=>{
     const login=document.getElementById('adminLogin'), panel=document.getElementById('adminPanel'), message=document.getElementById('loginMessage');
+    const resetPanel=document.getElementById('adminResetPanel'), resetMessage=document.getElementById('resetMessage');
     const loginForm=document.getElementById('adminLoginForm'), loginButton=document.getElementById('loginButton'), notice=document.getElementById('adminNotice');
     const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let client,orders=[];
@@ -119,6 +133,53 @@ if(location.pathname.startsWith('/admin')){
       const filtered=orders.filter(o=>[o.customer_name,o.phone,o.service_type,o.sub_city,o.woreda,o.status].some(v=>String(v||'').toLowerCase().includes(q)));
       document.getElementById('ordersBody').innerHTML=filtered.length?filtered.map(o=>'<tr style="border-top:1px solid #edf0f8"><td style="padding:13px">'+esc(o.customer_name)+'</td><td style="padding:13px">'+esc(o.phone)+'</td><td style="padding:13px">'+esc(o.service_type)+'</td><td style="padding:13px">'+esc([o.sub_city,o.woreda].filter(Boolean).join(' / '))+'</td><td style="padding:13px">'+esc(o.status)+'</td><td style="padding:13px">'+esc(o.created_at?new Date(o.created_at).toLocaleString():'—')+'</td></tr>').join(''):'<tr><td colspan="6" style="padding:18px">No matching orders.</td></tr>';
     }
+    const isResetRoute=location.pathname.replace(/\\/+$/,'')==='/admin/reset-password';
+    if(isResetRoute){
+      login.hidden=true;
+      resetPanel.hidden=false;
+      const {data:{session},error}=await client.auth.getSession();
+      if(error || !session){
+        resetMessage.textContent='This password reset link is invalid or expired. Request a new recovery email.';
+        document.getElementById('saveAdminPassword').disabled=true;
+      }
+    }
+    document.getElementById('forgotPassword').addEventListener('click',async()=>{
+      message.textContent='';
+      const email=document.getElementById('adminEmail').value.trim();
+      if(!email){message.textContent='Enter your admin email first.';return;}
+      const button=document.getElementById('forgotPassword');
+      button.disabled=true;
+      try{
+        const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin/reset-password'});
+        if(error) throw error;
+        message.style.color='#067647';
+        message.textContent='If this account exists, a password recovery email has been sent. Check your inbox and spam folder.';
+      }catch(error){
+        message.style.color='#b42318';
+        message.textContent=error.message||'Could not send the recovery email.';
+      }finally{button.disabled=false;}
+    });
+    document.getElementById('adminResetForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const password=document.getElementById('newAdminPassword').value;
+      const confirm=document.getElementById('confirmAdminPassword').value;
+      if(password.length<8){resetMessage.textContent='Use at least 8 characters.';return;}
+      if(password!==confirm){resetMessage.textContent='The passwords do not match.';return;}
+      const button=document.getElementById('saveAdminPassword');
+      button.disabled=true;button.textContent='Saving…';resetMessage.textContent='';
+      try{
+        const {data:{session},error:sessionError}=await client.auth.getSession();
+        if(sessionError || !session) throw new Error('Your recovery link is invalid or expired. Request a new one.');
+        const {error}=await client.auth.updateUser({password});
+        if(error) throw error;
+        resetMessage.style.color='#067647';
+        resetMessage.textContent='Password updated. Opening Admin Login…';
+        setTimeout(()=>location.assign('/admin/login'),900);
+      }catch(error){
+        resetMessage.style.color='#b42318';
+        resetMessage.textContent=error.message||'Could not update password.';
+      }finally{button.disabled=false;button.textContent='Save new password';}
+    });
     loginForm.addEventListener('submit',async e=>{
       e.preventDefault();message.textContent='';loginButton.disabled=true;loginButton.textContent='Signing in…';
       try{
