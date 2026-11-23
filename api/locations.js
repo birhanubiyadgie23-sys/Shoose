@@ -1,5 +1,5 @@
 // Public LYSTRO location options. Only active names and IDs are returned.
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/+$/, '').replace(/\\/rest\\/v1$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 module.exports = async function handler(req, res) {
