@@ -24,6 +24,15 @@ module.exports=async function(req,res){
    if(!r.ok){console.error('LYSTRO operations DB error',r.status,JSON.stringify(data).slice(0,350));throw new Error(data?.message||'Database operation failed.');}
    return data;
   }
+  async function assignmentScope(professional,order){
+   const people=await db('lystro_professionals?status=eq.approved&availability=eq.available&select=id,sub_city_id,woreda_id,lystro_professional_services(lystro_services(name))');
+   const eligible=(people||[]).filter(x=>(x.lystro_professional_services||[]).some(s=>s.lystro_services?.name===order.service_type));
+   const sameWoreda=eligible.filter(x=>x.sub_city_id===professional.sub_city_id&&x.woreda_id===professional.woreda_id);
+   const sameSubCity=eligible.filter(x=>x.sub_city_id===professional.sub_city_id);
+   const tier=sameWoreda.length?'same_woreda':sameSubCity.length?'same_sub_city':'other_sub_city';
+   const allowed=tier==='same_woreda'?sameWoreda:tier==='same_sub_city'?sameSubCity:eligible;
+   return allowed.some(x=>x.id===professional.id)?tier:null;
+  }
   const resource=clean(req.query?.resource,40);
   if(req.method==='GET'){
    const [areas,woredas,services,professionals,assignments]=await Promise.all([
@@ -95,10 +104,12 @@ module.exports=async function(req,res){
      db('lystro_woredas?id=eq.'+p.woreda_id+'&select=name,sub_city_id')
     ]);
     const serviceNames=(p.lystro_professional_services||[]).map(x=>x.lystro_services?.name).filter(Boolean);
-    if(area?.[0]?.name!==o.sub_city||woreda?.[0]?.name!==o.woreda||woreda?.[0]?.sub_city_id!==p.sub_city_id||!serviceNames.includes(o.service_type))return reply(res,409,{error:'Professional must match the order sub-city, woreda and service.'});
+    if(!area?.[0]||!woreda?.[0]||woreda[0].sub_city_id!==p.sub_city_id||!serviceNames.includes(o.service_type))return reply(res,409,{error:'Professional must offer the requested service and have a valid service area.'});
+    const scope=await assignmentScope(p,o);
+    if(!scope)return reply(res,409,{error:'A closer available professional exists. Select a professional from the recommended service area.'});
     const pending=await db('lystro_assignment_history?order_id=eq.'+o.id+'&status=eq.suggested&select=id');
     if(pending.length)return reply(res,409,{error:'This order already has a pending assignment suggestion.'});
-    await db('lystro_assignment_history','POST',{order_id:o.id,professional_id:p.id,assigned_by:user.id,status:'suggested',note:clean(b.note,500)},'return=minimal');
+    await db('lystro_assignment_history','POST',{order_id:o.id,professional_id:p.id,assigned_by:user.id,status:'suggested',note:clean((b.note?b.note+' | ':'')+'Matching tier: '+scope,500)},'return=minimal');
     return reply(res,201,{success:true,message:'Suggestion submitted for Super Admin approval.'});
    }
    return reply(res,400,{error:'Unknown resource.'});
@@ -126,7 +137,9 @@ module.exports=async function(req,res){
      db('lystro_woredas?id=eq.'+p.woreda_id+'&select=name,sub_city_id')
     ]);
     const names=(p.lystro_professional_services||[]).map(x=>x.lystro_services?.name).filter(Boolean);
-    if(area?.[0]?.name!==o.sub_city||woreda?.[0]?.name!==o.woreda||woreda?.[0]?.sub_city_id!==p.sub_city_id||!names.includes(o.service_type))return reply(res,409,{error:'Professional no longer matches the order location and service.'});
+    if(!area?.[0]||!woreda?.[0]||woreda[0].sub_city_id!==p.sub_city_id||!names.includes(o.service_type))return reply(res,409,{error:'Professional no longer offers the requested service or has an invalid area.'});
+    const scope=await assignmentScope(p,o);
+    if(!scope)return reply(res,409,{error:'A closer available professional exists. Review the suggested service area before approval.'});
     const claimed=await db('lystro_professionals?id=eq.'+p.id+'&availability=eq.available&status=eq.approved','PATCH',{availability:'busy'},'return=representation');
     if(!claimed?.length)return reply(res,409,{error:'Professional has already been assigned another job.'});
     const assigned=await db('orders?id=eq.'+o.id+'&assigned_professional_id=is.null&status=in.(accepted,confirmed)','PATCH',{assigned_professional_id:p.id,status:'assigned',assigned_at:new Date().toISOString()},'return=representation');
