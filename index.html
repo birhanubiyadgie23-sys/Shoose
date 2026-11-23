@@ -148,7 +148,7 @@ if(location.pathname.startsWith('/admin')){
       const statuses=['pending','confirmed','in_progress','completed','cancelled'];
       document.getElementById('ordersBody').innerHTML=filtered.length?filtered.map(o=>'<tr data-order-id="'+esc(o.id)+'" style="border-top:1px solid #edf0f8"><td style="padding:13px">'+esc(o.customer_name)+'</td><td style="padding:13px">'+esc(o.phone)+'</td><td style="padding:13px">'+esc(o.service_type)+'</td><td style="padding:13px">'+esc([o.sub_city,o.woreda].filter(Boolean).join(' / '))+'</td><td style="padding:13px"><select class="order-status" aria-label="Update order status" style="padding:8px;border:1px solid #dfe6fb;border-radius:8px">'+statuses.map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+s.replace('_',' ')+'</option>').join('')+'</select></td><td style="padding:13px">'+esc(o.created_at?new Date(o.created_at).toLocaleString():'—')+'</td><td style="padding:13px">'+(currentRole==='super_admin'?'<button type="button" class="delete-order" style="padding:8px 10px;border:0;border-radius:8px;background:#fee4e2;color:#b42318;font-weight:700;cursor:pointer">Delete</button>':'—')+'</td></tr>').join(''):'<tr><td colspan="7" style="padding:18px">No matching orders.</td></tr>';
     }
-    const isResetRoute=location.pathname.replace(/\\/+$/,'')==='/admin/reset-password';
+    const isResetRoute=location.pathname.replace(/\/+$/,'')==='/admin/reset-password';
     if(isResetRoute){
       login.hidden=true;
       resetPanel.hidden=false;
