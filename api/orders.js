@@ -22,12 +22,27 @@ async function notifyTelegram(order) {
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
   ].join('\n');
+  const sendMessage = () => fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: chatId, text })
+  });
   try {
-    const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text })
-    });
-    const result = await response.json().catch(() => null);
+    let response = await sendMessage();
+    let result = await response.json().catch(() => null);
+    // Telegram explicitly rejects a rate-limited message and supplies a safe retry delay.
+    // Retry once only; do not retry network errors because delivery may be ambiguous.
+    if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
+      const retryAfter = result.parameters.retry_after;
+      if (retryAfter > 0 && retryAfter <= 45) {
+        console.warn('LYSTRO Telegram rate limited; retrying once', { retry_after_seconds: retryAfter });
+        await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+        response = await sendMessage();
+        result = await response.json().catch(() => null);
+      } else {
+        console.error('LYSTRO Telegram retry delay exceeds safe request window', { retry_after_seconds: retryAfter });
+        return 'failed';
+      }
+    }
     if (!response.ok || !result?.ok) {
       console.error('LYSTRO Telegram send failed', {
         http_status: response.status,
