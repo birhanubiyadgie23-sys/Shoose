@@ -4,6 +4,7 @@ const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const reply = (res, status, body) => res.status(status).json(body);
 const timedFetch = (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
+const telegramFetch = (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(20000) });
 
 async function updateStatus(base, headers, id, status) {
   const response = await timedFetch(base + 'orders?id=eq.' + encodeURIComponent(id) + '&telegram_notification_status=eq.sending', {
@@ -30,14 +31,16 @@ async function sendTelegram(order) {
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
   ].join('\n');
-  const send = () => timedFetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+  const send = () => telegramFetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text: message })
   });
   try {
+    const startedAt = Date.now();
     console.log('LYSTRO Telegram send started');
     let response = await send();
+    console.log('LYSTRO Telegram response received', { elapsed_ms: Date.now() - startedAt, http_status: response.status });
     let result = await response.json().catch(() => null);
     if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
       const seconds = result.parameters.retry_after;
@@ -45,6 +48,7 @@ async function sendTelegram(order) {
       if (seconds <= 8 && seconds > 0) {
         await new Promise(resolve => setTimeout(resolve, seconds * 1000));
         response = await send();
+        console.log('LYSTRO Telegram retry response received', { http_status: response.status });
         result = await response.json().catch(() => null);
       }
     }
