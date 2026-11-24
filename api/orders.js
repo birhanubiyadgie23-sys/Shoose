@@ -10,8 +10,11 @@ const reply = (res, status, body) => res.status(status).json(body);
 async function notifyTelegram(order) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
-  if (!token || !chatId) return 'not_configured';
-  const text = [
+  if (!token || !chatId) {
+    console.warn('LYSTRO Telegram notification not configured');
+    return 'not_configured';
+  }
+  const messageText = [
     'LYSTRO — New booking',
     'Order: ' + order.id,
     'Customer: ' + order.customer_name,
@@ -22,15 +25,45 @@ async function notifyTelegram(order) {
     'Shoes: ' + order.shoe_count,
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
-  ].join('\n');
-  const sendMessage = () => fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text }),
-    signal: AbortSignal.timeout(10000)
-  });
+  ].join('\\n');
+
+  const sendMessage = async (attempt) => {
+    const startedAt = Date.now();
+    try {
+      const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: messageText }),
+        signal: AbortSignal.timeout(10000)
+      });
+      const result = await response.json().catch(() => null);
+      const durationMs = Date.now() - startedAt;
+      console.log('LYSTRO Telegram response', {
+        attempt,
+        duration_ms: durationMs,
+        http_status: response.status,
+        telegram_ok: result?.ok === true,
+        telegram_error_code: Number.isInteger(result?.error_code) ? result.error_code : null
+      });
+      return { response, result };
+    } catch (error) {
+      const durationMs = Date.now() - startedAt;
+      const timedOut = error?.name === 'AbortError' || error?.name === 'TimeoutError';
+      console.error('LYSTRO Telegram transport error', {
+        attempt,
+        duration_ms: durationMs,
+        error_type: timedOut ? 'timeout' : 'network_error',
+        error_name: error?.name || 'Error'
+      });
+      return { error, timedOut };
+    }
+  };
+
   try {
-    let response = await sendMessage();
-    let result = await response.json().catch(() => null);
+    let outcome = await sendMessage(1);
+    if (outcome.error) return 'failed';
+
+    let { response, result } = outcome;
     // Telegram explicitly rejects a rate-limited message and supplies a safe retry delay.
     // Retry once only; do not retry network errors because delivery may be ambiguous.
     if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
@@ -38,24 +71,34 @@ async function notifyTelegram(order) {
       if (retryAfter > 0 && retryAfter <= 35) {
         console.warn('LYSTRO Telegram rate limited; retrying once', { retry_after_seconds: retryAfter });
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-        response = await sendMessage();
-        result = await response.json().catch(() => null);
+        outcome = await sendMessage(2);
+        if (outcome.error) return 'failed';
+        response = outcome.response;
+        result = outcome.result;
       } else {
         console.error('LYSTRO Telegram retry delay exceeds safe request window', { retry_after_seconds: retryAfter });
         return 'failed';
       }
     }
     if (!response.ok || !result?.ok) {
-      console.error('LYSTRO Telegram send failed', {
+      const rawDescription = typeof result?.description === 'string' ? result.description : 'No error description returned';
+      const safeDescription = rawDescription
+        .replaceAll(token, '[redacted]')
+        .replaceAll(String(chatId), '[redacted]')
+        .slice(0, 180);
+      console.error('LYSTRO Telegram API rejected message', {
         http_status: response.status,
-        telegram_description: result?.description || 'No error description returned'
+        telegram_error_code: Number.isInteger(result?.error_code) ? result.error_code : null,
+        telegram_description: safeDescription
       });
       return 'failed';
     }
-    console.log('LYSTRO Telegram notification sent');
+    console.log('LYSTRO Telegram notification delivered', { telegram_message_id: result.result?.message_id || null });
     return 'sent';
   } catch (error) {
-    console.error('LYSTRO Telegram request error:', error?.message || 'Unknown error');
+    console.error('LYSTRO Telegram notification processing error', {
+      error_name: error?.name || 'Error'
+    });
     return 'failed';
   }
 }
