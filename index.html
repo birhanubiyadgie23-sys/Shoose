@@ -23,6 +23,22 @@
 </main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
 <script>
 const toast=document.getElementById('toast');function notify(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',4200)}
+function lystroSafeHref(v){const s=String(v||'#');return s.startsWith('#')||/^https:\/\//i.test(s)||/^mailto:[^\s]+$/i.test(s)?s:'#';}
+function lystroRenderLinks(selector,items){const box=document.querySelector(selector);if(!box||!Array.isArray(items))return;box.replaceChildren();items.filter(x=>x&&x.enabled!==false&&x.label).forEach(x=>{const a=document.createElement('a');a.textContent=String(x.label).slice(0,60);a.href=lystroSafeHref(x.href);box.appendChild(a);});}
+function lystroRenderContent(data){
+ if(!data||typeof data!=='object')return;
+ const set=(id,value)=>{const el=document.getElementById(id);if(el&&typeof value==='string'&&value)el.textContent=value;};
+ set('heroEyebrow',data.hero?.eyebrow);set('heroTitleText',data.hero?.title);set('heroHighlightText',data.hero?.highlight);set('heroDescription',data.hero?.description);
+ const cta=document.querySelector('.hero .actions .btn');if(cta&&data.hero?.ctaLabel)cta.textContent=data.hero.ctaLabel;
+ lystroRenderLinks('.links',data.nav);lystroRenderLinks('.footlinks',data.footer);
+ const services=document.getElementById('publicServicesGrid');
+ if(services&&Array.isArray(data.services)){services.replaceChildren();data.services.filter(x=>x.enabled!==false&&x.title).forEach(x=>{const card=document.createElement('article');card.className='service-card';if(/^https:\/\//i.test(x.image||'')){const img=document.createElement('img');img.src=x.image;img.alt=x.title+' shoe care';img.loading='lazy';card.appendChild(img);}const body=document.createElement('div');body.className='service-card-body';const badge=document.createElement('span');badge.className='service-badge';badge.textContent='LYSTRO CARE';const h=document.createElement('h3');h.textContent=x.title;const p=document.createElement('p');p.textContent=x.description||'';body.append(badge,h,p);card.appendChild(body);services.appendChild(card);});}
+ const gallery=document.getElementById('publicBeforeAfterGrid');
+ if(gallery&&Array.isArray(data.beforeAfter)){gallery.replaceChildren();data.beforeAfter.filter(x=>x.enabled!==false&&x.title).forEach(x=>{const card=document.createElement('article');card.className='before-card';const pair=document.createElement('div');pair.className='before-pair';[['BEFORE',x.beforeImage],['AFTER',x.afterImage]].forEach(([label,url])=>{const shot=document.createElement('div');shot.className='before-shot';if(/^https:\/\//i.test(url||'')){const img=document.createElement('img');img.src=url;img.alt='Illustrative '+label.toLowerCase()+' shoe sample';img.loading='lazy';shot.appendChild(img);}const tag=document.createElement('span');tag.textContent=label;shot.appendChild(tag);pair.appendChild(shot);});const h=document.createElement('h3');h.textContent=x.title;const p=document.createElement('p');p.textContent=x.description||'Illustrative sample only.';card.append(pair,h,p);gallery.appendChild(card);});}
+ const sections=data.sections||{};[['services','services'],['before','before'],['tips','tips'],['why','why'],['reviews','reviews']].forEach(([key,id])=>{const el=document.getElementById(id);const section=el?.closest('section')||el;if(section){if(sections[key]===false)section.hidden=true;else section.hidden=false;}});
+}
+async function lystroLoadPublicContent(){try{const r=await fetch('/api/site-content',{cache:'no-store'});if(r.ok){const d=await r.json();lystroRenderContent(d.content);}}catch(e){console.warn('Using built-in LYSTRO sample content.');}}
+lystroLoadPublicContent();
 const bookingForm=document.getElementById('bookingForm');
 const bookingSubCity=document.getElementById('bookingSubCity');
 const bookingWoreda=document.getElementById('bookingWoreda');
