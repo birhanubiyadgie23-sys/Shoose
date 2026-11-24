@@ -1,5 +1,5 @@
 // Background Telegram notification endpoint. Booking creation never waits for this request.
-const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\\/+$/, '').replace(/\\/rest\\/v1$/, '');
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const reply = (res, status, body) => res.status(status).json(body);
@@ -28,7 +28,7 @@ async function sendTelegram(order) {
     'Shoes: ' + order.shoe_count,
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
-  ].join('\\n');
+  ].join('\n');
   const send = () => fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
