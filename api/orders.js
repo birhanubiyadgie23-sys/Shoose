@@ -25,7 +25,7 @@ async function notifyTelegram(order) {
     'Shoes: ' + order.shoe_count,
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
-  ].join('\\n');
+  ].join('\n');
 
   const sendMessage = async (attempt) => {
     const startedAt = Date.now();
@@ -34,7 +34,7 @@ async function notifyTelegram(order) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: chatId, text: messageText }),
-        signal: AbortSignal.timeout(10000)
+        signal: AbortSignal.timeout(15000)
       });
       const result = await response.json().catch(() => null);
       const durationMs = Date.now() - startedAt;
@@ -68,7 +68,7 @@ async function notifyTelegram(order) {
     // Retry once only; do not retry network errors because delivery may be ambiguous.
     if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
       const retryAfter = result.parameters.retry_after;
-      if (retryAfter > 0 && retryAfter <= 35) {
+      if (retryAfter > 0 && retryAfter <= 20) {
         console.warn('LYSTRO Telegram rate limited; retrying once', { retry_after_seconds: retryAfter });
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         outcome = await sendMessage(2);
