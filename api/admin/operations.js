@@ -79,6 +79,8 @@ module.exports=async function(req,res){
    if(resource==='professional'){
     const full_name=clean(b.full_name,120),phone=clean(b.phone,30),sub_city_id=clean(b.sub_city_id,50),woreda_id=clean(b.woreda_id,50);
     if(!full_name||!phone||!/^\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id))return reply(res,400,{error:'Enter a valid name, phone, sub-city and woreda.'});
+    const linkedProfiles=await db('lystro_professionals?auth_user_id=eq.'+encodeURIComponent(user.id)+'&select=id,full_name,status&limit=1');
+    if(linkedProfiles?.length)return reply(res,409,{error:'This signed-in account is already linked to a professional profile. Use the existing profile instead of registering it again.'});
     const [area,woreda]=await Promise.all([
      db('lystro_sub_cities?id=eq.'+sub_city_id+'&is_active=eq.true&select=id'),
      db('lystro_woredas?id=eq.'+woreda_id+'&sub_city_id=eq.'+sub_city_id+'&is_active=eq.true&select=id')
