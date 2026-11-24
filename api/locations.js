@@ -24,9 +24,15 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({ error: 'Location options could not be loaded.' });
     }
     const [sub_cities, woredas, services] = await Promise.all([areasResponse.json(), woredasResponse.json(), servicesResponse.json()]);
+    const activeWoredas = Array.isArray(woredas) ? woredas : [];
+    const activeWoredaSubCityIds = new Set(activeWoredas.map(item => item.sub_city_id));
+    // Do not expose active sub-cities that have no active woreda: customers
+    // cannot complete a booking for those areas until an admin configures them.
+    const bookableSubCities = (Array.isArray(sub_cities) ? sub_cities : [])
+      .filter(item => activeWoredaSubCityIds.has(item.id));
     return res.status(200).json({
-      sub_cities: Array.isArray(sub_cities) ? sub_cities : [],
-      woredas: Array.isArray(woredas) ? woredas : [],
+      sub_cities: bookableSubCities,
+      woredas: activeWoredas,
       services: Array.isArray(services) ? services : []
     });
   } catch (error) {
