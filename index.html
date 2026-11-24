@@ -285,8 +285,8 @@ if(location.pathname.startsWith('/admin')){
       document.getElementById('settingsIdentity').textContent=(user.email||'Admin')+' • '+currentRole;
       updateDashboard();
       await loadOperations();
+      await loadWebsiteEditor();
     }
-    await loadWebsiteEditor();
      function uniqueCustomers(){
       const map=new Map();
       orders.forEach(o=>{const key=o.phone||o.customer_name||o.id;if(!map.has(key))map.set(key,{...o,count:0,latest:o.created_at});const c=map.get(key);c.count++;if(o.created_at&&(!c.latest||new Date(o.created_at)>new Date(c.latest))){c.latest=o.created_at;c.sub_city=o.sub_city;c.woreda=o.woreda;c.customer_name=o.customer_name;}});
