@@ -1,5 +1,6 @@
 // LYSTRO public booking API. Privileged credentials remain server-side.
 const crypto = require('crypto');
+const { waitUntil } = require('@vercel/functions');
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const clean = (value, max) => typeof value === 'string' ? value.trim().slice(0, max) : '';
@@ -24,7 +25,8 @@ async function notifyTelegram(order) {
   ].join('\n');
   const sendMessage = () => fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text })
+    body: JSON.stringify({ chat_id: chatId, text }),
+    signal: AbortSignal.timeout(10000)
   });
   try {
     let response = await sendMessage();
@@ -33,7 +35,7 @@ async function notifyTelegram(order) {
     // Retry once only; do not retry network errors because delivery may be ambiguous.
     if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
       const retryAfter = result.parameters.retry_after;
-      if (retryAfter > 0 && retryAfter <= 45) {
+      if (retryAfter > 0 && retryAfter <= 35) {
         console.warn('LYSTRO Telegram rate limited; retrying once', { retry_after_seconds: retryAfter });
         await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
         response = await sendMessage();
@@ -112,28 +114,35 @@ module.exports = async function handler(req, res) {
 
     // Notify the private LYSTRO admin chat after the order is safely saved.
     // Telegram failures must never undo a successful customer booking.
-    const notificationStatus = await notifyTelegram(created);
-    if (notificationStatus === 'sent' || notificationStatus === 'failed') {
-      try {
-        const statusUpdate = await fetch(
-          base + 'orders?id=eq.' + encodeURIComponent(created.id),
-          {
-            method: 'PATCH',
-            headers: {
-              ...headers,
-              'Content-Type': 'application/json',
-              Prefer: 'return=minimal'
-            },
-            body: JSON.stringify({ telegram_notification_status: notificationStatus })
+    // Send the booking confirmation immediately. Telegram is a non-critical
+    // background task and must never hold the customer's booking response open.
+    waitUntil((async () => {
+      const notificationStatus = await notifyTelegram(created);
+      if (notificationStatus === 'sent' || notificationStatus === 'failed') {
+        try {
+          const statusUpdate = await fetch(
+            base + 'orders?id=eq.' + encodeURIComponent(created.id),
+            {
+              method: 'PATCH',
+              headers: {
+                ...headers,
+                'Content-Type': 'application/json',
+                Prefer: 'return=minimal'
+              },
+              body: JSON.stringify({ telegram_notification_status: notificationStatus }),
+              signal: AbortSignal.timeout(10000)
+            }
+          );
+          if (!statusUpdate.ok) {
+            console.error('LYSTRO Telegram status update failed', statusUpdate.status);
           }
-        );
-        if (!statusUpdate.ok) {
-          console.error('LYSTRO Telegram status update failed', statusUpdate.status);
+        } catch (statusError) {
+          console.error('LYSTRO Telegram status update error:', statusError?.message || 'Unknown error');
         }
-      } catch (statusError) {
-        console.error('LYSTRO Telegram status update error:', statusError?.message || 'Unknown error');
       }
-    }
+    })().catch(error => {
+      console.error('LYSTRO background Telegram task failed:', error?.message || 'Unknown error');
+    }));
 
     return reply(res,201,{success:true,order:{id:created.id,tracking_code,service_type:created.service_type,total_amount,cash_payment_status:'unpaid',pickup_date,pickup_time}});
   } catch(error) {
