@@ -109,18 +109,6 @@ module.exports = async function handler(req, res) {
     const data=await saved.json().catch(()=>null);
     if(!saved.ok){console.error('LYSTRO order insert failed',saved.status,data?.code||data?.message||'');return reply(res,502,{error:'Order could not be saved. Please try again.'});}
     const created=Array.isArray(data)?data[0]:data;
-    const telegram_status=await notifyTelegram(created);
-    const statusUpdate = await fetch(base+'orders?id=eq.'+encodeURIComponent(created.id),{
-      method:'PATCH',headers:{...headers,'Content-Type':'application/json',Prefer:'return=minimal'},
-      body:JSON.stringify({telegram_notification_status:telegram_status})
-    });
-    if (!statusUpdate.ok) {
-      const errorBody = await statusUpdate.text().catch(() => '');
-      console.error('LYSTRO Telegram status update failed', {
-        http_status: statusUpdate.status,
-        response: errorBody.slice(0, 500)
-      });
-    }
     return reply(res,201,{success:true,order:{id:created.id,tracking_code,service_type:created.service_type,total_amount,cash_payment_status:'unpaid',pickup_date,pickup_time}});
   } catch(error) {
     console.error('LYSTRO order API error:',error?.message||'Unknown error');
