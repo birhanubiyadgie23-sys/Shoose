@@ -57,13 +57,15 @@ module.exports = async function handler(req, res) {
     };
 
     if (req.method === 'GET') {
+      const rawOffset = Number.parseInt(req.query?.offset || '0', 10);
+      const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? Math.min(rawOffset, 10000000) : 0;
       const response = await fetch(
-        SUPABASE_URL + '/rest/v1/orders?select=*&order=created_at.desc&limit=200',
+        SUPABASE_URL + '/rest/v1/orders?select=*&order=created_at.desc&limit=1000&offset=' + offset,
         { headers }
       );
       const data = await response.json().catch(() => null);
       if (!response.ok) return reply(res, 502, { error: 'Orders could not be loaded.' });
-      return reply(res, 200, { orders: data || [], role });
+      return reply(res, 200, { orders: data || [], role, offset, page_size: 1000, has_more: Array.isArray(data) && data.length === 1000 });
     }
 
     let body = req.body;
