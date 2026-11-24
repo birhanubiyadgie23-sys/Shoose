@@ -71,6 +71,15 @@ bookingForm.addEventListener('submit',async e=>{
     const result=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(result.error||'Order could not be saved.');
     const code=result.order?.tracking_code;
+    // Fire-and-forget: customer confirmation must not wait for Telegram's response or rate limit.
+    if(result.order?.id){
+      fetch('/api/telegram-notify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id:result.order.id}),
+        keepalive:true
+      }).catch(error=>console.warn('LYSTRO background notification request failed:',error?.message||'network error'));
+    }
     bookingForm.reset();
     if(code){
       const panel=document.getElementById('trackingResult');panel.hidden=false;
