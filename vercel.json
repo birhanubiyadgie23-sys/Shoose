@@ -16,6 +16,9 @@
   "functions": {
     "api/orders.js": {
       "maxDuration": 60
+    },
+    "api/telegram-notify.js": {
+      "maxDuration": 60
     }
   }
 }
