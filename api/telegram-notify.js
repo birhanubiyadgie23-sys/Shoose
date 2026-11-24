@@ -3,9 +3,10 @@ const SUPABASE_URL = (process.env.SUPABASE_URL || '').replace(/\/+$/, '').replac
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const reply = (res, status, body) => res.status(status).json(body);
+const timedFetch = (url, options = {}) => fetch(url, { ...options, signal: AbortSignal.timeout(8000) });
 
 async function updateStatus(base, headers, id, status) {
-  const response = await fetch(base + 'orders?id=eq.' + encodeURIComponent(id) + '&telegram_notification_status=eq.sending', {
+  const response = await timedFetch(base + 'orders?id=eq.' + encodeURIComponent(id) + '&telegram_notification_status=eq.sending', {
     method: 'PATCH',
     headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
     body: JSON.stringify({ telegram_notification_status: status })
@@ -35,11 +36,13 @@ async function sendTelegram(order) {
     body: JSON.stringify({ chat_id: chatId, text: message })
   });
   try {
+    console.log('LYSTRO Telegram send started');
     let response = await send();
     let result = await response.json().catch(() => null);
     if (response.status === 429 && Number.isInteger(result?.parameters?.retry_after)) {
       const seconds = result.parameters.retry_after;
-      if (seconds <= 45 && seconds > 0) {
+      console.log('LYSTRO Telegram rate limited; retrying shortly', { retry_after: seconds });
+      if (seconds <= 8 && seconds > 0) {
         await new Promise(resolve => setTimeout(resolve, seconds * 1000));
         response = await send();
         result = await response.json().catch(() => null);
@@ -75,7 +78,7 @@ module.exports = async function handler(req, res) {
   const base = SUPABASE_URL + '/rest/v1/';
   const headers = { apikey: SERVICE_KEY, Authorization: 'Bearer ' + SERVICE_KEY };
   try {
-    const found = await fetch(base + 'orders?id=eq.' + encodeURIComponent(id) +
+    const found = await timedFetch(base + 'orders?id=eq.' + encodeURIComponent(id) +
       '&select=id,customer_name,phone,service_type,sub_city,woreda,pickup_date,pickup_time,shoe_count,total_amount,telegram_notification_status', { headers });
     if (!found.ok) return reply(res, 502, { error: 'Order could not be loaded.' });
     const rows = await found.json();
@@ -83,7 +86,7 @@ module.exports = async function handler(req, res) {
     if (rows[0].telegram_notification_status !== 'pending') return reply(res, 200, { success: true, skipped: true });
 
     // Claim once so repeated client requests cannot create duplicate channel posts.
-    const claimed = await fetch(base + 'orders?id=eq.' + encodeURIComponent(id) + '&telegram_notification_status=eq.pending', {
+    const claimed = await timedFetch(base + 'orders?id=eq.' + encodeURIComponent(id) + '&telegram_notification_status=eq.pending', {
       method: 'PATCH',
       headers: { ...headers, 'Content-Type': 'application/json', Prefer: 'return=representation' },
       body: JSON.stringify({ telegram_notification_status: 'sending' })
