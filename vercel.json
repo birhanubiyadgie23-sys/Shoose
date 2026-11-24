@@ -18,7 +18,10 @@
       "maxDuration": 60
     },
     "api/telegram-notify.js": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "regions": [
+        "fra1"
+      ]
     }
   }
 }
