@@ -27,8 +27,20 @@ async function notifyTelegram(order) {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: chatId, text })
     });
-    return response.ok ? 'sent' : 'failed';
-  } catch (_) { return 'failed'; }
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.ok) {
+      console.error('LYSTRO Telegram send failed', {
+        http_status: response.status,
+        telegram_description: result?.description || 'No error description returned'
+      });
+      return 'failed';
+    }
+    console.log('LYSTRO Telegram notification sent');
+    return 'sent';
+  } catch (error) {
+    console.error('LYSTRO Telegram request error:', error?.message || 'Unknown error');
+    return 'failed';
+  }
 }
 
 module.exports = async function handler(req, res) {
@@ -83,10 +95,17 @@ module.exports = async function handler(req, res) {
     if(!saved.ok){console.error('LYSTRO order insert failed',saved.status,data?.code||data?.message||'');return reply(res,502,{error:'Order could not be saved. Please try again.'});}
     const created=Array.isArray(data)?data[0]:data;
     const telegram_status=await notifyTelegram(created);
-    await fetch(base+'orders?id=eq.'+encodeURIComponent(created.id),{
+    const statusUpdate = await fetch(base+'orders?id=eq.'+encodeURIComponent(created.id),{
       method:'PATCH',headers:{...headers,'Content-Type':'application/json',Prefer:'return=minimal'},
       body:JSON.stringify({telegram_notification_status:telegram_status})
-    }).catch(()=>{});
+    });
+    if (!statusUpdate.ok) {
+      const errorBody = await statusUpdate.text().catch(() => '');
+      console.error('LYSTRO Telegram status update failed', {
+        http_status: statusUpdate.status,
+        response: errorBody.slice(0, 500)
+      });
+    }
     return reply(res,201,{success:true,order:{id:created.id,tracking_code,service_type:created.service_type,total_amount,cash_payment_status:'unpaid',pickup_date,pickup_time}});
   } catch(error) {
     console.error('LYSTRO order API error:',error?.message||'Unknown error');
