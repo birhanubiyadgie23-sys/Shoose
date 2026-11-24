@@ -139,7 +139,8 @@ module.exports = async function handler(req, res) {
     const [areas,woredas,services]=await Promise.all([areasR.json(),woredasR.json(),servicesR.json()]);
     if(!areas?.length||!woredas?.length||woredas[0].sub_city_id!==sub_city_id)return reply(res,400,{error:'The selected woreda does not belong to the selected sub-city.'});
     if(!services?.length)return reply(res,400,{error:'Please select an available service.'});
-    const unit_price=Number(services[0].price)||0;
+    const unit_price=Number(services[0].price);
+    if(!Number.isFinite(unit_price)||unit_price<=0)return reply(res,409,{error:'This service is not accepting bookings until its price is configured by LYSTRO.'});
     const total_amount=unit_price*shoe_count;
     const tracking_code=crypto.randomBytes(24).toString('hex');
     const order={
