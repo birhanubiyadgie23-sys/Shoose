@@ -117,7 +117,18 @@ module.exports=async function(req,res){
     if(resource==='sub_city'){record={name:clean(b.name,100)};path='lystro_sub_cities';}
     if(resource==='service'){record={name:clean(b.name,100),description:clean(b.description,500),price:Math.max(0,Number(b.price)||0),duration_minutes:Math.max(1,Math.min(1440,Number(b.duration_minutes)||60))};path='lystro_services';}
     if(!record.name)return reply(res,400,{error:'A name is required.'});
-    const data=await db(path,'POST',record,'return=representation');return reply(res,201,{success:true,item:data?.[0]});
+    const existing=await db(path+'?name=eq.'+encodeURIComponent(record.name)+'&select=*&limit=1');
+    if(existing?.length)return reply(res,200,{success:true,duplicate:true,item:existing[0]});
+    try{
+     const data=await db(path,'POST',record,'return=representation');
+     return reply(res,201,{success:true,item:data?.[0]});
+    }catch(error){
+     if(error?.message&&/duplicate key|23505/i.test(error.message)){
+      const duplicate=await db(path+'?name=eq.'+encodeURIComponent(record.name)+'&select=*&limit=1');
+      if(duplicate?.length)return reply(res,200,{success:true,duplicate:true,item:duplicate[0]});
+     }
+     throw error;
+    }
    }
    if(resource==='assign'){
     if(!uuid.test(clean(b.order_id,50))||!uuid.test(clean(b.professional_id,50)))return reply(res,400,{error:'Valid order and professional are required.'});
