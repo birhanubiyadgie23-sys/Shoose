@@ -30,7 +30,7 @@ async function sendTelegram(order) {
     'Total: ETB ' + order.total_amount,
     'Payment: Cash on service (unpaid)'
   ].join('\n');
-  const send = () => fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+  const send = () => timedFetch('https://api.telegram.org/bot' + token + '/sendMessage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chatId, text: message })
