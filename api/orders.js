@@ -109,6 +109,32 @@ module.exports = async function handler(req, res) {
     const data=await saved.json().catch(()=>null);
     if(!saved.ok){console.error('LYSTRO order insert failed',saved.status,data?.code||data?.message||'');return reply(res,502,{error:'Order could not be saved. Please try again.'});}
     const created=Array.isArray(data)?data[0]:data;
+
+    // Notify the private LYSTRO admin chat after the order is safely saved.
+    // Telegram failures must never undo a successful customer booking.
+    const notificationStatus = await notifyTelegram(created);
+    if (notificationStatus === 'sent' || notificationStatus === 'failed') {
+      try {
+        const statusUpdate = await fetch(
+          base + 'orders?id=eq.' + encodeURIComponent(created.id),
+          {
+            method: 'PATCH',
+            headers: {
+              ...headers,
+              'Content-Type': 'application/json',
+              Prefer: 'return=minimal'
+            },
+            body: JSON.stringify({ telegram_notification_status: notificationStatus })
+          }
+        );
+        if (!statusUpdate.ok) {
+          console.error('LYSTRO Telegram status update failed', statusUpdate.status);
+        }
+      } catch (statusError) {
+        console.error('LYSTRO Telegram status update error:', statusError?.message || 'Unknown error');
+      }
+    }
+
     return reply(res,201,{success:true,order:{id:created.id,tracking_code,service_type:created.service_type,total_amount,cash_payment_status:'unpaid',pickup_date,pickup_time}});
   } catch(error) {
     console.error('LYSTRO order API error:',error?.message||'Unknown error');
