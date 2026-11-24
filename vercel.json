@@ -12,5 +12,10 @@
       "source": "/professional",
       "destination": "/professional.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/orders.js": {
+      "maxDuration": 60
+    }
+  }
 }
