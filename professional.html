@@ -55,7 +55,7 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
 <section id="login" class="card login"><h1>Professional Login</h1><p class="muted">Sign in using the email address invited by LYSTRO administration.</p>
 <form id="loginForm"><label>Email</label><input id="email" type="email" autocomplete="username" required><label>Password</label><input id="password" type="password" autocomplete="current-password" required><button id="loginButton" type="submit">Sign in</button></form><p id="loginStatus" class="status" role="status"></p><p class="muted"><a href="#register" id="showRegister">New professional? Apply here</a> · <a href="#reset" id="showReset">Forgot password?</a></p></section>
 <section id="register" class="card login" hidden><h1>Professional application</h1><p class="muted">Create your account and verify your email. Your application will be reviewed by LYSTRO before you can receive jobs.</p>
-<form id="registerForm"><label>Full name</label><input id="regName" required maxlength="120" autocomplete="name"><label>Email</label><input id="regEmail" type="email" required autocomplete="email"><label>Phone</label><input id="regPhone" required autocomplete="tel"><label>City Division</label><select id="regSubCity" required><option value="">Loading areas…</option></select><label>Woreda</label><select id="regWoreda" required disabled><option value="">Choose city division first</option></select><label>Services you provide</label><div id="regServices" class="service-options muted">Loading services…</div><label>Experience (years)</label><input id="regExperience" type="number" min="0" max="60" value="0"><label>Address (optional)</label><input id="regAddress" maxlength="400"><label>Create password</label><input id="regPassword" type="password" minlength="8" required autocomplete="new-password"><button id="registerButton" type="submit">Submit application</button></form><p id="registerStatus" class="status" role="status"></p><p class="muted"><a href="#login" id="backLogin">Back to sign in</a></p></section>
+<form id="registerForm"><label>Full name</label><input id="regName" required maxlength="120" autocomplete="name"><label>Email</label><input id="regEmail" type="email" required autocomplete="email"><label>Phone</label><input id="regPhone" required autocomplete="tel"><label>City Division</label><select id="regSubCity" required><option value="">Loading areas…</option></select><label>Woreda</label><select id="regWoreda" required disabled><option value="">Choose city division first</option></select><label>Services you provide</label><div id="regServices" class="service-options muted">Loading services…</div><label>Experience (years)</label><input id="regExperience" type="number" min="0" max="60" value="0"><label>Address (optional)</label><input id="regAddress" maxlength="400"><label>Create password</label><input id="regPassword" type="password" minlength="8" required autocomplete="new-password"><button id="registerButton" type="submit">Submit application</button></form><p id="registerStatus" class="status" role="status"></p><button id="resendConfirmation" class="secondary" type="button" hidden>Resend confirmation email</button><p class="muted"><a href="#login" id="backLogin">Back to sign in</a></p></section>
 <section id="reset" class="card login" hidden><h1>Reset password</h1><p class="muted">We will email you a secure password-reset link.</p><form id="resetForm"><label>Email</label><input id="resetEmail" type="email" required autocomplete="email"><button type="submit">Send reset link</button></form><p id="resetStatus" class="status" role="status"></p><p class="muted"><a href="#login" id="resetBack">Back to sign in</a></p></section>
 <section id="setPassword" class="card login" hidden><h1>Set or change your password</h1><p class="muted">Choose a new password for your professional account.</p><form id="passwordForm"><label>New password</label><input id="newPassword" type="password" minlength="8" required autocomplete="new-password"><label>Confirm password</label><input id="confirmPassword" type="password" minlength="8" required autocomplete="new-password"><button type="submit">Save password</button></form><p id="passwordStatus" class="status" role="status"></p></section>
 <section id="dashboard" hidden><div class="order-top"><h1 id="welcome">Your work</h1><button id="changePassword" class="secondary" type="button">Change password</button></div><p class="muted">Your professional space — stay organized, do great work, and make every pair feel new.</p>
@@ -83,7 +83,6 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
  function updateWoredas(){const id=$('regSubCity').value;const rows=locationOptions.woredas.filter(x=>x.sub_city_id===id);$('regWoreda').innerHTML='<option value="">Select woreda</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');$('regWoreda').disabled=!rows.length;}
  async function finishRegistration(){
   const {data:{session:s}}=await client.auth.getSession();if(!s?.access_token)return null;
-  const u=s.user||{};if(!u.user_metadata?.sub_city_id)return null;
   const r=await fetch('/api/professional-registration',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token},body:'{}'});
   const d=await r.json().catch(()=>({}));
   if(!r.ok)throw new Error(d.error||'Could not complete your application.');
@@ -118,13 +117,27 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
  $('registerForm').addEventListener('submit',async e=>{
   e.preventDefault();const selected=[...document.querySelectorAll('input[name="service"]:checked')].map(x=>x.value);
   if(!selected.length){$('registerStatus').textContent='Select at least one service.';return;}
-  $('registerButton').disabled=true;$('registerStatus').textContent='Creating your account…';
+  $('registerButton').disabled=true;$('resendConfirmation').hidden=true;$('registerStatus').textContent='Saving your application…';
+  const email=$('regEmail').value.trim().toLowerCase();
+  const application={full_name:$('regName').value.trim(),email,phone:$('regPhone').value.trim(),sub_city_id:$('regSubCity').value,woreda_id:$('regWoreda').value,service_ids:selected,experience_years:Number($('regExperience').value)||0,address:$('regAddress').value.trim()};
   try{
-   const {data,error}=await client.auth.signUp({email:$('regEmail').value.trim(),password:$('regPassword').value,options:{emailRedirectTo:'https://shoose-roan.vercel.app/professional',data:{full_name:$('regName').value.trim(),phone:$('regPhone').value.trim(),sub_city_id:$('regSubCity').value,woreda_id:$('regWoreda').value,service_ids:selected,experience_years:Number($('regExperience').value)||0,address:$('regAddress').value.trim()}}});
-   if(error)throw error;
-   if(data.session){const done=await finishRegistration();$('registerStatus').textContent=done?.message||'Application submitted. Verify your email if prompted.';}
-   else $('registerStatus').textContent='Account created. Check your email and confirm your address, then return here to sign in and complete your application.';
-  }catch(err){$('registerStatus').textContent=err.message;}finally{$('registerButton').disabled=false;}
+   const saved=await fetch('/api/professional-application',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(application)});
+   const savedData=await saved.json().catch(()=>({}));
+   if(!saved.ok)throw new Error(savedData.error||'Your application could not be saved.');
+   $('registerStatus').textContent='Application saved and sent to LYSTRO for review. Creating your sign-in account…';
+   const {data,error}=await client.auth.signUp({email,password:$('regPassword').value,options:{emailRedirectTo:'https://shoose-roan.vercel.app/professional',data:{full_name:application.full_name,phone:application.phone,sub_city_id:application.sub_city_id,woreda_id:application.woreda_id,service_ids:selected,experience_years:application.experience_years,address:application.address}}});
+   if(error){$('registerStatus').textContent='Your application is safely recorded and visible to LYSTRO administration. '+error.message+' If you already have an account, return to sign in.';}
+   else if(data.session){const done=await finishRegistration();$('registerStatus').textContent=done?.message||'Your application has been received.';}
+   else{$('registerStatus').textContent='Your application is saved and visible to LYSTRO administration. A confirmation email should arrive shortly. Check your inbox and spam folder, then confirm your address and sign in.';$('resendConfirmation').hidden=false;}
+  }catch(err){$('registerStatus').textContent=err.message||'Application could not be submitted.';}
+  finally{$('registerButton').disabled=false;}
+ });
+ $('resendConfirmation').addEventListener('click',async()=>{
+  const email=$('regEmail').value.trim();if(!email){$('registerStatus').textContent='Enter your email address first.';return;}
+  const b=$('resendConfirmation');b.disabled=true;$('registerStatus').textContent='Requesting another confirmation email…';
+  try{const {error}=await client.auth.resend({type:'signup',email,options:{emailRedirectTo:'https://shoose-roan.vercel.app/professional'}});if(error)throw error;$('registerStatus').textContent='A new confirmation email has been requested. Check your inbox and spam folder.';}
+  catch(err){$('registerStatus').textContent=err.message||'Could not resend the confirmation email.';}
+  finally{b.disabled=false;}
  });
  $('resetForm').addEventListener('submit',async e=>{e.preventDefault();$('resetStatus').textContent='Sending reset link…';try{const {error}=await client.auth.resetPasswordForEmail($('resetEmail').value.trim(),{redirectTo:'https://shoose-roan.vercel.app/professional'});if(error)throw error;$('resetStatus').textContent='If this email has an account, a password-reset link has been sent. Check your inbox.';}catch(err){$('resetStatus').textContent=err.message;}});
  $('refresh').addEventListener('click',load);
