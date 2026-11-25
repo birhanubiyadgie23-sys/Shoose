@@ -156,16 +156,21 @@ if(location.pathname.startsWith('/admin')){
        const response=await fetch('/api/admin/site-content',{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:content?JSON.stringify({content}):undefined});
        const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Website content request failed.');return result;
      }
-     async function loadWebsiteEditor(){
+     let websiteContentBaseline=null;
+     async function loadWebsiteEditor(force=false){
        const status=document.getElementById('websiteContentStatus'),area=document.getElementById('websiteContentJson');
-       try{const result=await websiteContentApi('GET');area.value=JSON.stringify(result.content,null,2);status.textContent='Saved content loaded. Changes appear on the public homepage after saving.';}
-       catch(e){status.textContent=e.message+' Apply the LYSTRO site-content SQL migration in Supabase, then reload.';}
+       if(!force&&websiteContentBaseline!==null&&area.value!==websiteContentBaseline&&!confirm('You have unsaved edits. Reloading will discard them. Continue?'))return;
+       const button=document.getElementById('reloadWebsiteContent');if(button)button.disabled=true;
+       status.textContent='Loading saved website content…';
+       try{const result=await websiteContentApi('GET');area.value=JSON.stringify(result.content,null,2);websiteContentBaseline=area.value;status.textContent='Saved content loaded successfully. Your editor now shows the latest database version.';}
+       catch(e){status.textContent=e.message;}
+       finally{if(button)button.disabled=false;}
      }
      async function saveWebsiteEditor(){
        const status=document.getElementById('websiteContentStatus'),area=document.getElementById('websiteContentJson');let content;
        try{content=JSON.parse(area.value);}catch(e){status.textContent='Invalid JSON: '+e.message;return;}
        const button=document.getElementById('saveWebsiteContent');button.disabled=true;status.textContent='Saving website content…';
-       try{await websiteContentApi('PUT',content);status.textContent='Website content saved. Refresh the public homepage to see your changes.';}
+       try{await websiteContentApi('PUT',content);websiteContentBaseline=area.value;status.textContent='Website content saved successfully. Refresh the public homepage to see your changes.';}
        catch(e){status.textContent=e.message;}finally{button.disabled=false;}
      }
      function fillSelect(el,items,label,selected){
@@ -465,7 +470,11 @@ if(location.pathname.startsWith('/admin')){
        else if(view==='reports'){document.getElementById('pageTitle').textContent='Order Overview Report';document.getElementById('pageSubtitle').textContent='Review order totals and status breakdown';}
        else if(view==='settings'){document.getElementById('pageTitle').textContent='Settings & Service Areas';document.getElementById('pageSubtitle').textContent='Manage sub-cities, woredas and services';}
        else if(view==='website'){document.getElementById('pageTitle').textContent='Website Content';document.getElementById('pageSubtitle').textContent='Edit public homepage content and navigation';}
-       const target=b.dataset.navTarget;if(target){const el=document.getElementById(target);if(el){if(target==='reloadWebsiteContent'||target==='saveWebsiteContent'){el.click();}else{el.scrollIntoView({behavior:'smooth',block:'center'});if(target==='websiteContentJson')el.focus({preventScroll:true});}}}
+       const target=b.dataset.navTarget;if(target){
+         if(target==='reloadWebsiteContent'){await loadWebsiteEditor();}
+         else if(target==='saveWebsiteContent'){await saveWebsiteEditor();}
+         else {const el=document.getElementById(target);if(el){if(target==='websiteContentJson'&&websiteContentBaseline===null)await loadWebsiteEditor(true);el.scrollIntoView({behavior:'smooth',block:'center'});if(target==='websiteContentJson')el.focus({preventScroll:true});}}
+       }
      }));
      
      document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
