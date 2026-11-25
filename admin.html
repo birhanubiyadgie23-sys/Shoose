@@ -428,36 +428,44 @@ if(location.pathname.startsWith('/admin')){
      document.getElementById('resetWebsiteContent')?.addEventListener('click',async()=>{try{const r=await fetch('/api/site-content',{cache:'no-store'}),d=await r.json();document.getElementById('websiteContentJson').value=JSON.stringify(d.content,null,2);document.getElementById('websiteContentStatus').textContent='Sample defaults loaded in the editor. Click Save to publish.';}catch(e){document.getElementById('websiteContentStatus').textContent='Could not load sample defaults.';}});
 
     document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{
-       const group=b.closest('.ad-nav-group');
+       const view=b.dataset.view,group=b.closest('.ad-nav-group');
        if(group){
          const willOpen=!group.classList.contains('expanded');
-         document.querySelectorAll('.ad-nav-group').forEach(g=>g.classList.remove('expanded'));
-         if(willOpen)group.classList.add('expanded');
-         b.setAttribute('aria-expanded',String(willOpen));
+         document.querySelectorAll('.ad-nav-group').forEach(g=>{g.classList.remove('expanded');const p=g.querySelector(':scope > [data-view]');if(p)p.setAttribute('aria-expanded','false');});
+         if(willOpen){group.classList.add('expanded');b.setAttribute('aria-expanded','true');}
+         navigate(view);
+         document.querySelectorAll('[data-nav-sub],[data-prof-view]').forEach(x=>x.classList.remove('active'));
+         if(view==='orders'){activeOrderFilter='all';document.getElementById('orderSearch').value='';document.querySelectorAll('[data-order-filter]').forEach(x=>x.classList.toggle('active',x.dataset.orderFilter==='all'));renderOrders();}
+         if(view==='professionals'){document.querySelectorAll('[data-prof-panel]').forEach(p=>p.hidden=p.dataset.profPanel!=='all');document.querySelectorAll('[data-prof-view]').forEach(x=>x.classList.toggle('active',x.dataset.profView==='all'));loadOperations();}
+         if(view==='assignments')loadOperations();
          return;
        }
-       navigate(b.dataset.view);
-       document.querySelectorAll('.ad-nav-group').forEach(g=>g.classList.remove('expanded'));
+       navigate(view);
+       document.querySelectorAll('.ad-nav-group').forEach(g=>{g.classList.remove('expanded');const p=g.querySelector(':scope > [data-view]');if(p)p.setAttribute('aria-expanded','false');});
      }));
-    document.querySelectorAll('[data-nav-sub]').forEach(b=>b.addEventListener('click',()=>{
-      const view=b.dataset.navSub; navigate(view);
-      document.querySelectorAll('.ad-nav-group').forEach(g=>g.classList.toggle('expanded',g.contains(b)));
-      document.querySelectorAll('[data-nav-sub],[data-prof-view]').forEach(x=>x.classList.toggle('active',x===b));
-      if(view==='orders'){
-        const filter=b.dataset.navFilter||'all';
-        activeOrderFilter=filter==='payment_review'?'unpaid':filter;
-        document.querySelectorAll('[data-order-filter]').forEach(x=>x.classList.toggle('active',x.dataset.orderFilter===activeOrderFilter));
-        renderOrders();
-        if(filter==='payment_review'){
-          document.getElementById('orderSearch').value='';
-          const body=document.getElementById('ordersBody');
-          const rows=orders.filter(o=>o.cash_reported_at&&o.cash_payment_status!=='paid');
-          body.innerHTML=rows.map(o=>{const i=orders.indexOf(o),p=professionalForOrder(o);return '<tr data-order-id="'+esc(o.id)+'"><td><b>#'+orderNumber(i)+'</b><br><small>'+esc(o.tracking_code||'')+'</small></td><td>'+esc(o.customer_name)+'<br><small>'+esc(o.phone)+'</small></td><td>'+esc(o.service_type)+'</td><td>'+esc(o.pickup_date||'—')+'</td><td>'+esc(p?.full_name||'—')+'<br><small>'+esc(p?.phone||'')+'</small></td><td>'+esc(statusLabel(o.status))+'</td><td><span class="ad-status status-pending">Reported · verify</span><br><button class="ad-detail-btn" data-verify-cash="'+esc(o.id)+'">Verify payment</button></td><td><button class="ad-detail-btn" data-order-detail="'+esc(o.id)+'">View details</button></td></tr>';}).join('')||'<tr><td colspan="8">No payments awaiting verification.</td></tr>';
-        }
-      }else if(view==='assignments'){loadOperations();}
-    }));
-
-    document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
+     
+     document.querySelectorAll('[data-nav-sub]').forEach(b=>b.addEventListener('click',()=>{
+       const view=b.dataset.navSub; navigate(view);
+       document.querySelectorAll('.ad-nav-group').forEach(g=>{const open=g.contains(b);g.classList.toggle('expanded',open);const p=g.querySelector(':scope > [data-view]');if(p)p.setAttribute('aria-expanded',String(open));});
+       document.querySelectorAll('[data-nav-sub],[data-prof-view]').forEach(x=>x.classList.toggle('active',x===b));
+       if(view==='orders'){
+         const filter=b.dataset.navFilter||'all';
+         activeOrderFilter=filter==='payment_review'?'unpaid':filter;
+         const titles={all:'All Orders',needs_assignment:'Orders Needing Assignment',assigned:'Assigned Orders',in_progress:'Orders In Progress',completed:'Completed Orders',unpaid:'Cash Payments Unpaid',payment_review:'Payment Verification'};
+         document.getElementById('pageTitle').textContent=titles[filter]||'Orders';
+         document.getElementById('pageSubtitle').textContent=filter==='payment_review'?'Review cash collection reports submitted by professionals':'Orders matching the selected status';
+         document.querySelectorAll('[data-order-filter]').forEach(x=>x.classList.toggle('active',x.dataset.orderFilter===activeOrderFilter));
+         document.getElementById('orderSearch').value='';renderOrders();
+         if(filter==='payment_review'){
+           const body=document.getElementById('ordersBody'),rows=orders.filter(o=>o.cash_reported_at&&o.cash_payment_status!=='paid');
+           body.innerHTML=rows.map(o=>{const i=orders.indexOf(o),p=professionalForOrder(o);return '<tr data-order-id="'+esc(o.id)+'"><td><b>#'+orderNumber(i)+'</b><br><small>'+esc(o.tracking_code||'')+'</small></td><td>'+esc(o.customer_name)+'<br><small>'+esc(o.phone)+'</small></td><td>'+esc(o.service_type)+'</td><td>'+esc(o.pickup_date||'—')+'</td><td>'+esc(p?.full_name||'—')+'<br><small>'+esc(p?.phone||'')+'</small></td><td>'+esc(statusLabel(o.status))+'</td><td><span class="ad-status status-pending">Reported · verify</span><br><button class="ad-detail-btn" data-verify-cash="'+esc(o.id)+'">Verify payment</button></td><td><button class="ad-detail-btn" data-order-detail="'+esc(o.id)+'">View details</button></td></tr>';}).join('')||'<tr><td colspan="8">No payments awaiting verification.</td></tr>';
+         }
+       }else if(view==='assignments')loadOperations();
+       else if(view==='customers'){document.getElementById('pageTitle').textContent='Customer Directory';document.getElementById('pageSubtitle').textContent='Browse customer records and open each customer profile';}
+       else if(view==='reports'){document.getElementById('pageTitle').textContent='Order Overview Report';document.getElementById('pageSubtitle').textContent='Review order totals and status breakdown';}
+     }));
+     
+     document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
     document.getElementById('adminMenuToggle')?.addEventListener('click',()=>document.getElementById('adminSidebar').classList.toggle('open'));
     document.getElementById('refreshAssignmentStatus')?.addEventListener('click',async()=>{await refresh();await loadOperations();notice.textContent='Orders and assignment status refreshed.';});
     document.getElementById('refreshOrders')?.addEventListener('click',refresh);
