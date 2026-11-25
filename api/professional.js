@@ -28,12 +28,23 @@ module.exports=async function(req,res){
   if(!professional)return reply(res,403,{error:'No professional profile is linked to this account. Contact LYSTRO administration.'});
   if(professional.status!=='approved')return reply(res,403,{error:'Your professional account is not currently approved.'});
   if(req.method==='GET'){
-   const orders=await db('orders?assigned_professional_id=eq.'+professional.id+'&status=in.(assigned,in_progress,completed)&select=id,customer_name,phone,service_type,sub_city,woreda,status,created_at,assigned_at,started_at,completed_at&order=created_at.desc&limit=100');
+   const orders=await db('orders?assigned_professional_id=eq.'+professional.id+'&status=in.(assigned,in_progress,completed)&select=id,customer_name,phone,service_type,sub_city,woreda,status,created_at,assigned_at,started_at,completed_at,cash_payment_status,cash_reported_at&order=created_at.desc&limit=100');
    const active=(orders||[]).filter(o=>['assigned','in_progress'].includes(o.status)).length;
    return reply(res,200,{professional:{id:professional.id,full_name:professional.full_name,availability:professional.availability,max_active_jobs:professional.max_active_jobs||20},orders:orders||[],active_jobs:active});
   }
   let body=req.body;if(typeof body==='string'){try{body=JSON.parse(body)}catch{body=null}}
-  if(!body||!uuid.test(String(body.order_id||''))||!['start','complete'].includes(body.action))return reply(res,400,{error:'A valid order and action are required.'});
+  if(!body||!uuid.test(String(body.order_id||'')))return reply(res,400,{error:'A valid order ID is required.'});
+  if(body.action==='report_cash_received'){
+   const owned=await db('orders?id=eq.'+encodeURIComponent(body.order_id)+'&assigned_professional_id=eq.'+encodeURIComponent(professional.id)+'&select=id,status,cash_payment_status,cash_reported_at&limit=1');
+   const order=owned?.[0];
+   if(!order)return reply(res,404,{error:'This order is not assigned to your account.'});
+   if(order.status!=='completed')return reply(res,409,{error:'Report cash only after completing the service.'});
+   if(order.cash_payment_status==='paid')return reply(res,409,{error:'Payment is already verified by administration.'});
+   if(order.cash_reported_at)return reply(res,409,{error:'Cash collection has already been reported. Please wait for admin verification.'});
+   await db('orders?id=eq.'+encodeURIComponent(body.order_id)+'&assigned_professional_id=eq.'+encodeURIComponent(professional.id),'PATCH',{cash_reported_at:new Date().toISOString(),cash_reported_by:professional.id});
+   return reply(res,200,{success:true,message:'Cash collection reported. LYSTRO administration must verify it.'});
+  }
+  if(!['start','complete'].includes(body.action))return reply(res,400,{error:'A valid job action is required.'});
   const result=await db('rpc/lystro_professional_update_job','POST',{p_user_id:user.id,p_order_id:body.order_id,p_action:body.action});
   return reply(res,200,result||{success:true});
  }catch(e){
