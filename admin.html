@@ -266,14 +266,14 @@ if(location.pathname.startsWith('/admin')){
       try{await operationsApi('POST','invite',{professional_id:b.dataset.invite});await loadOperations();notice.textContent='Portal invitation sent. The professional must open the email and set a password.';}
       catch(err){notice.textContent=err.message;b.disabled=false;}
     }));
-    document.getElementById('professionalsBody')?.addEventListener('change',async e=>{
+    ['professionalsBody','pendingProfessionalsBody','approvedProfessionalsBody'].forEach(bodyId=>document.getElementById(bodyId)?.addEventListener('change',async e=>{
       const control=e.target.closest('.capacity-control');if(!control)return;
       const p=operations.professionals.find(x=>x.id===control.dataset.capacityId);if(!p)return;
       control.disabled=true;
       try{await operationsApi('PATCH','professional',{id:p.id,status:p.status,max_active_jobs:Number(control.value)});await loadOperations();notice.textContent='Professional workload limit updated.';}
       catch(err){notice.textContent=err.message;await loadOperations();}
       finally{control.disabled=false;}
-    });
+    }));
     const professionalForm=document.getElementById('professionalForm');
     const professionalFormStatus=document.getElementById('professionalFormStatus');
     const professionalSubmitButton=document.getElementById('professionalSubmitButton');
