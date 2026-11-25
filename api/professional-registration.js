@@ -1,6 +1,6 @@
 // Complete a verified professional self-registration. Public signup is handled by Supabase Auth;
 // this endpoint only creates the profile after the email address has been confirmed.
-const URL=(process.env.SUPABASE_URL||'').replace(/\\/+$/,'').replace(/\\/rest\\/v1$/,'');
+const URL=(process.env.SUPABASE_URL||'').replace(/\/+$/,'').replace(/\/rest\/v1$/,'');
 const SERVICE=process.env.SUPABASE_SERVICE_ROLE_KEY||'';
 const PUBLIC=process.env.SUPABASE_ANON_KEY||process.env.SUPABASE_PUBLISHABLE_KEY||'sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J';
 const reply=(res,n,b)=>res.status(n).json(b);
@@ -10,7 +10,7 @@ module.exports=async function(req,res){
  res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');
  if(req.method!=='POST'){res.setHeader('Allow','POST');return reply(res,405,{error:'Method not allowed.'});}
  if(!URL||!SERVICE||!PUBLIC)return reply(res,500,{error:'Registration service is not configured.'});
- const token=(req.headers.authorization||'').match(/^Bearer\\s+(.+)$/i)?.[1];
+ const token=(req.headers.authorization||'').match(/^Bearer\s+(.+)$/i)?.[1];
  if(!token)return reply(res,401,{error:'Please verify your email and sign in first.'});
  try{
   const auth=await fetch(URL+'/auth/v1/user',{headers:{apikey:PUBLIC,Authorization:'Bearer '+token}});
@@ -24,7 +24,7 @@ module.exports=async function(req,res){
   const address=clean(meta.address,400);
   const experience_years=Math.max(0,Math.min(60,Number(meta.experience_years)||0));
   const service_ids=Array.isArray(meta.service_ids)?[...new Set(meta.service_ids.filter(x=>uuid.test(x)))]:[];
-  if(!full_name||!/^\\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id)||!service_ids.length||!/^\\S+@\\S+\\.\\S+$/.test(email))
+  if(!full_name||!/^\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id)||!service_ids.length||!/^\S+@\S+\.\S+$/.test(email))
    return reply(res,400,{error:'Registration details are incomplete. Please register again with your name, phone, service area and at least one service.'});
   const headers={apikey:SERVICE,Authorization:'Bearer '+SERVICE,'Content-Type':'application/json'};
   async function db(path,method='GET',body,prefer=''){
