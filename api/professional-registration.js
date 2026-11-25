@@ -18,14 +18,7 @@ module.exports=async function(req,res){
   const user=await auth.json();
   if(!user?.id||!user.email_confirmed_at)return reply(res,403,{error:'Please confirm your email address before completing registration.'});
   const meta=user.user_metadata||{};
-  const full_name=clean(meta.full_name,120),phone=clean(meta.phone,30);
-  const sub_city_id=clean(meta.sub_city_id,50),woreda_id=clean(meta.woreda_id,50);
   const email=clean(user.email,160).toLowerCase();
-  const address=clean(meta.address,400);
-  const experience_years=Math.max(0,Math.min(60,Number(meta.experience_years)||0));
-  const service_ids=Array.isArray(meta.service_ids)?[...new Set(meta.service_ids.filter(x=>uuid.test(x)))]:[];
-  if(!full_name||!/^\+?[0-9() -]{7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id)||!service_ids.length||!/^\S+@\S+\.\S+$/.test(email))
-   return reply(res,400,{error:'Registration details are incomplete. Please register again with your name, phone, service area and at least one service.'});
   const headers={apikey:SERVICE,Authorization:'Bearer '+SERVICE,'Content-Type':'application/json'};
   async function db(path,method='GET',body,prefer=''){
    const r=await fetch(URL+'/rest/v1/'+path,{method,headers:{...headers,...(prefer?{Prefer:prefer}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});
@@ -33,12 +26,25 @@ module.exports=async function(req,res){
    if(!r.ok){console.error('LYSTRO registration DB error',r.status,String(raw).slice(0,300));throw new Error(d?.message||'Registration could not be saved.');}
    return d;
   }
-  const existing=await db('lystro_professionals?or=(auth_user_id.eq.'+user.id+',email.ilike.'+encodeURIComponent(email)+')&select=id,status,auth_user_id&limit=2');
-  if(existing?.length){
-   const own=existing.find(x=>x.auth_user_id===user.id);
-   if(own)return reply(res,200,{success:true,status:own.status,already_registered:true,message:own.status==='approved'?'Your professional account is approved.':'Your email is verified. Your application is awaiting administrator review.'});
-   return reply(res,409,{error:'A professional profile already uses this email address. Please contact LYSTRO administration.'});
+  const existing=await db('lystro_professionals?or=(auth_user_id.eq.'+user.id+',email.ilike.'+encodeURIComponent(email)+')&select=id,status,auth_user_id,email&limit=3');
+  const own=existing?.find(x=>x.auth_user_id===user.id);
+  if(own)return reply(res,200,{success:true,status:own.status,already_registered:true,message:own.status==='approved'?'Your professional account is approved.':'Your email is verified. Your application is awaiting administrator review.'});
+  const unlinked=existing?.filter(x=>!x.auth_user_id&&String(x.email||'').toLowerCase()===email)||[];
+  if(unlinked.length===1){
+   const linked=await db('lystro_professionals?id=eq.'+unlinked[0].id+'&auth_user_id=is.null','PATCH',{auth_user_id:user.id},'return=representation');
+   if(linked?.[0])return reply(res,200,{success:true,status:linked[0].status,already_registered:true,message:'Your email is verified. Your application is now linked to your account and is awaiting administrator review.'});
+   const check=await db('lystro_professionals?id=eq.'+unlinked[0].id+'&select=id,status,auth_user_id&limit=1');
+   if(check?.[0]?.auth_user_id===user.id)return reply(res,200,{success:true,status:check[0].status,already_registered:true,message:'Your email is verified. Your application is awaiting administrator review.'});
+   return reply(res,409,{error:'This application is already linked to another account. Please contact LYSTRO administration.'});
   }
+  if(unlinked.length>1)return reply(res,409,{error:'More than one application uses this email address. Please contact LYSTRO administration.'});
+  const full_name=clean(meta.full_name,120),phone=clean(meta.phone,30);
+  const sub_city_id=clean(meta.sub_city_id,50),woreda_id=clean(meta.woreda_id,50);
+  const address=clean(meta.address,400);
+  const experience_years=Math.max(0,Math.min(60,Number(meta.experience_years)||0));
+  const service_ids=Array.isArray(meta.service_ids)?[...new Set(meta.service_ids.filter(x=>uuid.test(x)))]:[];
+  if(!full_name||!/^[+]?([0-9() -]){7,30}$/.test(phone)||!uuid.test(sub_city_id)||!uuid.test(woreda_id)||!service_ids.length||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+   return reply(res,400,{error:'Registration details are incomplete. Please register again with your name, phone, service area and at least one service.'});
   const [areas,woredas,services]=await Promise.all([
    db('lystro_sub_cities?id=eq.'+sub_city_id+'&is_active=eq.true&select=id'),
    db('lystro_woredas?id=eq.'+woreda_id+'&sub_city_id=eq.'+sub_city_id+'&is_active=eq.true&select=id'),
