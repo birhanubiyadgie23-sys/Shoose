@@ -22,6 +22,7 @@
 <small id="telegramSavedHint" style="display:block;margin-top:8px;color:#65718b">Telegram ሲከፈት Saved Messages ይምረጡና Send ይጫኑ።</small><p id="trackingStatus" role="status"></p></div></form></div></div></section>
 </main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
 <script>
+if(!location.pathname.startsWith('/admin')){
 const toast=document.getElementById('toast');function notify(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',4200)}
 function lystroSafeHref(v){const s=String(v||'#');return s.startsWith('#')||/^https:\/\//i.test(s)||/^mailto:[^\s]+$/i.test(s)?s:'#';}
 function lystroRenderLinks(selector,items){const box=document.querySelector(selector);if(!box||!Array.isArray(items))return;box.replaceChildren();items.filter(x=>x&&x.enabled!==false&&x.label).forEach(x=>{const a=document.createElement('a');a.textContent=String(x.label).slice(0,60);a.href=lystroSafeHref(x.href);box.appendChild(a);});}
@@ -143,6 +144,7 @@ document.getElementById('trackOrderButton').addEventListener('click',async()=>{
     const o=data.order;out.textContent='ሁኔታ: '+o.status+' | አገልግሎት: '+o.service_type+' | ቀን: '+(o.pickup_date||'-')+' '+(o.pickup_time||'')+' | ጠቅላላ: '+o.total_amount+' ETB | ክፍያ: '+o.cash_payment_status;
   }catch(error){out.textContent=error.message;}
 });
+}
 if(location.pathname.startsWith('/admin')){
   document.body.innerHTML = '<style>'+
   ':root{--ad-navy:#17213c;--ad-blue:#1769f5;--ad-ink:#101a3a;--ad-muted:#69748d;--ad-line:#e1e6f2;--ad-bg:#f4f6fc}'+
