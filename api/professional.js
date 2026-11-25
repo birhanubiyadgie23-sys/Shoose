@@ -17,8 +17,8 @@ module.exports=async function(req,res){
   const user=await auth.json();if(!user?.id)return reply(res,401,{error:'Could not verify your account.'});
   const headers={apikey:SERVICE,Authorization:'Bearer '+SERVICE,'Content-Type':'application/json'};
   const base=URL+'/rest/v1/';
-  async function db(path,method='GET',body){
-   const r=await fetch(base+path,{method,headers,...(body!==undefined?{body:JSON.stringify(body)}:{})});
+  async function db(path,method='GET',body,extraHeaders={}){
+   const r=await fetch(base+path,{method,headers:{...headers,...extraHeaders},...(body!==undefined?{body:JSON.stringify(body)}:{})});
    const t=await r.text();let d;try{d=t?JSON.parse(t):null}catch{d=t}
    if(!r.ok){console.error('LYSTRO professional DB error',r.status,String(t).slice(0,300));throw new Error(d?.message||'Database request failed.');}
    return d;
@@ -41,7 +41,8 @@ module.exports=async function(req,res){
    if(order.status!=='completed')return reply(res,409,{error:'Report cash only after completing the service.'});
    if(order.cash_payment_status==='paid')return reply(res,409,{error:'Payment is already verified by administration.'});
    if(order.cash_reported_at)return reply(res,409,{error:'Cash collection has already been reported. Please wait for admin verification.'});
-   await db('orders?id=eq.'+encodeURIComponent(body.order_id)+'&assigned_professional_id=eq.'+encodeURIComponent(professional.id),'PATCH',{cash_reported_at:new Date().toISOString(),cash_reported_by:professional.id});
+   const reported=await db('orders?id=eq.'+encodeURIComponent(body.order_id)+'&assigned_professional_id=eq.'+encodeURIComponent(professional.id)+'&status=eq.completed&cash_reported_at=is.null&cash_payment_status=neq.paid','PATCH',{cash_reported_at:new Date().toISOString(),cash_reported_by:professional.id},{Prefer:'return=representation'});
+   if(!Array.isArray(reported)||!reported.length)return reply(res,409,{error:'The payment state changed. Refresh your jobs before reporting again.'});
    return reply(res,200,{success:true,message:'Cash collection reported. LYSTRO administration must verify it.'});
   }
   if(!['start','complete'].includes(body.action))return reply(res,400,{error:'A valid job action is required.'});
