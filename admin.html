@@ -449,7 +449,7 @@ if(location.pathname.startsWith('/admin')){
        document.querySelectorAll('.ad-nav-group').forEach(g=>{g.classList.remove('expanded');const p=g.querySelector(':scope > [data-view]');if(p)p.setAttribute('aria-expanded','false');});
      }));
      
-     document.querySelectorAll('[data-nav-sub]').forEach(b=>b.addEventListener('click',()=>{
+     document.querySelectorAll('[data-nav-sub]').forEach(b=>b.addEventListener('click',async()=>{
        const view=b.dataset.navSub; navigate(view);
        document.querySelectorAll('.ad-nav-group').forEach(g=>{const open=g.contains(b);g.classList.toggle('expanded',open);const p=g.querySelector(':scope > [data-view]');if(p)p.setAttribute('aria-expanded',String(open));});
        document.querySelectorAll('[data-nav-sub],[data-prof-view]').forEach(x=>x.classList.toggle('active',x===b));
