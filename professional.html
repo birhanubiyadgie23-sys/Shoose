@@ -20,13 +20,44 @@ label{font-size:13px;font-weight:700}.login{max-width:430px;margin:42px auto}
 .order-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.pill{font-size:12px;font-weight:800;padding:5px 9px;border-radius:20px;background:#eaf0fc;color:#244c91}
 .order h3{margin:9px 0}.details{font-size:14px;color:#5f6d84;line-height:1.7}.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 [hidden]{display:none!important}
+
+/* Professional workspace refresh */
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#14213b;background:#f3f6fc}
+body{background:radial-gradient(ellipse at 12% 0%,#e0ebff 0,transparent 38%),linear-gradient(180deg,#f7f9fe,#eef3fb)}
+.wrap{max-width:1160px;padding:28px 20px 64px}
+header{position:relative;overflow:hidden;background:linear-gradient(115deg,#101b35 0%,#183a68 58%,#245bb1 100%);padding:22px 26px;border-radius:22px;box-shadow:0 18px 42px #132b5126}
+header:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #ffffff20;border-radius:50%;right:70px;top:-145px;box-shadow:0 0 0 28px #ffffff08,0 0 0 58px #ffffff06;pointer-events:none}
+.brand{font-size:18px;letter-spacing:.15em}.tag{font-size:13px;color:#d6e4ff}
+button{transition:transform .18s ease,box-shadow .18s ease,background .18s ease;box-shadow:0 5px 14px #2768e82b}button:hover{transform:translateY(-1px);box-shadow:0 8px 20px #2768e83b}.secondary{box-shadow:none}
+h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26px 0 8px}
+.muted{color:#6b7890;line-height:1.6}.card{border:1px solid #e5ebf5;border-radius:20px;box-shadow:0 12px 34px #1a31500b;padding:23px;margin-top:20px}
+.login{max-width:460px;margin:48px auto}.login h1{margin-top:2px}
+#dashboard>h1{margin-top:30px}#dashboard>p{max-width:680px}
+.grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin-top:22px}
+.metric{position:relative;overflow:hidden;background:linear-gradient(145deg,#fff,#f4f7fd);border:1px solid #e5ebf5;border-radius:18px;padding:19px;min-height:112px}
+.metric:after{content:"";position:absolute;width:74px;height:74px;border-radius:50%;background:#e8efff;right:-25px;top:-25px}
+.metric span{position:relative;z-index:1;font-size:13px;font-weight:650;color:#71809a}.metric strong{position:relative;z-index:1;font-size:29px;letter-spacing:-.04em;color:#173765;margin-top:9px}
+#availability{text-transform:capitalize}
+.order{background:#fff;border:1px solid #e5ebf5;border-radius:16px;padding:19px;margin-top:14px;transition:border-color .18s,box-shadow .18s}.order:hover{border-color:#c7d7f6;box-shadow:0 9px 24px #1c3c6810}
+.order h3{font-size:18px;letter-spacing:-.02em;color:#172b4b}.details{color:#65748c;line-height:1.85}.pill{background:#eaf1ff;color:#2454a0;padding:6px 11px}
+.actions{gap:10px}.actions button{min-width:120px}
+#dashboard .card{margin-top:24px}#dashboard .card h2{font-size:20px;letter-spacing:-.025em;color:#172b4b}
+#notice{padding:8px 0;min-height:28px}
+.motivation{position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;align-items:center;gap:18px;margin-top:22px;padding:23px 25px;border-radius:20px;color:white;background:linear-gradient(115deg,#17345f,#245db0 72%,#3275ce);box-shadow:0 14px 32px #1e4f9526}
+.motivation:after{content:"✦";font-size:100px;line-height:1;color:#ffffff15;position:absolute;right:22px;bottom:-28px}
+.motivation .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:#cfe0ff}.motivation h2{margin:8px 0;font-size:clamp(19px,3vw,25px);letter-spacing:-.03em;color:white}.motivation p{margin:0;max-width:700px;color:#e0ebff;line-height:1.65;font-size:14px}.motivation .spark{font-size:30px;position:relative;z-index:1;margin-right:15px}
+.focus-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:15px}.focus-card{background:#fff;border:1px solid #e5ebf5;border-radius:17px;padding:18px}.focus-card .icon{width:37px;height:37px;display:grid;place-items:center;border-radius:12px;background:#edf3ff;color:#245bb1;font-size:18px}.focus-card h3{font-size:15px;margin:12px 0 5px;color:#1b3154}.focus-card p{font-size:13px;line-height:1.65;color:#71809a;margin:0}
+.empty-note{padding:25px;border:1px dashed #cbd7e9;background:#f8faff;border-radius:14px;color:#687894;text-align:center;line-height:1.7}
+@media(max-width:600px){.wrap{padding:14px 12px 42px}header{padding:17px;border-radius:17px}.card{padding:17px}.motivation{grid-template-columns:1fr;padding:20px}.motivation .spark{display:none}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:14px;min-height:100px}.metric strong{font-size:25px}}
 </style></head>
 <body><main class="wrap">
 <header><div><div class="brand">👟 LYSTRO</div><div class="tag">Professional workspace · Clean Steps, Happy You</div></div><button id="logout" class="secondary" hidden>Sign out</button></header>
 <section id="login" class="card login"><h1>Professional Login</h1><p class="muted">Sign in using the email address invited by LYSTRO administration.</p>
 <form id="loginForm"><label>Email</label><input id="email" type="email" autocomplete="username" required><label>Password</label><input id="password" type="password" autocomplete="current-password" required><button id="loginButton" type="submit">Sign in</button></form><p id="loginStatus" class="status" role="status"></p></section>
 <section id="setPassword" class="card login" hidden><h1>Set your password</h1><p class="muted">Choose a password for your professional account.</p><form id="passwordForm"><label>New password</label><input id="newPassword" type="password" minlength="8" required autocomplete="new-password"><label>Confirm password</label><input id="confirmPassword" type="password" minlength="8" required autocomplete="new-password"><button type="submit">Save password</button></form><p id="passwordStatus" class="status" role="status"></p></section>
-<section id="dashboard" hidden><h1 id="welcome">Your work</h1><p class="muted">View only the orders assigned to your professional account. Update each job as you work.</p>
+<section id="dashboard" hidden><h1 id="welcome">Your work</h1><p class="muted">Your professional space — stay organized, do great work, and make every pair feel new.</p>
+<div class="motivation"><div><div class="eyebrow">THE LYSTRO STANDARD</div><h2>Every clean pair tells a story of care.</h2><p>Your skill makes a real difference. Bring care, attention, and pride to every order — one pair at a time.</p></div><div class="spark" aria-hidden="true">✦</div></div>
+<div class="focus-grid"><article class="focus-card"><div class="icon" aria-hidden="true">✓</div><h3>Quality first</h3><p>Give every pair the attention it deserves. A careful finish builds customer trust.</p></article><article class="focus-card"><div class="icon" aria-hidden="true">⏱</div><h3>Stay on track</h3><p>Check your assigned jobs regularly and keep each order status up to date.</p></article><article class="focus-card"><div class="icon" aria-hidden="true">★</div><h3>Make it memorable</h3><p>Professional service, clear communication, and care turn a good visit into a great one.</p></article></div>
 <div class="grid"><div class="metric"><span class="muted">Active jobs</span><strong id="activeCount">0</strong></div><div class="metric"><span class="muted">Your active-job limit</span><strong id="capacity">20</strong></div><div class="metric"><span class="muted">Availability</span><strong id="availability">Available</strong></div></div>
 <div class="card"><div class="order-top"><h2 style="margin:0">Assigned jobs</h2><button id="refresh" class="secondary">Refresh</button></div><p id="notice" class="status" role="status"></p><div id="orders"></div></div></section>
 </main>
@@ -45,7 +76,7 @@ label{font-size:13px;font-weight:700}.login{max-width:430px;margin:42px auto}
   profile=data.professional;$('welcome').textContent='Welcome, '+profile.full_name;
   $('activeCount').textContent=data.active_jobs;$('capacity').textContent=profile.max_active_jobs||20;$('availability').textContent=profile.availability;
   const rows=data.orders||[];
-  $('orders').innerHTML=rows.map(o=>'<article class="order"><div class="order-top"><span class="pill">'+esc(statusText(o.status))+'</span><span class="muted">'+(o.created_at?new Date(o.created_at).toLocaleString():'')+'</span></div><h3>'+esc(o.service_type)+'</h3><div class="details"><b>Customer:</b> '+esc(o.customer_name)+'<br><b>Contact:</b> '+esc(o.phone)+'<br><b>Area:</b> '+esc(o.sub_city)+' / '+esc(o.woreda)+'</div><div class="actions">'+(o.status==='assigned'?'<button data-action="start" data-id="'+esc(o.id)+'">Start job</button>':'')+(o.status==='in_progress'?'<button data-action="complete" data-id="'+esc(o.id)+'">Mark completed</button>':'')+'</div></article>').join('')||'<p class="muted">No assigned jobs yet.</p>';
+  $('orders').innerHTML=rows.map(o=>'<article class="order"><div class="order-top"><span class="pill">'+esc(statusText(o.status))+'</span><span class="muted">'+(o.created_at?new Date(o.created_at).toLocaleString():'')+'</span></div><h3>'+esc(o.service_type)+'</h3><div class="details"><b>Customer:</b> '+esc(o.customer_name)+'<br><b>Contact:</b> '+esc(o.phone)+'<br><b>Area:</b> '+esc(o.sub_city)+' / '+esc(o.woreda)+'</div><div class="actions">'+(o.status==='assigned'?'<button data-action="start" data-id="'+esc(o.id)+'">Start job</button>':'')+(o.status==='in_progress'?'<button data-action="complete" data-id="'+esc(o.id)+'">Mark completed</button>':'')+'</div></article>').join('')||'<div class="empty-note"><strong>You are all caught up!</strong><br>There are no assigned jobs right now. Keep your availability up to date and check back for new work.</div>';
  }
  async function load(){ $('notice').textContent='Loading your jobs…';try{const d=await api();render(d);$('notice').textContent='Your work list is up to date.';}catch(e){$('notice').textContent=e.message;}}
  async function show(){const {data:{session:s}}=await client.auth.getSession();session=s;if(!s){login.hidden=false;dashboard.hidden=true;logout.hidden=true;return;}try{const d=await api();login.hidden=true;setPassword.hidden=true;dashboard.hidden=false;logout.hidden=false;render(d);$('notice').textContent='Your work list is up to date.';}catch(e){login.hidden=false;dashboard.hidden=true;logout.hidden=false;$('loginStatus').textContent=e.message;}}
