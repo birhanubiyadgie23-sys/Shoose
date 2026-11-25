@@ -47,8 +47,8 @@ module.exports=async function(req,res){
   if(!areas?.length||!woredas?.length||services?.length!==service_ids.length)
    return reply(res,400,{error:'One selected service area or service is no longer available. Please update your registration.'});
   const created=await db('lystro_professionals','POST',{
-   auth_user_id:user.id,full_name,email,phone,sub_city_id,woreda_id,address,
-   experience_years,status:'pending_review',availability:'unavailable',max_active_jobs:20
+   auth_user_id:user.id,created_by:user.id,full_name,email,phone,sub_city_id,woreda_id,address,
+   experience_years,status:'pending_review',availability:'available',max_active_jobs:20
   },'return=representation');
   const profile=created?.[0];if(!profile)return reply(res,502,{error:'Your profile could not be created.'});
   try{
