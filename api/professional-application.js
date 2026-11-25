@@ -40,13 +40,15 @@ module.exports=async function(req,res){
   ]);
   if(!areas?.length||!woredas?.length)return reply(res,400,{error:'Choose an active woreda within the selected sub-city.'});
   if(!Array.isArray(services)||services.length!==ids.length)return reply(res,400,{error:'One or more selected services are unavailable.'});
-  // Avoid duplicate applications from the same phone or email.
-  const phoneMatch=await db('lystro_professionals?phone=eq.'+encodeURIComponent(phone)+'&select=id,status&limit=1');
-  if(phoneMatch?.length)return reply(res,409,{error:'An application already exists for this phone number. Please contact LYSTRO administration.'});
+  // Keep an existing unlinked application visible to Admin instead of creating duplicates.
   if(email){
-   const emailMatch=await db('lystro_professionals?email=ilike.'+encodeURIComponent(email)+'&select=id,status&limit=1');
+   const emailMatch=await db('lystro_professionals?email=ilike.'+encodeURIComponent(email)+'&select=id,status,auth_user_id&limit=2');
+   if(emailMatch?.length===1&&!emailMatch[0].auth_user_id&&emailMatch[0].status==='pending_review')
+    return reply(res,200,{success:true,already_received:true,message:'Your application is already on file and visible to LYSTRO administration.'});
    if(emailMatch?.length)return reply(res,409,{error:'An application already exists for this email address. Please contact LYSTRO administration.'});
   }
+  const phoneMatch=await db('lystro_professionals?phone=eq.'+encodeURIComponent(phone)+'&select=id,status&limit=1');
+  if(phoneMatch?.length)return reply(res,409,{error:'An application already exists for this phone number. Please contact LYSTRO administration.'});
   const rows=await db('lystro_professionals','POST',{
    full_name,phone,email:email||null,sub_city_id,woreda_id,address,
    experience_years:experience,notes,
