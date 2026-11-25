@@ -355,7 +355,8 @@ if(location.pathname.startsWith('/admin')){
       const {data:{session},error}=await client.auth.getSession();
       if(error||!session){resetMessage.textContent='This password reset link is invalid or expired. Request a new recovery email.';document.getElementById('saveAdminPassword').disabled=true;}
     }
-    loginForm.addEventListener('submit',async e=>{
+    document.addEventListener('submit',async e=>{
+      if(e.target?.id!=='adminLoginForm')return;
       e.preventDefault();message.textContent='';loginButton.disabled=true;loginButton.textContent='Signing in…';
       try{const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('adminEmail').value.trim(),password:document.getElementById('adminPassword').value});if(error)throw error;await showDashboard(data.user);}
       catch(err){message.textContent=err.message||'Sign-in failed.';if(client)await client.auth.signOut().catch(()=>{});}
