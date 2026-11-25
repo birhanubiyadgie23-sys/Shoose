@@ -55,6 +55,42 @@ module.exports=async function(req,res){
   let b=req.body;if(typeof b==='string'){try{b=JSON.parse(b)}catch{b=null}}
   if(!b||typeof b!=='object'||Array.isArray(b))return reply(res,400,{error:'Invalid request body.'});
   if(req.method==='POST'){
+   if(resource==='account'){
+    const professionalId=clean(b.professional_id,50),password=typeof b.password==='string'?b.password:'';
+    if(!uuid.test(professionalId))return reply(res,400,{error:'Valid professional ID is required.'});
+    if(password.length<10||password.length>128)return reply(res,400,{error:'Set a temporary password of at least 10 characters.'});
+    const rows=await db('lystro_professionals?id=eq.'+professionalId+'&select=id,email,full_name,status,auth_user_id&limit=1');
+    const person=rows?.[0];
+    if(!person||person.status!=='approved')return reply(res,409,{error:'Approve the professional before creating a portal account.'});
+    if(!person.email||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(person.email))return reply(res,400,{error:'Add a valid email address to this professional profile first.'});
+    let authUser=null;
+    if(person.auth_user_id){
+     const found=await fetch(URL+'/auth/v1/admin/users/'+encodeURIComponent(person.auth_user_id),{headers:{apikey:SERVICE,Authorization:'Bearer '+SERVICE}});
+     if(found.ok){const payload=await found.json();authUser=payload.user||payload;}
+     else if(found.status!==404)return reply(res,502,{error:'Could not verify the linked sign-in account.'});
+    }
+    if(!authUser){
+     for(let page=1;page<=10&&!authUser;page++){
+      const list=await fetch(URL+'/auth/v1/admin/users?page='+page+'&per_page=100',{headers:{apikey:SERVICE,Authorization:'Bearer '+SERVICE}});
+      if(!list.ok)return reply(res,502,{error:'Could not check existing sign-in accounts.'});
+      const payload=await list.json(),users=payload.users||payload;
+      authUser=(Array.isArray(users)?users:[]).find(x=>(x.email||'').toLowerCase()===person.email.toLowerCase())||null;
+      if(!Array.isArray(users)||users.length<100)break;
+     }
+    }
+    const oldMeta=authUser?.user_metadata||{};
+    if(authUser?.user_metadata?.lystro_professional_id&&authUser.user_metadata.lystro_professional_id!==person.id)
+     return reply(res,409,{error:'This email account is already linked to a different professional profile. Ask Super Admin to review the duplicate profile.'});
+    const userBody={email:person.email,password,email_confirm:true,user_metadata:{...oldMeta,lystro_professional_id:person.id,full_name:person.full_name,force_password_change:true}};
+    const endpoint=authUser?URL+'/auth/v1/admin/users/'+encodeURIComponent(authUser.id):URL+'/auth/v1/admin/users';
+    const saved=await fetch(endpoint,{method:authUser?'PUT':'POST',headers:{apikey:SERVICE,Authorization:'Bearer '+SERVICE,'Content-Type':'application/json'},body:JSON.stringify(userBody)});
+    const result=await saved.json().catch(()=>({}));
+    if(!saved.ok){console.error('LYSTRO professional account setup failed',saved.status,result?.msg||result?.message||'');return reply(res,502,{error:'Could not create or reset the professional account. Check the email and password requirements.'});}
+    const authId=result.id||result.user?.id||authUser?.id;
+    if(!uuid.test(String(authId||'')))return reply(res,502,{error:'Account was updated but its ID could not be confirmed. Contact support before retrying.'});
+    if(person.auth_user_id!==authId)await db('lystro_professionals?id=eq.'+professionalId,'PATCH',{auth_user_id:authId},'return=minimal');
+    return reply(res,200,{success:true,created:!authUser,email:person.email,message:authUser?'Existing account password reset and linked to the professional profile.':'Professional portal account created and linked. Share the temporary password securely.'});
+   }
    if(resource==='invite'){
     if(role!=='super_admin')return reply(res,403,{error:'Only Super Admin can invite professionals.'});
     const professionalId=clean(b.professional_id,50);
