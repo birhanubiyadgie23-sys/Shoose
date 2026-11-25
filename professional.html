@@ -126,7 +126,7 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
    if(!saved.ok)throw new Error(savedData.error||'Your application could not be saved.');
    $('registerStatus').textContent='Application saved and sent to LYSTRO for review. Creating your sign-in account…';
    const {data,error}=await client.auth.signUp({email,password:$('regPassword').value,options:{emailRedirectTo:'https://shoose-roan.vercel.app/professional',data:{full_name:application.full_name,phone:application.phone,sub_city_id:application.sub_city_id,woreda_id:application.woreda_id,service_ids:selected,experience_years:application.experience_years,address:application.address}}});
-   if(error){$('registerStatus').textContent='Your application is safely recorded and visible to LYSTRO administration. '+error.message+' If you already have an account, return to sign in.';}
+   if(error){$('registerStatus').textContent='Your application is safely recorded and visible to LYSTRO administration. '+error.message+' If you already have an account, return to sign in or request another confirmation email.';if(/already registered|already exists/i.test(error.message||''))$('resendConfirmation').hidden=false;}
    else if(data.session){const done=await finishRegistration();$('registerStatus').textContent=done?.message||'Your application has been received.';}
    else{$('registerStatus').textContent='Your application is saved and visible to LYSTRO administration. A confirmation email should arrive shortly. Check your inbox and spam folder, then confirm your address and sign in.';$('resendConfirmation').hidden=false;}
   }catch(err){$('registerStatus').textContent=err.message||'Application could not be submitted.';}
