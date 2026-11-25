@@ -1,0 +1,21 @@
+{
+  "rewrites": [
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin/:path*",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/professional",
+      "destination": "/professional.html"
+    }
+  ],
+  "functions": {
+    "api/orders.js": {
+      "maxDuration": 60
+    }
+  }
+}

@@ -1,578 +1,559 @@
-<!DOCTYPE html>
-<html lang="am">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ኢ-ሊስትሮ (E-Listro) | ፕሪሚየም ሞባይል ሊስትሮ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @keyframes slowZoom {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.08); }
-        }
-        .animate-zoom {
-            animation: slowZoom 5s infinite alternate ease-in-out;
-        }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
+<!doctype html>
+<html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b49"><meta name="description" content="LYSTRO — የጫማ ማጽጃ አገልግሎት በቤትዎ ደጃፍ። Clean Shoes. Confident You!"><title>LYSTRO | Clean Steps, Happy You</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Ethiopic:wght@400;500;600;700;800;900&display=swap');
+:root{--navy:#071b49;--blue:#0758ef;--yellow:#ffc400;--ink:#10204b;--muted:#65718b;--pale:#f3f6ff;--line:#dfe6fb;--white:#fff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,'Noto Sans Ethiopic',sans-serif;color:var(--ink);background:#f6f8ff}a{text-decoration:none;color:inherit}button,input,select{font:inherit}.wrap{width:min(1240px,92%);margin:auto}.top{background:var(--navy);color:#fff;position:sticky;top:0;z-index:10;box-shadow:0 5px 24px #06163d30}.nav{height:76px;display:flex;align-items:center;gap:28px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:29px;letter-spacing:-1.4px;white-space:nowrap}.brand-mark{font-size:35px;filter:drop-shadow(0 3px 2px #0004)}.brand small{display:block;font-size:11px;font-weight:600;letter-spacing:.1px;margin-top:-5px}.links{display:flex;gap:24px;align-items:center;margin:auto;font-size:13px;font-weight:700}.links a{opacity:.92}.links a:hover{color:var(--yellow)}.navright{display:flex;align-items:center;gap:14px}.lang{background:transparent;border:0;color:white;font-weight:700;cursor:pointer}.btn{border:0;border-radius:999px;padding:14px 22px;background:var(--yellow);color:#091b45;font-weight:900;cursor:pointer;box-shadow:0 7px 18px #ffc40045;transition:.2s}.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px #ffc40065}.btn.blue{background:var(--blue);color:#fff;box-shadow:0 7px 18px #0758ef35}.hero{background:linear-gradient(115deg,#071b49 0%,#0c3c8b 48%,#1269d6 100%);color:#fff;position:relative;overflow:hidden;padding:54px 0 34px}.hero:before{content:'';position:absolute;width:650px;height:650px;border-radius:50%;background:#ffffff0b;right:4%;top:-370px}.hero-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:24px;align-items:center;position:relative}.eyebrow{color:#ffdb35;font-size:12px;letter-spacing:2px;font-weight:900;text-transform:uppercase}.hero h1{font-family:'Noto Sans Ethiopic',Inter,sans-serif;font-size:clamp(30px,4vw,54px);line-height:1.35;margin:14px 0 8px;font-weight:900}.hero h1 span{color:var(--yellow)}.hero h2{font-size:clamp(20px,2.3vw,29px);margin:10px 0;font-weight:900}.hero p{color:#e1eaff;line-height:1.8;max-width:530px}.actions{display:flex;gap:14px;align-items:center;margin-top:25px;flex-wrap:wrap}.watch{color:white;font-weight:700;border:1px solid #ffffff65;background:#ffffff12;padding:12px 18px;border-radius:999px}.hero-art{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center}.shoe-photo{width:100%;height:340px;object-fit:cover;border-radius:34px;mix-blend-mode:screen;filter:drop-shadow(0 25px 25px #0006);mask-image:radial-gradient(ellipse,black 48%,transparent 78%)}.scribble{position:absolute;right:0;top:3px;background:var(--yellow);color:#091b45;padding:14px 18px;transform:rotate(5deg);font-weight:900;border-radius:8px 22px 8px 20px}.proof{background:white;border-radius:18px;box-shadow:0 12px 35px #05194a22;padding:22px 24px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;margin-top:-4px}.proof-item{display:flex;gap:12px;align-items:center;border-right:1px solid var(--line);padding-right:10px}.proof-item:last-child{border:0}.ico{font-size:30px;color:var(--blue)}.proof b{display:block;font-size:14px}.proof small{color:var(--blue);font-weight:600}.section{padding:64px 0}.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:25px}.section h2{font-size:30px;margin:0 0 8px;font-weight:900}.section-head p{color:var(--muted);margin:0}.howgrid{display:grid;grid-template-columns:220px 1fr 300px;gap:18px;align-items:stretch}.how-title{border-left:7px solid var(--yellow);padding:14px 18px}.steps{display:grid;grid-template-columns:repeat(4,1fr);background:white;border:1px solid var(--line);border-radius:20px;padding:20px 10px;gap:8px}.step{text-align:center;position:relative;padding:8px}.num{background:var(--blue);color:white;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:18px;font-weight:900;margin:0 auto 10px}.step .emoji{font-size:40px}.step b{display:block;margin-top:8px;font-size:13px}.step small{color:var(--muted)}.offer{border-radius:20px;background:linear-gradient(120deg,#061b4b,#0b4fb6);color:white;padding:20px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}.offer:after{content:'🎁';font-size:95px;position:absolute;right:8px;bottom:20px;opacity:.9}.offer .tag{color:var(--yellow);font-weight:900}.offer strong{font-size:43px;line-height:1.05;margin:8px 0}.offer .btn{align-self:flex-start;position:relative;z-index:1}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:white;border-radius:17px;overflow:hidden;box-shadow:0 8px 26px #0b28600d;border:1px solid var(--line);transition:.2s}.card:hover{transform:translateY(-5px);box-shadow:0 16px 35px #0b28601b}.card img{width:100%;height:175px;object-fit:cover}.card-body{padding:17px}.card h3{font-size:17px;margin:0 0 8px}.card p{color:var(--muted);font-size:13px;line-height:1.65;margin:0}.date{font-size:11px;color:var(--blue);font-weight:700;margin-top:12px}.lower-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:24px}.review,.stats{background:white;border:1px solid var(--line);border-radius:20px;padding:24px}.quote{font-size:17px;line-height:1.8}.stars{color:#ffb900;letter-spacing:3px}.booking{background:white;border-radius:22px;padding:24px;box-shadow:0 14px 36px #071b4920;border:1px solid var(--line)}.booking h3{margin:0 0 16px;font-size:21px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{font-size:12px;font-weight:800;display:block;margin-bottom:6px}.field input,.field select{width:100%;padding:13px;border:1px solid #d4def7;border-radius:11px;background:#fbfcff;color:var(--ink)}.booking .btn{width:100%;border-radius:11px;margin-top:14px}.stats{background:linear-gradient(120deg,#082456,#0758c8);color:white;display:flex;align-items:center;justify-content:space-between;gap:15px}.stats h3{font-size:21px}.statrow{display:flex;gap:25px;flex-wrap:wrap}.stat strong{display:block;font-size:29px;color:var(--yellow)}.stat small{color:#e2ecff}.footer{background:#06183f;color:white;padding:36px 0}.footrow{display:flex;align-items:center;justify-content:space-between;gap:25px;flex-wrap:wrap}.footlinks{display:flex;gap:20px;flex-wrap:wrap;font-size:13px}.footnote{color:#b9c8e8;font-size:12px;margin-top:22px;border-top:1px solid #ffffff24;padding-top:18px}.mobile-menu{display:none}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#09204f;color:#fff;padding:14px 20px;border-radius:12px;box-shadow:0 10px 30px #0004;display:none;z-index:20;max-width:90%;text-align:center}
+@media(max-width:980px){.links{gap:12px;font-size:11px}.nav{gap:12px}.brand{font-size:23px}.hero-grid{grid-template-columns:1fr 1fr}.howgrid{grid-template-columns:1fr}.how-title{padding:0 14px}.offer{min-height:170px}.proof{grid-template-columns:repeat(2,1fr)}.proof-item:nth-child(2){border:0}.proof-item{padding:8px}}
+@media(max-width:700px){.nav{height:66px}.links{display:none}.mobile-menu{display:block;background:none;border:0;color:white;font-size:25px}.navright .btn{padding:11px 14px;font-size:12px}.brand{font-size:22px}.hero{padding:34px 0 25px}.hero-grid{grid-template-columns:1fr}.hero-art{min-height:210px;order:-1}.shoe-photo{height:225px}.scribble{right:5%;font-size:12px}.hero h1{font-size:30px}.proof{grid-template-columns:1fr 1fr;padding:15px}.proof-item{font-size:12px}.ico{font-size:23px}.section{padding:44px 0}.section h2{font-size:24px}.steps{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}.card img{height:190px}.lower-grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}.stats{align-items:flex-start;flex-direction:column}.footrow{align-items:flex-start;flex-direction:column}}
 
-    <!-- Header -->
-    <header class="bg-blue-900 text-white p-3.5 shadow-md sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <h1 class="text-base font-extrabold flex items-center gap-1.5">👞 ኢ-ሊስትሮ (አዲስ አበባ)</h1>
-            <div class="flex items-center gap-2">
-                <button onclick="downloadIndexFile()" class="text-[11px] bg-emerald-700 hover:bg-emerald-600 px-2.5 py-1.5 rounded-lg font-semibold transition flex items-center gap-1">📥 ፋይል አውርድ</button>
-                <button onclick="openAuthModal()" class="text-[11px] bg-blue-800 hover:bg-blue-700 px-2.5 py-1.5 rounded-lg border border-blue-600 transition">🔐 አስተዳዳሪ</button>
-            </div>
-        </div>
-    </header>
+/* Modern public-facing service and comparison cards */
+.section-intro{max-width:720px}.section-kicker{color:var(--blue);font-size:12px;font-weight:900;letter-spacing:2px}.service-card,.before-card{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 14px 35px #0b286010}.service-card img{width:100%;height:205px;object-fit:cover;display:block}.service-card-body{padding:20px}.service-card-body h3{margin:0 0 8px;font-size:19px}.service-card-body p,.before-card p{color:var(--muted);line-height:1.7;margin:0}.service-badge{display:inline-flex;padding:7px 11px;border-radius:99px;background:#edf3ff;color:var(--blue);font-size:11px;font-weight:900;margin-bottom:12px}.before-card{padding:15px}.before-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.before-shot{position:relative;overflow:hidden;border-radius:14px;background:#e8eef9}.before-shot img{display:block;width:100%;height:190px;object-fit:cover}.before-shot span{position:absolute;left:10px;top:10px;padding:7px 10px;background:#071b49df;color:#fff;border-radius:99px;font-size:11px;font-weight:900}.before-card h3{margin:15px 4px 6px}.before-card p{font-size:12px}.sample-note{font-size:11px;color:#66718a;margin:14px 0 0}.ad-content-editor{width:100%;min-height:520px;resize:vertical;padding:16px;border:1px solid #d9e2f2;border-radius:12px;background:#fbfcff;color:#15213d;font:12px/1.65 ui-monospace,Consolas,monospace}.ad-editor-help{padding:18px 20px;color:#69748d;font-size:12px;line-height:1.7}.ad-editor-actions{display:flex;gap:10px;flex-wrap:wrap;padding:16px 20px;border-top:1px solid #edf0f7}@media(max-width:700px){.before-shot img{height:145px}.service-card img{height:185px}}
+</style></head><body>
+<header class="top"><div class="wrap nav"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><nav class="links"><a href="#">Home</a><a href="#services">Our Services⌄</a><a href="#before">Before & After</a><a href="#tips">Shoe Care Tips</a><a href="#why">Why LYSTRO?</a><a href="#reviews">Reviews</a><a href="#contact">Contact</a></nav><div class="navright"><button class="lang" id="lang">◎ EN | አማርኛ</button><a class="btn" href="#book">▦ Book Now</a><button class="mobile-menu" onclick="document.querySelector('.links').style.display=document.querySelector('.links').style.display==='flex'?'none':'flex'">☰</button></div></div></header>
+<main><section class="hero"><div class="wrap hero-grid"><div><div class="eyebrow" id="heroEyebrow">LYSTRO SHOE CARE • ADDIS ABABA</div><h1><span id="heroTitleText">ጫማዎ ንጹህ ሲሆን፣</span><br><span id="heroHighlightText">የእርስዎ ውበት ይጨምራል!</span></h1><h2>Clean Shoes. Confident You! ☺</h2><p id="heroDescription">ንጽህናን፣ ውበትን እና ምቾትን ከቤትዎ ሳይወጡ ያግኙ። ጫማዎን በባለሙያ እንንከባከብልዎ!</p><div class="actions"><a class="btn" href="#book">🚀 አገልግሎት ያስይዙ →</a><a class="watch" href="#how">▷ እንዴት ይሰራል?</a></div></div><div class="hero-art"><img class="shoe-photo" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=85&auto=format&fit=crop" alt="Fresh sneakers"><div class="scribble">ጫማዎ ይገባዋል<br>ተለየ እንክብካቤ! ♥</div></div></div></section>
+<div class="wrap"><div class="proof" id="why"><div class="proof-item"><span class="ico">🛡️</span><div><b>Trusted & Reliable</b><small>You can count on us</small></div></div><div class="proof-item"><span class="ico">◷</span><div><b>On-Time Service</b><small>Always on schedule</small></div></div><div class="proof-item"><span class="ico">⌂</span><div><b>At Your Doorstep</b><small>Anywhere in Addis Ababa</small></div></div><div class="proof-item"><span class="ico">★</span><div><b>Premium Quality</b><small>For a lasting clean</small></div></div></div></div>
+<section class="section" id="services"><div class="wrap"><div class="section-head"><div class="section-intro"><div class="section-kicker">LYSTRO CARE MENU</div><h2>Our Shoe Cleaning Services</h2><p>ለጫማዎ የሚስማማ የጽዳት እንክብካቤ ይምረጡ።</p></div><a class="btn blue" href="#book">Book a Service →</a></div><div class="cards" id="publicServicesGrid"></div></div></section>
+<section class="section" id="before" style="background:#edf2ff"><div class="wrap"><div class="section-head"><div class="section-intro"><div class="section-kicker">A FRESHER LOOK</div><h2>Before & After</h2><p>የጫማ እንክብካቤ ምሳሌዎችን ይመልከቱ።</p></div></div><div class="cards" id="publicBeforeAfterGrid"></div><p class="sample-note">ማሳሰቢያ፦ እነዚህ ለዲዛይን ሙከራ የተጠቀሙ ምሳሌ ምስሎች ናቸው፤ እውነተኛ የደንበኛ ውጤት አይደሉም።</p></div></section>
+<section class="section" id="how"><div class="wrap howgrid"><div class="how-title"><h2>How It Works?</h2><p>ቀላል ነው!</p></div><div class="steps"><div class="step"><div class="num">1</div><div class="emoji">📱</div><b>ትዕዛዝ ያስይዙ</b><small>Book Your Service</small></div><div class="step"><div class="num">2</div><div class="emoji">🛵</div><b>እንመጣለን</b><small>We Pick Up</small></div><div class="step"><div class="num">3</div><div class="emoji">🧼</div><b>በጥንቃቄ እናጸዳለን</b><small>We Clean Professionally</small></div><div class="step"><div class="num">4</div><div class="emoji">👟</div><b>ንጹህ ጫማዎን ይቀበሉ</b><small>Get Your Clean Shoes</small></div></div><aside class="offer"><div class="tag">LYSTRO SHOE CARE</div><strong>Fresh<br>Steps</strong><b>Professional care for every pair.</b><a class="btn" href="#book">Book a Service →</a></aside></div></section>
+<section class="section" id="tips" style="padding-top:12px"><div class="wrap"><div class="section-head"><div><h2>⭐ Shoe Care Tips</h2><p>ጫማዎን የሚጠብቁ ጠቃሚ ምክሮችና አዝናኝ እውቀቶች።</p></div><a class="btn blue" href="#tips">View All →</a></div><div class="cards"><article class="card"><img src="https://images.unsplash.com/photo-1520256862855-398228c41684?w=800&q=80&auto=format&fit=crop" alt="Clean white sneakers"><div class="card-body"><h3>5 Tips to Keep Your White Sneakers Clean</h3><p>ነጭ ጫማዎን ንጹህና ውብ እንዲቆይ የሚረዱ ቀላል ልምዶችን ይወቁ።</p><div class="date">▦ Shoe Care Guide</div></div></article><article class="card"><img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&q=80&auto=format&fit=crop" alt="Sneaker care"><div class="card-body"><h3>Common Mistakes in Shoe Cleaning</h3><p>ጫማዎን ሲያጸዱ ሳያውቁ ሊፈጽሟቸው የሚችሉ ስህተቶችን ይወቁ።</p><div class="date">▦ Shoe Care Guide</div></div></article><article class="card"><img src="https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?w=800&q=80&auto=format&fit=crop" alt="Sneaker collection"><div class="card-body"><h3>How to Extend Your Sneaker's Life</h3><p>ተገቢ እንክብካቤ ጫማዎ ረጅም ጊዜ እንዲያገለግል ይረዳል።</p><div class="date">▦ Shoe Care Guide</div></div></article></div>
+<div class="lower-grid"><div class="review" id="reviews"><h3>❝ What Our Customers Say</h3><p class="quote">“LYSTRO አገልግሎት በጣም ጥሩ ነው! ጫማዬ እንደ አዲስ ሆኖ ተመለሰ።”</p><b>የደንበኛ አስተያየት</b><div class="stars">★★★★★</div><small style="color:#78839b">ምሳሌ የማሳያ አስተያየት</small></div><div class="stats"><div><h3>LYSTRO in Numbers</h3><div class="statrow"><div class="stat"><strong>At Home</strong><small>Convenient service</small></div><div class="stat"><strong>24/7</strong><small>Online booking</small></div><div class="stat"><strong>100%</strong><small>Care & attention</small></div></div></div><div style="font-size:68px">👟✨</div></div></div></div></section>
+<section class="section" id="book" style="padding-top:10px"><div class="wrap"><div class="section-head"><div><h2>✨ Ready for a Fresh Step?</h2><p>ጫማዎ ትኩረት ይፈልጋል? አሁኑኑ ያስይዙ!</p></div></div><div class="booking"><h3>▦ Book Your Service Now</h3><form id="bookingForm"><div class="formgrid"><div class="field"><label>ስም / Full Name</label><input name="customer_name" required maxlength="120" autocomplete="name" placeholder="ሙሉ ስምዎ"></div><div class="field"><label>ስልክ / Phone</label><input name="phone" required type="tel" maxlength="30" autocomplete="tel" placeholder="+251 9..."></div><div class="field"><label>Select Service</label><select name="service_type" id="bookingService" required><option value="">የአገልግሎት ዝርዝር በመጫን ላይ...</option></select></div><div class="field"><label>Select City Division</label><select name="sub_city_id" id="bookingSubCity" required><option value="">የክፍለ ከተማ ዝርዝር በመጫን ላይ...</option></select></div><div class="field"><label>ወረዳ / Woreda</label><select name="woreda_id" id="bookingWoreda" required disabled><option value="">መጀመሪያ ክፍለ ከተማ ይምረጡ</option></select></div><div class="field"><label>የቤት አድራሻ / Address</label><input name="address" required maxlength="500" autocomplete="street-address" placeholder="የመገኛ አድራሻ"></div><div class="field"><label>የጫማ ብዛት / Number of pairs</label><input name="shoe_count" type="number" min="1" max="30" value="1" required></div><div class="field"><label>የመውሰጃ ቀን / Pickup date</label><input name="pickup_date" type="date" required></div><div class="field"><label>የመውሰጃ ሰዓት / Pickup time</label><input name="pickup_time" type="time" required></div><div class="field"><label>የአገልግሎት አቀራረብ / Service type</label><select name="delivery_type"><option value="pickup_and_return">ወስዶ መመለስ / Pickup & return</option><option value="on_site">በቦታው ማጽዳት / On-site</option></select></div></div><p id="bookingPrice" class="ad-muted" style="margin:12px 0">ዋጋ፦ ከአድሚን የተወሰነው የአንድ ጫማ ዋጋ × ብዛት</p><p class="ad-muted">ክፍያ፦ አገልግሎቱ ሲጠናቀቅ በጥሬ ገንዘብ (Cash on service)።</p><button class="btn blue" type="submit">➤ Book Now →</button><small id="bookingLocationStatus" role="status" aria-live="polite" style="display:block;color:#7a8499;margin-top:8px">የክፍለ ከተማና ወረዳ ዝርዝር ከዳታቤዝ ይጫናል።</small><small id="bookingStatus" role="status" aria-live="polite" style="display:block;color:#7a8499;margin-top:10px">ትዕዛዝዎ ከተላከ በኋላ በዳታቤዝ ይመዘገባል።</small><div id="trackingResult" hidden style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px"><b>የትዕዛዝ መከታተያ / Track order</b><p id="trackingCodeText" style="font-size:13px;word-break:break-all"></p><button type="button" class="btn blue" id="trackOrderButton">የትዕዛዝ ሁኔታ አይ / Check status</button>
+<a class="btn" id="sendTelegramSaved" href="#" target="_blank" rel="noopener noreferrer" hidden style="display:inline-block;margin-top:10px;text-align:center">✈️ ወደ Telegram Saved Messages ላክ</a>
+<small id="telegramSavedHint" style="display:block;margin-top:8px;color:#65718b">Telegram ሲከፈት Saved Messages ይምረጡና Send ይጫኑ።</small><p id="trackingStatus" role="status"></p></div></form></div></div></section>
+<section class="section" id="join-lystro" style="background:#edf2ff"><div class="wrap"><div class="section-head"><div class="section-intro"><div class="section-kicker">WORK WITH LYSTRO</div><h2>በLYSTRO ባለሙያ ይሁኑ / Become a Professional</h2><p>በጫማ እንክብካቤ ልምድ አለዎት? ማመልከቻዎን ይላኩ፤ ቡድናችን ከገመገመ በኋላ እናገኝዎታለን።</p></div></div><div class="booking"><form id="professionalApplicationForm"><div class="formgrid"><div class="field"><label>ሙሉ ስም / Full name</label><input name="full_name" required maxlength="120" autocomplete="name"></div><div class="field"><label>ስልክ / Phone</label><input name="phone" required type="tel" maxlength="30" autocomplete="tel"></div><div class="field"><label>ኢሜይል / Email (optional)</label><input name="email" type="email" maxlength="160" autocomplete="email"></div><div class="field"><label>ክፍለ ከተማ / City Division</label><select name="sub_city_id" id="applicationSubCity" required><option value="">ክፍለ ከተማ ይምረጡ</option></select></div><div class="field"><label>ወረዳ / Woreda</label><select name="woreda_id" id="applicationWoreda" required disabled><option value="">መጀመሪያ ክፍለ ከተማ ይምረጡ</option></select></div><div class="field"><label>የልምድ ዓመታት / Experience (years)</label><input name="experience_years" type="number" min="0" max="60" value="0"></div><div class="field ad-wide"><label>አድራሻ / Address</label><input name="address" maxlength="400" placeholder="የመገኛ አድራሻ"></div><div class="field ad-wide"><label>የሚያቀርቡት አገልግሎት / Services you can provide</label><div id="applicationServices" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;padding:10px 0"><small>የአገልግሎት ዝርዝር በመጫን ላይ...</small></div></div><div class="field ad-wide"><label>ተጨማሪ መረጃ / Additional information</label><textarea name="notes" rows="3" maxlength="1000" style="width:100%;padding:12px;border:1px solid #d4def7;border-radius:11px"></textarea></div><div class="field" hidden aria-hidden="true"><label>Website</label><input name="website" tabindex="-1" autocomplete="off"></div></div><p id="professionalApplicationStatus" role="status" aria-live="polite" style="color:#65718b;font-size:13px"></p><button class="btn blue" id="professionalApplicationSubmit" type="submit">ማመልከቻ ላክ / Submit application</button><small style="display:block;color:#65718b;margin-top:12px">ማሳሰቢያ፦ ማመልከቻው በአድሚን ከመጸደቁ በፊት የስራ መዳረሻ አይከፈትም።</small></form></div></div></section></main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
+<script>
+if(!location.pathname.startsWith('/admin')){
+const toast=document.getElementById('toast');function notify(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',4200)}
+function lystroSafeHref(v){const s=String(v||'#');return s.startsWith('#')||/^https:\/\//i.test(s)||/^mailto:[^\s]+$/i.test(s)?s:'#';}
+function lystroRenderLinks(selector,items){const box=document.querySelector(selector);if(!box||!Array.isArray(items))return;box.replaceChildren();items.filter(x=>x&&x.enabled!==false&&x.label).forEach(x=>{const a=document.createElement('a');a.textContent=String(x.label).slice(0,60);a.href=lystroSafeHref(x.href);box.appendChild(a);});}
+function lystroRenderContent(data){
+ if(!data||typeof data!=='object')return;
+ const set=(id,value)=>{const el=document.getElementById(id);if(el&&typeof value==='string'&&value)el.textContent=value;};
+ set('heroEyebrow',data.hero?.eyebrow);set('heroTitleText',data.hero?.title);set('heroHighlightText',data.hero?.highlight);set('heroDescription',data.hero?.description);
+ const cta=document.querySelector('.hero .actions .btn');if(cta&&data.hero?.ctaLabel)cta.textContent=data.hero.ctaLabel;
+ lystroRenderLinks('.links',data.nav);lystroRenderLinks('.footlinks',data.footer);
+ const services=document.getElementById('publicServicesGrid');
+ if(services&&Array.isArray(data.services)){services.replaceChildren();data.services.filter(x=>x.enabled!==false&&x.title).forEach(x=>{const card=document.createElement('article');card.className='service-card';if(/^https:\/\//i.test(x.image||'')){const img=document.createElement('img');img.src=x.image;img.alt=x.title+' shoe care';img.loading='lazy';card.appendChild(img);}const body=document.createElement('div');body.className='service-card-body';const badge=document.createElement('span');badge.className='service-badge';badge.textContent='LYSTRO CARE';const h=document.createElement('h3');h.textContent=x.title;const p=document.createElement('p');p.textContent=x.description||'';body.append(badge,h,p);card.appendChild(body);services.appendChild(card);});}
+ const gallery=document.getElementById('publicBeforeAfterGrid');
+ if(gallery&&Array.isArray(data.beforeAfter)){gallery.replaceChildren();data.beforeAfter.filter(x=>x.enabled!==false&&x.title).forEach(x=>{const card=document.createElement('article');card.className='before-card';const pair=document.createElement('div');pair.className='before-pair';[['BEFORE',x.beforeImage],['AFTER',x.afterImage]].forEach(([label,url])=>{const shot=document.createElement('div');shot.className='before-shot';if(/^https:\/\//i.test(url||'')){const img=document.createElement('img');img.src=url;img.alt='Illustrative '+label.toLowerCase()+' shoe sample';img.loading='lazy';shot.appendChild(img);}const tag=document.createElement('span');tag.textContent=label;shot.appendChild(tag);pair.appendChild(shot);});const h=document.createElement('h3');h.textContent=x.title;const p=document.createElement('p');p.textContent=x.description||'Illustrative sample only.';card.append(pair,h,p);gallery.appendChild(card);});}
+ const sections=data.sections||{};[['services','services'],['before','before'],['tips','tips'],['why','why'],['reviews','reviews']].forEach(([key,id])=>{const el=document.getElementById(id);const section=(id==='why'||id==='reviews')?el:(el?.closest('section')||el);if(section){if(sections[key]===false)section.hidden=true;else section.hidden=false;}});
+}
+async function lystroLoadPublicContent(){try{const r=await fetch('/api/site-content',{cache:'no-store'});if(r.ok){const d=await r.json();lystroRenderContent(d.content);}}catch(e){console.warn('Using built-in LYSTRO sample content.');}}
+lystroLoadPublicContent();
+const bookingForm=document.getElementById('bookingForm');
+const bookingSubCity=document.getElementById('bookingSubCity');
+const bookingWoreda=document.getElementById('bookingWoreda');
+const bookingLocationStatus=document.getElementById('bookingLocationStatus');
+let bookingWoredas=[];let bookingServices=[];
+function setBookingOptions(select,items,label){
+  select.innerHTML='<option value="">'+label+'</option>'+items.map(item=>'<option value="'+item.id+'">'+String(item.name).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))+'</option>').join('');
+}
+async function loadBookingLocations(){
+  try{
+    bookingLocationStatus.textContent='የክፍለ ከተማና ወረዳ ዝርዝር በመጫን ላይ...';
+    const response=await fetch('/api/locations',{headers:{'Accept':'application/json'},cache:'no-store'});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||'Location list could not be loaded.');
+    bookingWoredas=Array.isArray(data.woredas)?data.woredas:[];bookingServices=Array.isArray(data.services)?data.services:[];
+    const serviceSelect=document.getElementById('bookingService');
+    serviceSelect.innerHTML='<option value="">አገልግሎት ይምረጡ</option>'+bookingServices.map(s=>'<option value="'+String(s.name).replace(/[&<>"]/g,'')+'" data-price="'+Number(s.price||0)+'">'+String(s.name).replace(/[&<>"]/g,'')+' — '+Number(s.price||0)+' ETB / pair</option>').join('');
+    updateBookingPrice();
+    setBookingOptions(bookingSubCity,Array.isArray(data.sub_cities)?data.sub_cities:[],'ክፍለ ከተማ ይምረጡ');
+    bookingWoreda.innerHTML='<option value="">መጀመሪያ ክፍለ ከተማ ይምረጡ</option>';
+    bookingWoreda.disabled=true;
+    bookingLocationStatus.textContent='ክፍለ ከተማና ወረዳ ዝርዝር ተጭኗል።';
+  }catch(error){
+    bookingSubCity.innerHTML='<option value="">የቦታ ዝርዝር አልተጫነም</option>';
+    bookingWoreda.innerHTML='<option value="">እባክዎ በኋላ ይሞክሩ</option>';
+    bookingSubCity.disabled=true;bookingWoreda.disabled=true;
+    bookingLocationStatus.textContent='የቦታ ዝርዝር አልተጫነም። '+(error.message||'');
+  }
+}
+bookingSubCity.addEventListener('change',()=>{
+  const id=bookingSubCity.value;
+  const rows=bookingWoredas.filter(w=>w.sub_city_id===id&&w.is_active!==false);
+  setBookingOptions(bookingWoreda,rows,id?'ወረዳ ይምረጡ':'መጀመሪያ ክፍለ ከተማ ይምረጡ');
+  bookingWoreda.disabled=!id||rows.length===0;
+  if(id&&!rows.length)bookingLocationStatus.textContent='ለዚህ ክፍለ ከተማ ወረዳ አልተመዘገበም። አድሚን ያነጋግሩ።';
+  else bookingLocationStatus.textContent='ከ'+rows.length+' ወረዳዎች ይምረጡ።';
+});
+function updateBookingPrice(){const s=document.getElementById('bookingService')?.selectedOptions[0];const qty=Number(bookingForm.elements.shoe_count?.value||1);const price=Number(s?.dataset.price||0);const out=document.getElementById('bookingPrice');if(out)out.textContent='Estimated total: '+(price*qty).toLocaleString()+' ETB ('+price+' × '+qty+' pairs)';}
+document.getElementById('bookingService').addEventListener('change',updateBookingPrice);bookingForm.elements.shoe_count.addEventListener('input',updateBookingPrice);
+const pickupDateInput=bookingForm.elements.pickup_date;pickupDateInput.min=new Date().toLocaleDateString('en-CA');
+loadBookingLocations();
+bookingForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const submitButton=bookingForm.querySelector('button[type="submit"]');
+  const status=document.getElementById('bookingStatus');
+  if(submitButton.disabled)return;
+  submitButton.disabled=true;
+  submitButton.textContent='Sending...';
+  status.textContent='ትዕዛዝዎ በመላክ ላይ ነው...';
+  try{
+    const payload=Object.fromEntries(new FormData(bookingForm).entries());
+    const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(result.error||'Order could not be saved.');
+    const code=result.order?.tracking_code;
+    // Prepare a Telegram share link; the admin chooses Saved Messages and taps Send.
+    const areaLabel=(bookingSubCity.selectedOptions[0]?.textContent||'')+' / '+(bookingWoreda.selectedOptions[0]?.textContent||'');
+    const shareText=[
+      'LYSTRO — New booking',
+      'Order: '+(result.order?.id||''),
+      'Tracking code: '+(code||''),
+      'Customer: '+(payload.customer_name||''),
+      'Phone: '+(payload.phone||''),
+      'Service: '+(payload.service_type||''),
+      'Area: '+areaLabel,
+      'Pickup: '+(payload.pickup_date||'')+' '+(payload.pickup_time||''),
+      'Shoes: '+(payload.shoe_count||''),
+      'Total: ETB '+(result.order?.total_amount??''),
+      'Payment: Cash on service (unpaid)'
+    ].join('\\n');
+    const telegramLink=document.getElementById('sendTelegramSaved');
+    telegramLink.href='https://t.me/Ychalal2?text='+encodeURIComponent(shareText);
+    telegramLink.hidden=false;
+    bookingForm.reset();
+    if(code){
+      const panel=document.getElementById('trackingResult');panel.hidden=false;
+      document.getElementById('trackingCodeText').textContent='Tracking code: '+code;
+      document.getElementById('trackOrderButton').dataset.code=code;
+    }
+    status.textContent='ትዕዛዝዎ ተመዝግቧል። የመከታተያ ኮዱን ያስቀምጡ። ክፍያው አገልግሎቱ ሲጠናቀቅ በጥሬ ገንዘብ ይፈጸማል።';
+    notify('ትዕዛዝዎ ተመዝግቧል! የመከታተያ ኮዱን ያስቀምጡ።');
+  }catch(error){
+    status.textContent='ትዕዛዙ አልተመዘገበም። እባክዎ እንደገና ይሞክሩ።';
+    notify(error.message||'ስህተት ተፈጥሯል።');
+  }finally{
+    submitButton.disabled=false;
+    submitButton.textContent='➤ Book Now →';
+  }
+});
 
-    <!-- Main Container -->
-    <main class="max-w-md mx-auto p-4 pb-16">
-        
-        <!-- Tab Switcher -->
-        <div class="flex bg-white rounded-lg p-1 shadow-sm mb-5 border border-slate-200">
-            <button onclick="switchTab('order')" id="tab-order" class="flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition">ትዕዛዝ አዘዝ</button>
-            <button onclick="switchTab('loyalty')" id="tab-loyalty" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition">የእኔ ካርድ / CRM</button>
-            <button onclick="switchTab('admin-panel')" id="tab-admin" class="flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition hidden">ዳሽቦርድ (Realtime)</button>
-        </div>
+// Public professional application: no account is required to apply.
+const applicationForm=document.getElementById('professionalApplicationForm');
+if(applicationForm){
+ const appSub=document.getElementById('applicationSubCity');
+ const appWoreda=document.getElementById('applicationWoreda');
+ const appServices=document.getElementById('applicationServices');
+ const appStatus=document.getElementById('professionalApplicationStatus');
+ let appWoredaRows=[];
+ const safeText=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ async function loadApplicationOptions(){
+  try{
+   const response=await fetch('/api/locations',{cache:'no-store'});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||'Could not load application options.');
+   appWoredaRows=Array.isArray(data.woredas)?data.woredas:[];
+   appSub.innerHTML='<option value="">ክፍለ ከተማ ይምረጡ</option>'+(data.sub_cities||[]).map(x=>'<option value="'+safeText(x.id)+'">'+safeText(x.name)+'</option>').join('');
+   appServices.innerHTML=(data.services||[]).map(x=>'<label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600"><input type="checkbox" name="service_ids" value="'+safeText(x.id)+'" style="width:auto"> '+safeText(x.name)+'</label>').join('')||'<small>አሁን የሚገኝ አገልግሎት የለም።</small>';
+   if(!(data.services||[]).length)throw new Error('አገልግሎቶች አልተገኙም።');
+  }catch(error){appStatus.textContent='የምዝገባ ዝርዝሮች አልተጫኑም። '+(error.message||'');}
+ }
+ appSub.addEventListener('change',()=>{
+  const id=appSub.value, rows=appWoredaRows.filter(x=>x.sub_city_id===id&&x.is_active!==false);
+  appWoreda.innerHTML='<option value="">ወረዳ ይምረጡ</option>'+rows.map(x=>'<option value="'+safeText(x.id)+'">'+safeText(x.name)+'</option>').join('');
+  appWoreda.disabled=!id||!rows.length;
+ });
+ loadApplicationOptions();
+ applicationForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const button=document.getElementById('professionalApplicationSubmit');
+  const serviceIds=[...applicationForm.querySelectorAll('input[name="service_ids"]:checked')].map(x=>x.value);
+  if(!serviceIds.length){appStatus.textContent='ቢያንስ አንድ አገልግሎት ይምረጡ።';return;}
+  const payload=Object.fromEntries(new FormData(applicationForm).entries());
+  payload.service_ids=serviceIds;
+  button.disabled=true;appStatus.textContent='ማመልከቻዎን በመላክ ላይ...';
+  try{
+   const response=await fetch('/api/professional-application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(result.error||'ማመልከቻው አልተላከም።');
+   applicationForm.reset();appWoreda.innerHTML='<option value="">መጀመሪያ ክፍለ ከተማ ይምረጡ</option>';appWoreda.disabled=true;
+   appStatus.textContent='ማመልከቻዎ ተቀብሏል። አድሚን ከገመገመው በኋላ እናገኝዎታለን። / Application received. Pending admin review.';
+   notify('ማመልከቻዎ ተቀብሏል!');
+  }catch(error){appStatus.textContent=error.message||'ማመልከቻው አልተላከም።';}
+  finally{button.disabled=false;}
+ });
+}
 
-        <!-- 1. ORDER FORM SECTION -->
-        <section id="section-order" class="space-y-4">
-            
-            <!-- Dynamic Auto-Zoom Visual Showcase -->
-            <div class="relative h-44 rounded-2xl overflow-hidden shadow-md border border-slate-200 bg-slate-900">
-                <div id="carouselContainer" class="relative w-full h-full">
-                    <!-- Slide 1: Clean & shining shoes -->
-                    <div class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Clean shoes">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-emerald-300 font-bold uppercase tracking-wider">✨ ጥራት እና ብሩህነት</span>
-                            <p class="text-white text-xs font-semibold">የተወለወሉ እና ፕሪሚየም የሆኑ ቆዳ ጫማዎች</p>
-                        </div>
-                    </div>
-                    <!-- Slide 2: Lined up shoes ready for cleaning -->
-                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Lined up shoes">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-blue-300 font-bold uppercase tracking-wider">🛡️ ስርዓቱን የጠበቀ እንክብካቤ</span>
-                            <p class="text-white text-xs font-semibold">ለጽዳት እና ጥገና የገቡ ጫማዎች</p>
-                        </div>
-                    </div>
-                    <!-- Slide 3: Door to door service -->
-                    <div class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-700">
-                        <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover animate-zoom" alt="Door to door service">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex flex-col justify-end p-3.5">
-                            <span class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">🚀 በቤል እና ቢሮዎ</span>
-                            <p class="text-white text-xs font-semibold">ሊስትሮው አድራሻዎ ድረስ እየሄደ የሚሰጠው አገልግሎት</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- Trust Badge Overlay -->
-                <div class="absolute top-2.5 right-2.5 bg-black/60 backdrop-blur-md text-white text-[10px] px-2.5 py-1 rounded-full border border-white/20 font-medium">
-                    ⭐⭐⭐⭐⭐ 4.9/5 (አዲስ አበባ)
-                </div>
-            </div>
+document.getElementById('lang').addEventListener('click',()=>{
+  const english=document.documentElement.lang!=='en';
+  document.documentElement.lang=english?'en':'am';
+  document.getElementById('lang').textContent=english?'◎ አማርኛ':'◎ EN | አማርኛ';
+  notify(english?'English view selected. Some descriptive content remains bilingual.':'የአማርኛ እይታ ተመርጧል። አንዳንድ ይዘቶች ሁለት ቋንቋ ይዘዋል።');
+});
+document.getElementById('trackOrderButton').addEventListener('click',async()=>{
+  const code=document.getElementById('trackOrderButton').dataset.code;
+  const out=document.getElementById('trackingStatus');out.textContent='በመፈለግ ላይ...';
+  try{
+    const response=await fetch('/api/order-status?code='+encodeURIComponent(code),{cache:'no-store'});
+    const data=await response.json();if(!response.ok)throw new Error(data.error||'Tracking failed.');
+    const o=data.order;out.textContent='ሁኔታ: '+o.status+' | አገልግሎት: '+o.service_type+' | ቀን: '+(o.pickup_date||'-')+' '+(o.pickup_time||'')+' | ጠቅላላ: '+o.total_amount+' ETB | ክፍያ: '+o.cash_payment_status;
+  }catch(error){out.textContent=error.message;}
+});
+}
+if(location.pathname.startsWith('/admin')){
+  document.body.innerHTML = '<style>'+
+  ':root{--ad-navy:#17213c;--ad-blue:#1769f5;--ad-ink:#101a3a;--ad-muted:#69748d;--ad-line:#e1e6f2;--ad-bg:#f4f6fc}'+
+  '*{box-sizing:border-box}body{margin:0;background:var(--ad-bg);font-family:Inter,"Noto Sans Ethiopic",Arial,sans-serif;color:var(--ad-ink)}button,input,select{font:inherit}button{cursor:pointer}'+
+  '.ad-order-filters{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px}.ad-order-filter{border:1px solid var(--ad-line);background:#fff;color:var(--ad-ink);padding:9px 13px;border-radius:999px;font-size:12px;font-weight:800}.ad-order-filter.active{background:#1769f5;color:#fff;border-color:#1769f5}.ad-order-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:18px}.ad-order-guide>div{background:#f5f7fc;border:1px solid var(--ad-line);border-radius:12px;padding:15px}.ad-order-guide b,.ad-order-guide span{display:block}.ad-order-guide b{font-size:13px;margin-bottom:7px}.ad-order-guide span{font-size:12px;line-height:1.6;color:var(--ad-muted)}.ad-detail-btn{border:0;border-radius:8px;background:#eaf1ff;color:#1556c8;padding:8px 10px;font-size:12px;font-weight:800}.ad-order-modal{position:fixed;inset:0;z-index:80;background:#08163399;display:none;align-items:center;justify-content:center;padding:18px}.ad-order-modal.open{display:flex}.ad-order-modal-card{background:#fff;border-radius:18px;width:min(900px,100%);max-height:90vh;overflow:auto;box-shadow:0 25px 80px #06163d55}.ad-order-modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--ad-line);position:sticky;top:0;background:#fff}.ad-order-modal-head h2{margin:0;font-size:20px}.ad-order-close{border:0;background:#edf1f8;border-radius:9px;padding:9px 12px;font-weight:800}.ad-order-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:18px}.ad-detail-section{border:1px solid var(--ad-line);border-radius:12px;padding:14px}.ad-detail-section h3{margin:0 0 12px;font-size:14px}.ad-detail-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #eef1f7;font-size:12px}.ad-detail-row:last-child{border:0}.ad-detail-row span{color:var(--ad-muted)}.ad-detail-row b{text-align:right;overflow-wrap:anywhere}.ad-order-timeline{padding:0 18px 20px}.ad-order-timeline ol{display:flex;gap:8px;flex-wrap:wrap;list-style:none;padding:0}.ad-order-timeline li{background:#f2f5fb;border-radius:9px;padding:10px 12px;font-size:11px}.ad-order-timeline li.done{background:#e8f7ef;color:#087443}.ad-stats .ad-stat{min-width:0}.ad-table .ad-status{white-space:nowrap}@media(max-width:760px){.ad-order-guide{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-order-detail-grid{grid-template-columns:1fr}.ad-order-filters{padding:10px;gap:6px}.ad-order-filter{padding:8px 10px}}','.ad-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ad-form-grid label{display:grid;gap:6px;font-size:12px;font-weight:800}.ad-form-grid input,.ad-form-grid select,.ad-form-grid textarea{width:100%;padding:11px;border:1px solid var(--ad-line);border-radius:9px;background:#fff;color:var(--ad-ink)}.ad-wide{grid-column:1/-1}.ad-primary{border:0;border-radius:9px;background:#1769f5;color:#fff;padding:12px 18px;font-weight:800}.ad-muted{color:#69748d;font-size:12px}.ad-shell{min-height:100vh;display:grid;grid-template-columns:266px minmax(0,1fr)}.ad-sidebar{background:linear-gradient(180deg,#17213c,#151e35);color:#fff;padding:28px 14px;display:flex;flex-direction:column;min-height:100vh}.ad-brand{text-align:center;padding:6px 8px 34px;border-bottom:1px solid #ffffff12}.ad-shoe{font-size:56px;line-height:1}.ad-brand strong{display:block;font-size:34px;letter-spacing:-1px}.ad-brand small{font-size:12px;color:#d6dced}.ad-nav{display:grid;gap:8px;margin-top:28px}.ad-nav button{border:0;background:transparent;color:#f2f5ff;padding:14px 15px;border-radius:11px;text-align:left;display:flex;align-items:center;gap:15px;font-size:15px}.ad-nav button span{width:26px;text-align:center;font-size:21px}.ad-nav button.active{background:#246cf0;box-shadow:0 7px 18px #0758ef44}.ad-nav button:hover:not(.active){background:#ffffff12}.ad-sidepromo{margin-top:auto;padding:20px 16px;border-radius:12px;background:linear-gradient(145deg,#273b75,#202a4e);font-weight:700;line-height:1.6}.ad-sidepromo .promo-shoe{font-size:64px;text-align:center;margin-top:12px}.ad-main{min-width:0}.ad-topbar{height:78px;padding:0 30px;border-bottom:1px solid #e1e6f2;background:#ffffffc9;display:flex;align-items:center;justify-content:space-between}.ad-topright{display:flex;align-items:center;gap:18px}.ad-pill{background:#08ae72;color:white;padding:11px 17px;border-radius:24px;font-size:13px;font-weight:800}.ad-user{display:flex;align-items:center;gap:10px;font-weight:700}.ad-avatar{width:40px;height:40px;border-radius:50%;background:#dce5ff;color:#526da9;display:grid;place-items:center;font-size:22px}.ad-content{padding:27px 30px 20px;max-width:1700px;margin:auto}.ad-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:27px}.ad-heading-left{display:flex;align-items:center;gap:17px}.ad-heading-icon{width:50px;height:50px;border-radius:12px;background:#1769f5;color:white;display:grid;place-items:center;font-size:26px}.ad-heading h1{font-size:30px;margin:0 0 4px;letter-spacing:-.7px}.ad-heading p{margin:0;color:#596581}.ad-date{padding:13px 17px;border:1px solid var(--ad-line);background:white;border-radius:14px;color:#1a2544;font-weight:600}.ad-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:21px;margin-bottom:28px}.ad-stat{border-radius:13px;padding:19px 22px;color:white;min-height:156px;box-shadow:0 5px 12px #18264a12;position:relative;overflow:hidden}.ad-stat.blue{background:linear-gradient(120deg,#2693f6,#21a7e8)}.ad-stat.green{background:linear-gradient(120deg,#48c99b,#6bd6ae)}.ad-stat.orange{background:linear-gradient(120deg,#ffad32,#ffbd55)}.ad-stat.purple{background:linear-gradient(120deg,#a98af5,#bfa6fa)}.ad-stat-top{display:flex;align-items:center;gap:16px}.ad-stat-icon{width:69px;height:69px;border-radius:50%;background:#0063ed5c;display:grid;place-items:center;font-size:31px;flex:none}.ad-stat.green .ad-stat-icon{background:#009e6b65}.ad-stat.orange .ad-stat-icon{background:#f27c0065}.ad-stat.purple .ad-stat-icon{background:#5b2fd16b}.ad-stat-label{font-size:17px}.ad-stat-value{font-size:43px;line-height:1.1;font-weight:800;margin-top:4px}.ad-stat-foot{display:flex;justify-content:flex-end;margin-top:8px;font-size:14px;font-weight:700}.ad-stat-link{display:block;text-align:center;margin-top:7px;font-weight:600;color:white}.ad-grid-main{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr);gap:17px;margin-bottom:21px}.ad-card{background:#fff;border:1px solid #dfe5f2;border-radius:13px;box-shadow:0 3px 8px #0b1d4310;overflow:hidden;min-width:0}.ad-card-head{padding:18px 19px 15px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #edf0f7}.ad-card-head h2{font-size:21px;margin:0;display:flex;align-items:center;gap:12px}.ad-card-head h2 span{color:#1769f5;font-size:24px}.ad-viewall{border:1px solid var(--ad-line);background:#f8faff;padding:9px 14px;border-radius:22px;font-weight:700;color:#16213e}.ad-table-wrap{overflow:auto}.ad-table{border-collapse:collapse;width:100%;min-width:620px;text-align:left;font-size:13px}.ad-table th{background:#f5f7fc;font-weight:800}.ad-table th,.ad-table td{padding:13px 12px;border-bottom:1px solid #edf0f7;white-space:nowrap}.ad-table tr:last-child td{border-bottom:0}.ad-status{border:0;border-radius:8px;padding:6px 9px;background:#fff0c9;color:#a45a00;font-weight:700}.ad-status.confirmed{background:#e0edff;color:#1554b5}.ad-status.in_progress{background:#eee6ff;color:#6841b6}.ad-status.completed{background:#dff7eb;color:#087a4d}.ad-status.cancelled{background:#ffe4e4;color:#b42318}.ad-actions{display:flex;align-items:center;gap:5px}.ad-action{border:1px solid #b9d0ff;color:#1769f5;background:#fff;border-radius:7px;padding:6px 8px;font-size:12px}.ad-delete{border:0;background:#ffe2e2;color:#d22e37;border-radius:7px;padding:6px 8px}.ad-chart-legend{display:flex;gap:17px;font-size:13px;align-items:center}.ad-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}.ad-chart{padding:22px 17px 10px;display:flex;align-items:stretch;gap:12px;height:245px}.ad-ylabels{display:flex;flex-direction:column;justify-content:space-between;font-size:12px;color:#1b2744;padding-bottom:25px}.ad-chart-bars{display:flex;align-items:stretch;justify-content:space-around;gap:10px;flex:1;border-bottom:1px solid #bfc9dc;background:repeating-linear-gradient(to bottom,transparent 0,transparent 45px,#e8edf6 46px,#e8edf6 47px)}.ad-day{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;flex:1;min-width:0}.ad-bars{height:180px;display:flex;align-items:flex-end;gap:5px}.ad-bar{width:15px;border-radius:4px 4px 0 0;background:#2475f5;min-height:2px}.ad-bar.done{background:#10b981}.ad-day small{font-size:12px;margin-bottom:-24px}.ad-bottom-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}.ad-customer-list{padding:0 18px}.ad-customer{display:grid;grid-template-columns:42px minmax(90px,1fr) minmax(110px,1fr) auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #edf0f7;font-size:14px}.ad-customer:last-child{border-bottom:0}.ad-customer-avatar{width:38px;height:38px;border-radius:50%;background:#e2eaff;color:#7286bd;display:grid;place-items:center;font-size:22px}.ad-order-count{background:#e7efff;color:#1769f5;border-radius:18px;padding:5px 10px;font-weight:700;font-size:12px}.ad-quick{padding:17px}.ad-quick-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.ad-quick-btn{border:0;border-radius:12px;color:#fff;padding:17px 8px;min-height:88px;font-weight:700;box-shadow:0 5px 10px #15264a18}.ad-quick-btn span{display:block;font-size:23px;margin-bottom:6px}.ad-quick-btn.blue{background:#2474f4}.ad-quick-btn.green{background:#24c58d}.ad-quick-btn.red{background:#ef3445}.ad-quick-btn.purple{background:#9770ed;grid-column:1/-1;min-height:48px;padding:12px}.ad-footer{border-top:1px solid #e0e6f2;margin-top:22px;padding:17px 30px;display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#17213c}.ad-view{display:none}.ad-view.active{display:block}.ad-notice{padding:8px 2px;color:#61708c;font-size:13px;min-height:29px}.ad-search{width:100%;padding:13px 14px;border:1px solid #dce3f1;border-radius:10px;margin:14px 0;background:white}.ad-login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(130deg,#17213c,#244e9c)}.ad-login-card{width:min(430px,100%);background:white;border-radius:20px;padding:30px;box-shadow:0 18px 50px #071b4940}.ad-login-brand{text-align:center;margin-bottom:22px}.ad-login-brand b{display:block;font-size:30px}.ad-login-card h2{margin:0 0 8px}.ad-login-card p{color:#68748c;line-height:1.6}.ad-login-card label{display:block;font-size:13px;font-weight:700;margin:14px 0 6px}.ad-login-card input{width:100%;padding:13px;border:1px solid #dfe6f2;border-radius:9px}.ad-primary{width:100%;padding:14px;border:0;border-radius:10px;background:#1769f5;color:white;font-weight:800;margin-top:18px}.ad-link{border:0;background:none;color:#1769f5;font-weight:700;margin-top:14px;padding:0}.ad-message{font-size:13px;color:#b42318;min-height:20px}.ad-hamb{display:none;border:0;background:none;font-size:25px;color:#17213c}'+
+  '@media(max-width:1180px){.ad-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ad-grid-main{grid-template-columns:1fr}.ad-chart{height:220px}}'+
+  '@media(max-width:760px){.ad-shell{grid-template-columns:1fr}.ad-sidebar{position:fixed;z-index:30;left:-280px;top:0;width:266px;transition:left .2s}.ad-sidebar.open{left:0}.ad-hamb{display:block}.ad-topbar{padding:0 16px}.ad-content{padding:20px 14px}.ad-heading{align-items:flex-start}.ad-heading h1{font-size:23px}.ad-heading p{font-size:13px}.ad-heading-icon{width:42px;height:42px}.ad-date{display:none}.ad-stats{gap:10px}.ad-stat{padding:14px;min-height:132px}.ad-stat-icon{width:48px;height:48px;font-size:23px}.ad-stat-label{font-size:13px}.ad-stat-value{font-size:34px}.ad-stat-foot{font-size:12px}.ad-grid-main{grid-template-columns:1fr}.ad-bottom-grid{grid-template-columns:1fr}.ad-customer{grid-template-columns:38px 1fr auto}.ad-customer-phone{display:none}.ad-quick-row{gap:7px}.ad-quick-btn{font-size:12px;padding:12px 5px}.ad-footer{padding:15px;flex-direction:column}.ad-user span:last-child{display:none}.ad-chart{padding-left:8px;padding-right:8px}.ad-bars{gap:3px}.ad-bar{width:10px}}'+
+  '[hidden]{display:none!important}</style>'+
+  '<div id="adminLogin" class="ad-login-wrap"><section class="ad-login-card"><div class="ad-login-brand"><div class="ad-shoe">👟</div><b>LYSTRO</b><small>Clean Steps, Happy You</small></div><h2>Admin Login</h2><p>Sign in with your authorized administrator account.</p><form id="adminLoginForm"><label>Email</label><input id="adminEmail" type="email" autocomplete="username" required><label>Password</label><input id="adminPassword" type="password" autocomplete="current-password" required><button id="loginButton" class="ad-primary">Sign in</button></form><button id="forgotPassword" class="ad-link" type="button">Forgot password?</button><p id="loginMessage" class="ad-message" role="status"></p><a href="/" class="ad-link">← Back to LYSTRO website</a></section></div>'+
+  '<div id="adminResetPanel" class="ad-login-wrap" hidden><section class="ad-login-card"><div class="ad-login-brand"><b>LYSTRO</b></div><h2>Set a new admin password</h2><p>Use a new password for your administrator account.</p><form id="adminResetForm"><label>New password</label><input id="newAdminPassword" type="password" autocomplete="new-password" minlength="8" required><label>Confirm new password</label><input id="confirmAdminPassword" type="password" autocomplete="new-password" minlength="8" required><button id="saveAdminPassword" class="ad-primary">Save new password</button></form><p id="resetMessage" class="ad-message" role="status"></p><a href="/admin/login" class="ad-link">Back to Admin Login</a></section></div>'+
+  '<div id="adminPanel" class="ad-shell" hidden><aside id="adminSidebar" class="ad-sidebar"><div class="ad-brand"><div class="ad-shoe">👟</div><strong>LYSTRO</strong><small>Clean Steps, Happy You</small></div><nav class="ad-nav"><button class="active" data-view="dashboard"><span>⌂</span>Dashboard</button><button data-view="orders"><span>▤</span>Orders <b id="navOrderCount" style="margin-left:auto;background:#ef3445;border-radius:50%;padding:3px 8px;font-size:12px">0</b></button><button data-view="customers"><span>♟</span>Customers</button><button data-view="reports"><span>▥</span>Reports</button><button data-view="professionals"><span>♟</span>Professionals</button><button data-view="assignments"><span>⇄</span>Assignments</button><button data-view="settings"><span>⚙</span>Settings</button><button data-view="website"><span>✎</span>Website Content</button><button id="logoutAdmin"><span>⇥</span>Logout</button></nav><div class="ad-sidepromo">✨ Premium Shoe Care<br>in Addis Ababa<div class="promo-shoe">👟</div></div></aside><main class="ad-main"><header class="ad-topbar"><button id="adminMenuToggle" class="ad-hamb" aria-label="Open menu">☰</button><div class="ad-topright"><span class="ad-pill">⬟ Admin</span><div class="ad-user"><div class="ad-avatar">●</div><span id="adminHello">Hello, Admin</span><span>⌄</span></div></div></header><div class="ad-content"><div class="ad-heading"><div class="ad-heading-left"><div class="ad-heading-icon">▦</div><div><h1 id="pageTitle">Admin Dashboard</h1><p id="pageSubtitle">Manage orders, customers and view reports</p></div></div><div class="ad-date">▦ &nbsp; All available orders</div></div><div id="adminNotice" class="ad-notice" role="status">Loading administrator data…</div>'+
+  '<section id="view-dashboard" class="ad-view active"><div class="ad-stats"><article class="ad-stat blue"><div class="ad-stat-top"><div class="ad-stat-icon">🛒</div><div><div class="ad-stat-label">Total Orders</div><div id="totalOrders" class="ad-stat-value">0</div></div></div><div class="ad-stat-foot">↗ &nbsp; Live data</div><a class="ad-stat-link" href="#" data-goto="orders">View Details &nbsp; →</a></article><article class="ad-stat green"><div class="ad-stat-top"><div class="ad-stat-icon">✓</div><div><div class="ad-stat-label">Completed</div><div id="completedOrders" class="ad-stat-value">0</div></div></div><div class="ad-stat-foot">↗ &nbsp; Live data</div><a class="ad-stat-link" href="#" data-goto="orders">View Details &nbsp; →</a></article><article class="ad-stat orange"><div class="ad-stat-top"><div class="ad-stat-icon">◷</div><div><div class="ad-stat-label">Pending</div><div id="pendingOrders" class="ad-stat-value">0</div></div></div><div class="ad-stat-foot">↗ &nbsp; Live data</div><a class="ad-stat-link" href="#" data-goto="orders">View Details &nbsp; →</a></article><article class="ad-stat purple"><div class="ad-stat-top"><div class="ad-stat-icon">♟</div><div><div class="ad-stat-label">Customers</div><div id="totalCustomers" class="ad-stat-value">0</div></div></div><div class="ad-stat-foot">↗ &nbsp; From orders</div><a class="ad-stat-link" href="#" data-goto="customers">View Details &nbsp; →</a></article></div>'+
+  '<div class="ad-grid-main"><section class="ad-card"><div class="ad-card-head"><h2><span>☷</span>Recent Orders</h2><button class="ad-viewall" data-goto="orders">View All &nbsp; →</button></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>#</th><th>Customer</th><th>Service</th><th>Status</th><th>Total / Cash</th><th>Date</th><th>Actions</th></tr></thead><tbody id="recentOrdersBody"><tr><td colspan="6">Loading…</td></tr></tbody></table></div></section><section class="ad-card"><div class="ad-card-head"><h2><span>⌁</span>Sales Overview</h2><div class="ad-chart-legend"><span><i class="ad-dot" style="background:#2475f5"></i>Orders</span><span><i class="ad-dot" style="background:#10b981"></i>Completed</span></div></div><div id="salesChart" class="ad-chart"></div></section></div>'+
+  '<div class="ad-bottom-grid"><section class="ad-card"><div class="ad-card-head"><h2><span>♟</span>Customer Overview</h2><button class="ad-viewall" data-goto="customers">View All &nbsp; →</button></div><div id="customerOverview" class="ad-customer-list"></div></section><section class="ad-card"><div class="ad-card-head"><h2><span>ϟ</span>Quick Actions</h2></div><div class="ad-quick"><div class="ad-quick-row"><button class="ad-quick-btn blue" data-goto="orders"><span>🛒</span>View All Orders</button><button class="ad-quick-btn green" data-goto="orders"><span>↻</span>Update Order Status</button><button id="quickDelete" class="ad-quick-btn red"><span>▤</span>Delete Order<br><small>(Super Admin)</small></button><button class="ad-quick-btn purple" data-goto="reports"><span style="display:inline;margin:0 8px 0 0">▥</span>View Reports</button></div></div></section></div></section>'+
+  '<section id="view-orders" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2><span>▤</span>Order Operations Center</h2><button id="refreshOrders" class="ad-viewall">↻ Refresh</button></div><div id="orderKpis" class="ad-stats" style="padding:14px 18px 4px"></div><div class="ad-order-filters"><button class="ad-order-filter active" data-order-filter="all">All orders</button><button class="ad-order-filter" data-order-filter="needs_assignment">Needs assignment</button><button class="ad-order-filter" data-order-filter="assigned">Assigned</button><button class="ad-order-filter" data-order-filter="in_progress">In progress</button><button class="ad-order-filter" data-order-filter="completed">Completed</button><button class="ad-order-filter" data-order-filter="unpaid">Cash unpaid</button></div><div style="padding:0 16px"><input id="orderSearch" class="ad-search" placeholder="Search tracking code, customer, phone, professional, service or location…"></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Order / Tracking</th><th>Customer</th><th>Service</th><th>Pickup</th><th>Professional</th><th>Progress</th><th>Cash</th><th>Details</th></tr></thead><tbody id="ordersBody"></tbody></table></div></section><section class="ad-card" style="margin-top:18px"><div class="ad-card-head"><h2>Operations guide</h2><span class="ad-muted">Order lifecycle at a glance</span></div><div class="ad-order-guide"><div><b>1 · New request</b><span>Review customer, service, location and pickup details.</span></div><div><b>2 · Assignment</b><span>Choose an eligible professional and approve the assignment.</span></div><div><b>3 · Service underway</b><span>Monitor progress from accepted to in progress.</span></div><div><b>4 · Completion & cash</b><span>Confirm completion, then record cash received.</span></div></div></section></section>'+
+  '<div id="orderDetailModal" class="ad-order-modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle"><div class="ad-order-modal-card"><div class="ad-order-modal-head"><h2 id="orderDetailTitle">Order details</h2><button class="ad-order-close" id="closeOrderDetail">Close ✕</button></div><div id="orderDetailContent"></div></div></div>'+
+  '<section id="view-customers" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2><span>♟</span>Customers</h2></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Customer</th><th>Phone</th><th>City Division</th><th>Woreda</th><th>Total Orders</th><th>Latest Order</th></tr></thead><tbody id="customersBody"></tbody></table></div></section></section>'+
+  '<section id="view-reports" class="ad-view"><div class="ad-stats"><article class="ad-stat blue"><div class="ad-stat-label">Total Orders</div><div id="reportTotal" class="ad-stat-value">0</div></article><article class="ad-stat green"><div class="ad-stat-label">Completed</div><div id="reportCompleted" class="ad-stat-value">0</div></article><article class="ad-stat orange"><div class="ad-stat-label">Pending</div><div id="reportPending" class="ad-stat-value">0</div></article><article class="ad-stat purple"><div class="ad-stat-label">Cancelled</div><div id="reportCancelled" class="ad-stat-value">0</div></article></div><section class="ad-card"><div class="ad-card-head"><h2>Order Status Report</h2></div><div id="reportBreakdown" style="padding:20px"></div></section></section>'+
+  `<section id="view-professionals" class="ad-view">
+<section class="ad-card"><div class="ad-card-head"><h2>Register a Professional</h2><span class="ad-muted">New registrations require Super Admin review</span></div>
+<form id="professionalForm" class="ad-form-grid" style="padding:20px">
+<label>Full name<input name="full_name" required maxlength="120"></label><label>Phone<input name="phone" required maxlength="30"></label><label>Email (optional)<input name="email" type="email" maxlength="160"></label>
+<label>City Division<select name="sub_city_id" id="professionalSubCity" required><option value="">Select city division</option></select></label>
+<label>Woreda<select name="woreda_id" id="professionalWoreda" required disabled><option value="">Select city division first</option></select></label>
+<div class="ad-wide" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><small id="professionalWoredaHelp" class="ad-muted">Select a city division to load its woredas.</small><button id="manageWoredasFromProfessional" class="ad-action" type="button" hidden>Add / manage woredas</button></div>
+<label>Experience (years)<input name="experience_years" type="number" min="0" max="60" value="0"></label>
+<label class="ad-wide">Address<input name="address" maxlength="400"></label><label class="ad-wide">Services offered<select name="service_ids" id="professionalServices" multiple size="3"></select></label>
+<label class="ad-wide">Notes<textarea name="notes" rows="2" maxlength="1000"></textarea></label><div class="ad-wide"><p id="professionalFormStatus" class="ad-muted" role="status" aria-live="polite"></p><button id="professionalSubmitButton" class="ad-primary" type="submit">Register Professional</button></div></form></section>
+<section class="ad-card"><div class="ad-card-head"><h2>Professional Directory</h2><button id="refreshOperations" class="ad-action">Refresh</button></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Area</th><th>Services</th><th>Status</th><th>Active jobs / limit</th><th>Action</th></tr></thead><tbody id="professionalsBody"></tbody></table></div></section></section>
+<section id="view-assignments" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2>Assign Professional to Order</h2><span class="ad-muted">Automatic area/service matching is used to shortlist approved, available staff</span></div><form id="assignmentForm" class="ad-form-grid" style="padding:20px"><label>Order<select id="assignmentOrder" name="order_id" required><option value="">Select accepted order</option></select></label><label>Professional<select id="assignmentProfessional" name="professional_id" required><option value="">Select suggested professional</option></select></label><label class="ad-wide">Assignment note<input name="note" maxlength="500"></label><div class="ad-wide"><button class="ad-primary" type="submit">Submit Assignment for Approval</button></div></form><div id="assignmentSuggestions" style="padding:0 20px 20px"></div></section><section class="ad-card"><div class="ad-card-head"><h2>Assignment History</h2></div><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Order</th><th>Professional</th><th>Status</th><th>Date</th><th>Review</th></tr></thead><tbody id="assignmentsBody"></tbody></table></div></section></section>
+<section id="view-settings" class="ad-view">
+<section class="ad-card"><div class="ad-card-head"><h2><span>⚙</span>Settings & Service Areas</h2></div><div style="padding:20px"><p>Administrator: <b id="settingsIdentity"></b></p><p>Super Admin manages the official service areas and service catalogue. Admin users can register professionals and process orders.</p>
+<div class="ad-form-grid"><form id="subCityForm"><label>Add City Division<input name="name" required maxlength="100"></label><button class="ad-primary" type="submit">Add City Division</button></form><form id="woredaForm"><label>City Division<select name="sub_city_id" id="woredaSubCity" required><option value="">Select city division</option></select></label><label class="ad-wide">Woreda names (one per line)<textarea name="names" rows="5" required maxlength="30000" placeholder="Woreda 01&#10;Woreda 02&#10;Woreda 03"></textarea></label><small class="ad-wide ad-muted">Add up to 250 names in one batch. You can add more batches at any time; there is no overall limit.</small><button class="ad-primary ad-wide" type="submit">Add Woredas</button></form><form id="serviceForm"><label>Service name<input name="name" required maxlength="100"></label><label>Description<input name="description" maxlength="500"></label><label>Price (ETB)<input name="price" type="number" min="0" step="0.01" value="0"></label><label>Duration (minutes)<input name="duration_minutes" type="number" min="1" value="60"></label><button class="ad-primary" type="submit">Add Service</button></form></div></div></section>
+<section class="ad-card"><div class="ad-card-head"><h2>Configured Areas & Services</h2></div><div id="operationsSettingsSummary" style="padding:20px"></div></section></section><section id="view-website" class="ad-view"><section class="ad-card"><div class="ad-card-head"><h2>Website Content & Navigation</h2><span class="ad-muted">Manage public homepage samples</span></div><div class="ad-editor-help">Edit the JSON below to control hero text, header and footer links, service cards, Before & After sample images, and section visibility. Use plain text and HTTPS image URLs only. Do not paste HTML, scripts, passwords, or API keys.</div><textarea id="websiteContentJson" class="ad-content-editor" spellcheck="false" aria-label="Website content JSON"></textarea><div class="ad-editor-actions"><button id="saveWebsiteContent" class="ad-primary" style="width:auto;margin:0">Save Website Content</button><button id="reloadWebsiteContent" class="ad-viewall" type="button">Reload saved content</button><button id="resetWebsiteContent" class="ad-viewall" type="button">Load sample defaults</button></div><p id="websiteContentStatus" class="ad-notice" style="padding:12px 20px" role="status">Loading website content…</p></section></section>`+
+  '</div><footer class="ad-footer"><span>© 2026 LYSTRO. Clean Steps, Happy You.</span><span>📍 Admin Panel • Addis Ababa, Ethiopia</span></footer></main></div>';
+  const loadSupabase=()=>new Promise((resolve,reject)=>{if(window.supabase?.createClient)return resolve(window.supabase);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);});
+  (async()=>{
+    const login=document.getElementById('adminLogin'),panel=document.getElementById('adminPanel'),resetPanel=document.getElementById('adminResetPanel');
+    const message=document.getElementById('loginMessage'),resetMessage=document.getElementById('resetMessage'),notice=document.getElementById('adminNotice');
+    const loginForm=document.getElementById('adminLoginForm'),loginButton=document.getElementById('loginButton');
+    const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let client,orders=[],currentRole='',currentUser=null;
+    try{const sdk=await loadSupabase();client=sdk.createClient('https://molvnallhdhmmubqbkqq.supabase.co','sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J');}
+    catch(e){message.textContent=e.message;return;}
+    async function adminApi(method,body){
+      const {data:{session},error:sessionError}=await client.auth.getSession();
+      if(sessionError||!session?.access_token)throw new Error('Your session expired. Please sign in again.');
+      const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
+      if(method==='GET'){
+        const all=[];let offset=0,result={};
+        do{
+          const response=await fetch('/api/admin/orders?offset='+offset,{method:'GET',headers});
+          result=await response.json().catch(()=>({}));
+          if(!response.ok)throw new Error(result.error||'Admin request failed.');
+          const page=Array.isArray(result.orders)?result.orders:[];
+          all.push(...page);offset+=page.length;
+          if(!result.has_more||page.length===0)break;
+        }while(all.length<10000000);
+        return {...result,orders:all};
+      }
+      const response=await fetch('/api/admin/orders',{method,headers,body:body?JSON.stringify(body):undefined});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(result.error||'Admin request failed.');
+      return result;
+    }
+    let operations={sub_cities:[],woredas:[],services:[],professionals:[],assignments:[],active_orders:[]};
+    let activeOrderFilter='all';
+    async function operationsApi(method='GET',resource='',body){
+      const {data:{session},error}=await client.auth.getSession();if(error||!session?.access_token)throw new Error('Session expired. Sign in again.');
+      const response=await fetch('/api/admin/operations'+(resource?'?resource='+encodeURIComponent(resource):''),{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:body?JSON.stringify(body):undefined});
+      const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Operations request failed.');return result;
+    }
+    async function websiteContentApi(method='GET',content){
+       const {data:{session},error}=await client.auth.getSession();if(error||!session?.access_token)throw new Error('Session expired. Sign in again.');
+       const response=await fetch('/api/admin/site-content',{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:content?JSON.stringify({content}):undefined});
+       const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||'Website content request failed.');return result;
+     }
+     async function loadWebsiteEditor(){
+       const status=document.getElementById('websiteContentStatus'),area=document.getElementById('websiteContentJson');
+       try{const result=await websiteContentApi('GET');area.value=JSON.stringify(result.content,null,2);status.textContent='Saved content loaded. Changes appear on the public homepage after saving.';}
+       catch(e){status.textContent=e.message+' Apply the LYSTRO site-content SQL migration in Supabase, then reload.';}
+     }
+     async function saveWebsiteEditor(){
+       const status=document.getElementById('websiteContentStatus'),area=document.getElementById('websiteContentJson');let content;
+       try{content=JSON.parse(area.value);}catch(e){status.textContent='Invalid JSON: '+e.message;return;}
+       const button=document.getElementById('saveWebsiteContent');button.disabled=true;status.textContent='Saving website content…';
+       try{await websiteContentApi('PUT',content);status.textContent='Website content saved. Refresh the public homepage to see your changes.';}
+       catch(e){status.textContent=e.message;}finally{button.disabled=false;}
+     }
+     function fillSelect(el,items,label,selected){
+      if(!el)return;const value=el.value;el.innerHTML='<option value="">Select '+label+'</option>'+items.filter(x=>x.is_active!==false).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');if(selected)el.value=selected;else if(items.some(x=>x.id===value))el.value=value;
+    }
+    function refreshProfessionalWoreda(selectedId){
+      const subId=document.getElementById('professionalSubCity')?.value||'';
+      const select=document.getElementById('professionalWoreda');
+      const choices=subId?operations.woredas.filter(w=>w.sub_city_id===subId&&w.is_active!==false):[];
+      fillSelect(select,choices,'woreda',selectedId);
+      select.disabled=!subId||choices.length===0;
+      const help=document.getElementById('professionalWoredaHelp');
+      const manage=document.getElementById('manageWoredasFromProfessional');
+      if(!subId)help.textContent='Select a city division first; its woredas will load here.';
+      else if(!choices.length)help.textContent='No woredas are registered for this city division yet. A Super Admin must add them in Settings.';
+      else help.textContent=choices.length+' woreda(s) available for the selected city division.';
+      manage.hidden=currentRole!=='super_admin'||!subId;
+    }
+    function renderOperations(){
+      fillSelect(document.getElementById('professionalSubCity'),operations.sub_cities,'city division');
+      fillSelect(document.getElementById('woredaSubCity'),operations.sub_cities,'city division');
+      refreshProfessionalWoreda();
+      const ps=document.getElementById('professionalServices');if(ps)ps.innerHTML=operations.services.filter(x=>x.is_active).map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
+      const areaName=id=>operations.sub_cities.find(x=>x.id===id)?.name||'—',woredaName=id=>operations.woredas.find(x=>x.id===id)?.name||'—';
+      const activeCount=id=>(operations.active_orders||[]).filter(o=>o.assigned_professional_id===id).length;
+      document.getElementById('professionalsBody').innerHTML=operations.professionals.map(p=>'<tr><td>'+esc(p.full_name)+'</td><td>'+esc(p.email||'—')+'</td><td>'+esc(p.phone)+'</td><td>'+esc(areaName(p.sub_city_id)+' / '+woredaName(p.woreda_id))+'</td><td>'+esc((p.lystro_professional_services||[]).map(x=>x.lystro_services?.name).filter(Boolean).join(', '))+'</td><td>'+esc(p.status)+' · '+esc(p.availability)+'</td><td>'+activeCount(p.id)+' / '+(Number(p.max_active_jobs)||20)+(['admin','super_admin'].includes(currentRole)&&p.status==='approved'?' <select class="capacity-control" data-capacity-id="'+esc(p.id)+'" aria-label="Maximum active jobs">'+Array.from({length:20},(_,n)=>n+1).map(n=>'<option value="'+n+'" '+(n===(Number(p.max_active_jobs)||20)?'selected':'')+'>'+n+'</option>').join('')+'</select>':'')+'</td><td>'+(['admin','super_admin'].includes(currentRole)&&p.status==='pending_review'?'<button class="ad-action" data-review="'+esc(p.id)+'" data-status="approved">Approve</button> <button class="ad-delete" data-review="'+esc(p.id)+'" data-status="rejected">Reject</button>':['admin','super_admin'].includes(currentRole)&&p.status==='approved'?'<button class="ad-delete" data-review="'+esc(p.id)+'" data-status="suspended">Suspend</button>':['admin','super_admin'].includes(currentRole)&&p.status==='suspended'?'<button class="ad-action" data-review="'+esc(p.id)+'" data-status="approved">Reinstate</button>':['admin','super_admin'].includes(currentRole)&&p.status==='rejected'?'<button class="ad-action" data-review="'+esc(p.id)+'" data-status="pending_review">Reopen review</button>':currentRole==='super_admin'&&!p.auth_user_id&&p.email?'<button class="ad-action" data-invite="'+esc(p.id)+'">Send Portal Invite</button>':p.auth_user_id?'Portal linked':'—')+'</td></tr>').join('')||'<tr><td colspan="8">No professionals registered.</td></tr>';
+      fillSelect(document.getElementById('assignmentOrder'),orders.filter(o=>['accepted','confirmed'].includes(o.status)&&!o.assigned_professional_id).map(o=>({id:o.id,name:(o.customer_name+' — '+o.service_type+' — '+o.sub_city+'/'+o.woreda)})),'order');
+      const ready=operations.professionals.filter(p=>p.status==='approved'&&p.availability!=='unavailable'&&activeCount(p.id)<(Number(p.max_active_jobs)||20));
+      const order=document.getElementById('assignmentOrder')?.value,selectedOrder=orders.find(o=>o.id===order);
+      const serviceReady=ready.filter(p=>!selectedOrder||(p.lystro_professional_services||[]).some(x=>x.lystro_services?.name===selectedOrder.service_type));
+      const orderArea=selectedOrder&&operations.sub_cities.find(x=>x.name===selectedOrder.sub_city)?.id;
+      const orderWoreda=selectedOrder&&operations.woredas.find(x=>x.name===selectedOrder.woreda&&x.sub_city_id===orderArea)?.id;
+      const exact=selectedOrder?serviceReady.filter(p=>p.sub_city_id===orderArea&&p.woreda_id===orderWoreda):[];
+      const sameArea=selectedOrder?serviceReady.filter(p=>p.sub_city_id===orderArea&&p.woreda_id!==orderWoreda):[];
+      const otherArea=selectedOrder?serviceReady.filter(p=>p.sub_city_id!==orderArea):serviceReady;
+      const tierList=exact.length?exact:sameArea.length?sameArea:otherArea;
+      const tierLabel=exact.length?'Same Woreda':sameArea.length?'Same City Division · Other Woreda':'Other City Division';
+      fillSelect(document.getElementById('assignmentProfessional'),tierList.map(p=>({id:p.id,name:p.full_name+' — '+(operations.sub_cities.find(x=>x.id===p.sub_city_id)?.name||'')+'/'+(operations.woredas.find(x=>x.id===p.woreda_id)?.name||'')+' · '+activeCount(p.id)+'/'+(Number(p.max_active_jobs)||20)+' active · '+tierLabel})),'professional');
+      document.getElementById('assignmentSuggestions').textContent=selectedOrder?(tierList.length?'Recommended tier: '+tierLabel+'. Matching service and available professionals only. Super Admin approval is required.':'No approved professional with remaining capacity offers this service.'):'Select an order to see recommended professionals. Super Admin approval is required to finalize assignment.';
+      document.getElementById('assignmentsBody').innerHTML=operations.assignments.map(a=>'<tr><td>'+esc(a.order_id)+'</td><td>'+esc(operations.professionals.find(p=>p.id===a.professional_id)?.full_name||a.professional_id)+'</td><td>'+esc(a.status)+'</td><td>'+dateText(a.created_at)+'</td><td>'+(currentRole==='super_admin'&&a.status==='suggested'?'<button class="ad-action" data-assignment-review="'+esc(a.id)+'" data-status="accepted">Approve</button> <button class="ad-delete" data-assignment-review="'+esc(a.id)+'" data-status="declined">Decline</button>':'—')+'</td></tr>').join('')||'<tr><td colspan="5">No assignment history yet.</td></tr>';
+      const woredaCounts=operations.sub_cities.map(area=>({name:area.name,count:operations.woredas.filter(w=>w.sub_city_id===area.id&&w.is_active!==false).length}));
+      document.getElementById('operationsSettingsSummary').innerHTML='<b>Sub-cities ('+operations.sub_cities.length+')</b><p>'+operations.sub_cities.map(x=>esc(x.name)).join(' • ')+'</p><b>Woredas ('+operations.woredas.length+')</b><p>'+woredaCounts.map(x=>esc(x.name)+': '+x.count).join(' • ')+'</p><b>Services ('+operations.services.length+')</b><div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Service</th><th>Price (ETB)</th><th>Duration</th><th>Status</th><th>Action</th></tr></thead><tbody>'+operations.services.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+Number(x.price).toFixed(2)+'</td><td>'+Number(x.duration_minutes||60)+' min</td><td>'+(x.is_active?'Active':'Inactive')+'</td><td>'+(currentRole==='super_admin'?'<button class="ad-action" data-edit-service="'+esc(x.id)+'">Edit price</button>':'—')+'</td></tr>').join('')+'</tbody></table></div>';
+    }
+    async function loadOperations(){
+      try{operations=await operationsApi('GET');renderOperations();}
+      catch(e){notice.textContent=e.message;}
+    }
+    async function showDashboard(user){
+      currentUser=user;
+      const result=await adminApi('GET');
+      currentRole=result.role||'';
+      orders=result.orders||[];
+      login.hidden=true;resetPanel.hidden=true;panel.hidden=false;
+      document.getElementById('adminHello').textContent='Hello, '+(user.email||'Admin');
+      document.getElementById('settingsIdentity').textContent=(user.email||'Admin')+' • '+currentRole;
+      updateDashboard();
+      await loadOperations();
+      await loadWebsiteEditor();
+    }
+     function uniqueCustomers(){
+      const map=new Map();
+      orders.forEach(o=>{const key=o.phone||o.customer_name||o.id;if(!map.has(key))map.set(key,{...o,count:0,latest:o.created_at});const c=map.get(key);c.count++;if(o.created_at&&(!c.latest||new Date(o.created_at)>new Date(c.latest))){c.latest=o.created_at;c.sub_city=o.sub_city;c.woreda=o.woreda;c.customer_name=o.customer_name;}});
+      return [...map.values()].sort((a,b)=>new Date(b.latest||0)-new Date(a.latest||0));
+    }
+    function dateText(v){return v?new Date(v).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'—';}
+    function statusLabel(v){return String(v||'pending').replace(/_/g,' ');}
+    function statusClass(v){return ['pending','accepted','confirmed','assigned','in_progress','completed','cancelled'].includes(v)?v:'pending';}
+    function orderNumber(i){return 'ORD-'+String(i+1).padStart(3,'0');}
+    function updateDashboard(){
+      const customers=uniqueCustomers(),completed=orders.filter(o=>o.status==='completed').length,pending=orders.filter(o=>o.status==='pending').length,cancelled=orders.filter(o=>o.status==='cancelled').length;
+      document.getElementById('totalOrders').textContent=orders.length;document.getElementById('completedOrders').textContent=completed;document.getElementById('pendingOrders').textContent=pending;document.getElementById('totalCustomers').textContent=customers.length;document.getElementById('navOrderCount').textContent=orders.length;
+      document.getElementById('reportTotal').textContent=orders.length;document.getElementById('reportCompleted').textContent=completed;document.getElementById('reportPending').textContent=pending;document.getElementById('reportCancelled').textContent=cancelled;
+      document.getElementById('recentOrdersBody').innerHTML=orders.slice(0,5).map((o,i)=>'<tr><td>#'+orderNumber(i)+'</td><td>'+esc(o.customer_name)+'</td><td>'+esc(o.service_type)+'</td><td><span class="ad-status '+statusClass(o.status)+'">'+esc(statusLabel(o.status))+'</span></td><td>'+dateText(o.created_at)+'</td><td><button class="ad-action" data-goto="orders">Update</button>'+(currentRole==='super_admin'?' <button class="ad-delete" data-delete-id="'+esc(o.id)+'">▤</button>':'')+'</td></tr>').join('')||'<tr><td colspan="6" style="padding:18px">No orders have been placed yet.</td></tr>';
+      document.getElementById('customerOverview').innerHTML=customers.slice(0,4).map(c=>'<div class="ad-customer"><div class="ad-customer-avatar">●</div><b>'+esc(c.customer_name||'Customer')+'</b><span class="ad-customer-phone">'+esc(c.phone||'—')+'</span><span class="ad-order-count">'+c.count+' order'+(c.count===1?'':'s')+'</span></div>').join('')||'<p style="padding:15px;color:#69748d">Customer records will appear after orders arrive.</p>';
+      document.getElementById('customersBody').innerHTML=customers.map(c=>'<tr><td>'+esc(c.customer_name||'Customer')+'</td><td>'+esc(c.phone||'—')+'</td><td>'+esc(c.sub_city||'—')+'</td><td>'+esc(c.woreda||'—')+'</td><td>'+c.count+'</td><td>'+dateText(c.latest)+'</td></tr>').join('')||'<tr><td colspan="6" style="padding:18px">No customer records yet.</td></tr>';
+      const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],counts=days.map(()=>({orders:0,done:0}));
+      orders.forEach(o=>{if(!o.created_at)return;const d=new Date(o.created_at).getDay();counts[d].orders++;if(o.status==='completed')counts[d].done++;});
+      const max=Math.max(4,...counts.map(x=>x.orders));
+      document.getElementById('salesChart').innerHTML='<div class="ad-ylabels"><span>'+max+'</span><span>'+Math.ceil(max*.75)+'</span><span>'+Math.ceil(max*.5)+'</span><span>'+Math.ceil(max*.25)+'</span><span>0</span></div><div class="ad-chart-bars">'+counts.map((v,i)=>'<div class="ad-day"><div class="ad-bars"><i class="ad-bar" style="height:'+Math.max(2,v.orders/max*100)+'%"></i><i class="ad-bar done" style="height:'+Math.max(2,v.done/max*100)+'%"></i></div><small>'+days[i]+'</small></div>').join('')+'</div>';
+      document.getElementById('reportBreakdown').innerHTML=['pending','accepted','assigned','in_progress','completed','cancelled','confirmed'].map(s=>{const n=orders.filter(o=>o.status===s).length,p=orders.length?Math.round(n/orders.length*100):0;return '<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;text-transform:capitalize"><b>'+statusLabel(s)+'</b><span>'+n+' ('+p+'%)</span></div><div style="height:9px;background:#edf1f8;border-radius:8px;overflow:hidden;margin-top:6px"><div style="height:100%;width:'+p+'%;background:#2475f5;border-radius:8px"></div></div></div>';}).join('');
+      renderOrders();
+    }
+    function professionalForOrder(o){
+      return operations.professionals.find(p=>p.id===o.assigned_professional_id)||null;
+    }
+    function renderOrderKpis(){
+      const counts={all:orders.length,needs_assignment:orders.filter(o=>['accepted','confirmed'].includes(o.status)&&!o.assigned_professional_id).length,assigned:orders.filter(o=>o.status==='assigned').length,in_progress:orders.filter(o=>o.status==='in_progress').length,completed:orders.filter(o=>o.status==='completed').length,unpaid:orders.filter(o=>o.status!=='cancelled'&&o.cash_payment_status!=='paid').length};
+      document.getElementById('orderKpis').innerHTML=[['Total orders',counts.all],['Needs assignment',counts.needs_assignment],['Assigned',counts.assigned],['In progress',counts.in_progress],['Completed',counts.completed],['Cash unpaid',counts.unpaid]].map((x,i)=>'<article class="ad-stat '+['blue','orange','purple','orange','green','red'][i]+'"><div class="ad-stat-label">'+x[0]+'</div><div class="ad-stat-value">'+x[1]+'</div></article>').join('');
+    }
+    function renderOrders(){
+      const q=(document.getElementById('orderSearch')?.value||'').trim().toLowerCase();
+      let filtered=orders.filter(o=>{
+        const p=professionalForOrder(o);
+        const searchable=[o.id,o.tracking_code,o.customer_name,o.phone,o.service_type,o.sub_city,o.woreda,o.address,o.status,o.cash_payment_status,p?.full_name,p?.email,p?.phone].some(v=>String(v||'').toLowerCase().includes(q));
+        if(!searchable)return false;
+        if(activeOrderFilter==='needs_assignment')return ['accepted','confirmed'].includes(o.status)&&!o.assigned_professional_id;
+        if(activeOrderFilter==='assigned')return o.status==='assigned';
+        if(activeOrderFilter==='in_progress')return o.status==='in_progress';
+        if(activeOrderFilter==='completed')return o.status==='completed';
+        if(activeOrderFilter==='unpaid')return o.status!=='cancelled'&&o.cash_payment_status!=='paid';
+        return true;
+      });
+      document.getElementById('ordersBody').innerHTML=filtered.map(o=>{
+        const i=orders.indexOf(o),p=professionalForOrder(o);
+        const pickup=[o.pickup_date,o.pickup_time].filter(Boolean).join(' · ')||'Not set';
+        const progress=o.status==='completed'?'Completed':o.status==='in_progress'?'In progress':o.status==='assigned'?'Assigned':o.status==='cancelled'?'Cancelled':o.status==='accepted'||o.status==='confirmed'?'Awaiting assignment':'New request';
+        return '<tr data-order-id="'+esc(o.id)+'"><td><b>#'+orderNumber(i)+'</b><br><small>'+esc(o.tracking_code||'No tracking code')+'</small></td><td>'+esc(o.customer_name)+'<br><small>'+esc(o.phone)+'</small></td><td>'+esc(o.service_type)+'<br><small>'+Number(o.shoe_count||1)+' pair(s)</small></td><td>'+esc(pickup)+'<br><small>'+esc(o.delivery_type||'—')+'</small></td><td>'+esc(p?.full_name||'Not assigned')+'<br><small>'+esc(p?.phone||'')+'</small></td><td><select class="ad-status order-status '+statusClass(o.status)+'" aria-label="Update order status">'+['pending','accepted','confirmed','assigned','in_progress','completed','cancelled'].map(s=>'<option value="'+s+'" '+(o.status===s?'selected':'')+'>'+statusLabel(s)+'</option>').join('')+'</select></td><td><b>'+Number(o.total_amount||0).toLocaleString()+' ETB</b><br><select class="cash-status" aria-label="Update cash payment"><option value="unpaid" '+(o.cash_payment_status!=='paid'?'selected':'')+'>Unpaid</option><option value="paid" '+(o.cash_payment_status==='paid'?'selected':'')+'>Paid</option></select></td><td><button class="ad-detail-btn" data-order-detail="'+esc(o.id)+'">View details</button></td></tr>';
+      }).join('')||'<tr><td colspan="8" style="padding:18px">No orders match this section.</td></tr>';
+      renderOrderKpis();
+    }
+    function detailRow(label,value){return '<div class="ad-detail-row"><span>'+label+'</span><b>'+esc(value===undefined||value===null||value===''?'—':value)+'</b></div>';}
+    function showOrderDetails(id){
+      const o=orders.find(x=>x.id===id);if(!o)return;
+      const p=professionalForOrder(o),history=operations.assignments.filter(x=>x.order_id===o.id);
+      const section=(title,rows)=>'<section class="ad-detail-section"><h3>'+title+'</h3>'+rows.join('')+'</section>';
+      const fmt=v=>v?new Date(v).toLocaleString():'—';
+      const timeline=[['Created',o.created_at],['Accepted',o.accepted_at],['Assigned',o.assigned_at],['Started',o.started_at],['Completed',o.completed_at],['Cash received',o.cash_paid_at]];
+      document.getElementById('orderDetailTitle').textContent='Order details · '+(o.tracking_code||orderNumber(orders.indexOf(o)));
+      document.getElementById('orderDetailContent').innerHTML='<div class="ad-order-detail-grid">'+
+        section('Customer details',[detailRow('Customer',o.customer_name),detailRow('Phone',o.phone),detailRow('Email',o.email),detailRow('Address',o.address),detailRow('City Division',o.sub_city),detailRow('Woreda',o.woreda)])+
+        section('Service & pickup',[detailRow('Service',o.service_type),detailRow('Shoe quantity',o.shoe_count),detailRow('Pickup date',o.pickup_date),detailRow('Pickup time',o.pickup_time),detailRow('Delivery type',o.delivery_type),detailRow('Customer notes',o.notes||o.special_instructions)])+
+        section('Assignment & professional',[detailRow('Professional',p?.full_name),detailRow('Professional phone',p?.phone),detailRow('Professional email',p?.email),detailRow('Professional area',p?((operations.sub_cities.find(x=>x.id===p.sub_city_id)?.name||'')+' / '+(operations.woredas.find(x=>x.id===p.woreda_id)?.name||'')):'—'),detailRow('Assignment ID',o.assigned_professional_id),detailRow('Assignment records',history.length)])+
+        section('Payment & totals',[detailRow('Order total',Number(o.total_amount||0).toLocaleString()+' ETB'),detailRow('Payment method','Cash on service'),detailRow('Cash status',o.cash_payment_status||'unpaid'),detailRow('Cash received at',fmt(o.cash_paid_at)),detailRow('Order status',statusLabel(o.status)),detailRow('Tracking code',o.tracking_code)])+
+        '</div><div class="ad-order-timeline"><h3>Order timeline</h3><ol>'+timeline.map(([label,time])=>'<li class="'+(time?'done':'')+'"><b>'+label+'</b><br>'+fmt(time)+'</li>').join('')+'</ol><h3>Assignment history</h3>'+ (history.length?'<div class="ad-table-wrap"><table class="ad-table"><thead><tr><th>Professional</th><th>Status</th><th>Assigned</th><th>Responded</th><th>Note</th></tr></thead><tbody>'+history.map(h=>{const person=operations.professionals.find(x=>x.id===h.professional_id);return '<tr><td>'+esc(person?.full_name||h.professional_id||'—')+'</td><td>'+esc(h.status)+'</td><td>'+fmt(h.created_at)+'</td><td>'+fmt(h.responded_at)+'</td><td>'+esc(h.note||'—')+'</td></tr>';}).join('')+'</tbody></table></div>':'<p class="ad-muted">No assignment history recorded.</p>')+'</div>';
+      document.getElementById('orderDetailModal').classList.add('open');
+    }
+    function navigate(view){
+      const names={dashboard:['Admin Dashboard','Manage orders, customers and view reports'],orders:['Orders Management','View and update customer orders'],customers:['Customers','Customer details derived from orders'],reports:['Reports','Order status overview and activity'],professionals:['Professionals','Register, review and manage service professionals'],assignments:['Assignments','Match accepted orders with approved professionals'],settings:['Settings','Manage sub-cities, woredas and service catalogue'],website:['Website Content','Edit homepage sections, navigation and sample gallery']};
+      document.querySelectorAll('.ad-view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));
+      document.querySelectorAll('.ad-nav [data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));
+      document.getElementById('pageTitle').textContent=names[view][0];document.getElementById('pageSubtitle').textContent=names[view][1];
+      document.getElementById('adminSidebar').classList.remove('open');
+    }
+    async function refresh(){
+      notice.textContent='Refreshing orders…';
+      try{const result=await adminApi('GET');orders=result.orders||[];currentRole=result.role||currentRole;updateDashboard();notice.textContent='Data updated successfully.';}
+      catch(e){notice.textContent=e.message;}
+    }
+    async function deleteOrder(id){
+      if(currentRole!=='super_admin'){notice.textContent='Only Super Admin can delete orders.';return;}
+      if(!confirm('Delete this order permanently? This cannot be undone.'))return;
+      notice.textContent='Deleting order…';
+      try{await adminApi('DELETE',{id});await refresh();notice.textContent='Order deleted successfully.';}
+      catch(e){notice.textContent=e.message;}
+    }
+    document.getElementById('professionalSubCity').addEventListener('change',()=>refreshProfessionalWoreda());
+    document.getElementById('manageWoredasFromProfessional').addEventListener('click',()=>{
+      const subId=document.getElementById('professionalSubCity').value;
+      navigate('settings');
+      document.getElementById('woredaSubCity').value=subId;
+      document.querySelector('#woredaForm textarea[name="names"]').focus();
+    });
+    document.getElementById('assignmentOrder').addEventListener('change',renderOperations);
+    document.getElementById('refreshOperations').addEventListener('click',loadOperations);document.getElementById('operationsSettingsSummary').addEventListener('click',async e=>{const b=e.target.closest('[data-edit-service]');if(!b)return;const service=operations.services.find(x=>x.id===b.dataset.editService);if(!service)return;const entered=prompt('Set price in ETB for '+service.name, String(Number(service.price)||0));if(entered===null)return;const price=Number(entered);if(!Number.isFinite(price)||price<=0){notice.textContent='Price must be greater than zero.';return;}b.disabled=true;try{await operationsApi('PATCH','service',{id:service.id,name:service.name,description:service.description||'',price,duration_minutes:Number(service.duration_minutes)||60,is_active:service.is_active!==false});await loadOperations();notice.textContent='Service price updated. New bookings will use this price; existing orders keep their saved price.';}catch(err){notice.textContent=err.message;}finally{b.disabled=false;}});
+    document.getElementById('assignmentsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-assignment-review]');if(!b)return;try{await operationsApi('PATCH','assignment',{id:b.dataset.assignmentReview,status:b.dataset.status});await refresh();await loadOperations();notice.textContent='Assignment decision saved.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('professionalsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-review]');if(!b)return;try{await operationsApi('PATCH','professional',{id:b.dataset.review,status:b.dataset.status});await loadOperations();notice.textContent='Professional review saved.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('professionalsBody').addEventListener('click',async e=>{
+      const b=e.target.closest('[data-invite]');if(!b)return;
+      if(!confirm('Send a secure professional portal invitation to the registered email address?'))return;
+      b.disabled=true;notice.textContent='Sending professional invitation…';
+      try{await operationsApi('POST','invite',{professional_id:b.dataset.invite});await loadOperations();notice.textContent='Portal invitation sent. The professional must open the email and set a password.';}
+      catch(err){notice.textContent=err.message;b.disabled=false;}
+    });
+    document.getElementById('professionalsBody').addEventListener('change',async e=>{
+      const control=e.target.closest('.capacity-control');if(!control)return;
+      const p=operations.professionals.find(x=>x.id===control.dataset.capacityId);if(!p)return;
+      control.disabled=true;
+      try{await operationsApi('PATCH','professional',{id:p.id,status:p.status,max_active_jobs:Number(control.value)});await loadOperations();notice.textContent='Professional workload limit updated.';}
+      catch(err){notice.textContent=err.message;await loadOperations();}
+      finally{control.disabled=false;}
+    });
+    const professionalForm=document.getElementById('professionalForm');
+    const professionalFormStatus=document.getElementById('professionalFormStatus');
+    const professionalSubmitButton=document.getElementById('professionalSubmitButton');
+    professionalForm.noValidate=true;
+    professionalForm.addEventListener('submit',async e=>{
+      e.preventDefault();
+      professionalFormStatus.textContent='';
+      if(!professionalForm.checkValidity()){
+        professionalForm.reportValidity();
+        const invalid=professionalForm.querySelector(':invalid');
+        professionalFormStatus.textContent='Please complete the required field: '+(invalid?.closest('label')?.childNodes?.[0]?.textContent?.trim()||invalid?.name||'check the form');
+        invalid?.focus();
+        return;
+      }
+      const d=Object.fromEntries(new FormData(professionalForm).entries());
+      d.service_ids=[...document.getElementById('professionalServices').selectedOptions].map(o=>o.value);
+      if(!d.service_ids.length){
+        professionalFormStatus.textContent='Please select at least one service offered.';
+        document.getElementById('professionalServices').focus();
+        return;
+      }
+      professionalSubmitButton.disabled=true;
+      professionalSubmitButton.textContent='Registering…';
+      professionalFormStatus.textContent='Submitting professional registration…';
+      try{
+        await operationsApi('POST','professional',d);
+        professionalForm.reset();
+        professionalFormStatus.textContent='Registration submitted successfully. It is pending Super Admin review.';
+        await loadOperations();
+        notice.textContent='Professional registered; pending Super Admin review.';
+      }catch(err){
+        professionalFormStatus.textContent='Registration failed: '+(err?.message||'Please try again.');
+        notice.textContent=err?.message||'Professional registration failed.';
+      }finally{
+        professionalSubmitButton.disabled=false;
+        professionalSubmitButton.textContent='Register Professional';
+      }
+    });
+    document.getElementById('subCityForm').addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','sub_city',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='City Division added.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('woredaForm').addEventListener('submit',async e=>{
+      e.preventDefault();
+      const data=Object.fromEntries(new FormData(e.target).entries()),subId=data.sub_city_id;
+      try{
+        const result=await operationsApi('POST','woreda',data);
+        e.target.reset();
+        await loadOperations();
+        document.getElementById('woredaSubCity').value=subId;
+        document.getElementById('professionalSubCity').value=subId;
+        refreshProfessionalWoreda(result.items?.[0]?.id);
+        notice.textContent='Woredas added: '+(result.inserted||0)+' new; '+(result.duplicates||0)+' already existed.';
+      }catch(err){notice.textContent=err.message;}
+    });
+    document.getElementById('serviceForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','service',d);e.target.reset();await loadOperations();notice.textContent='Service added.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('assignmentForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','assign',d);await refresh();await loadOperations();notice.textContent='Assignment suggestion submitted for Super Admin approval.';}catch(err){notice.textContent=err.message;}});
+     document.getElementById('saveWebsiteContent').addEventListener('click',saveWebsiteEditor);
+     document.getElementById('reloadWebsiteContent').addEventListener('click',loadWebsiteEditor);
+     document.getElementById('resetWebsiteContent').addEventListener('click',async()=>{try{const r=await fetch('/api/site-content',{cache:'no-store'}),d=await r.json();document.getElementById('websiteContentJson').value=JSON.stringify(d.content,null,2);document.getElementById('websiteContentStatus').textContent='Sample defaults loaded in the editor. Click Save to publish.';}catch(e){document.getElementById('websiteContentStatus').textContent='Could not load sample defaults.';}});
 
-            <!-- Form Card -->
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-base font-bold text-blue-900">አዲስ የጫማ ማፅዳት ትዕዛዝ</h2>
-                    <span class="text-[11px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">ፈጣን ምላሽ</span>
-                </div>
-
-                <form id="orderForm" onsubmit="handleOrderSubmit(event)" class="space-y-3.5">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">ሙሉ ስም</label>
-                        <input type="text" id="fullName" required placeholder="ምሳሌ: አበበ ከበደ" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥር (09/07)</label>
-                            <input type="tel" id="phone" required placeholder="0911223344" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">ሪፈረንስ ቁጥር (FT/TRX)</label>
-                            <input type="text" id="paymentRef" required placeholder="FT2409..." class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">አድራሻ (ቦሌ፣ ፒያሳ፣ ሜክሲኮ...)</label>
-                        <input type="text" id="location" required placeholder="ቦሌ መድኃኔዓለም ቢሮ ቁ. 402" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/50">
-                    </div>
-
-                    <!-- Interactive Service Selection Cards -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">የጫማ ዓይነት እና አገልግሎት ይምረጡ</label>
-                        <div class="grid grid-cols-1 gap-2" id="serviceCardsContainer">
-                            <div onclick="selectServiceCard('መደበኛ የቆዳ ጫማ|50', this)" class="service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">መደበኛ የቆዳ ጫማ</p>
-                                    <p class="text-[10px] text-slate-500">ፈጣን አንጸባራቂ ልውጥ</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg">ብር 50</span>
-                            </div>
-                            <div onclick="selectServiceCard('ስኒከር ጥልቅ ማፅዳት - Deep Clean|3000', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">ስኒከር ጥልቅ ማፅዳት (Deep Clean)</p>
-                                    <p class="text-[10px] text-slate-500">ለአገር ውስጥ/ውጭ ስኒከሮች</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 3000</span>
-                            </div>
-                            <div onclick="selectServiceCard('ቀለም ማደስ እና ጥገና|100', this)" class="service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center">
-                                <div>
-                                    <p class="text-xs font-bold text-slate-900">ቀለም ማደስ እና ጥገና</p>
-                                    <p class="text-[10px] text-slate-500">የቆዳ መላላጥ ማስተካከያ</p>
-                                </div>
-                                <span class="text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg">ብር 100</span>
-                            </div>
-                        </div>
-                        <input type="hidden" id="serviceSelect" value="መደበኛ የቆዳ ጫማ|50">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">አገልግሎት አሰጣጥ ምርጫ</label>
-                        <select id="deliveryType" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 bg-slate-50/55">
-                            <option value="በቦታው ተገኝቶ ማፅዳት (On-site)">በቦታው ተገኝቶ ማፅዳት (On-site)</option>
-                            <option value="ወስዶ መመልስ (Pick & Drop +50 ብር)">ወስዶ መመለስ (Pick & Drop +50 ብር)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">የክፍያ ስክሪንሾት (አማራጭ/jpg, png)</label>
-                        <input type="file" id="paymentProof" accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-900 hover:file:bg-blue-100">
-                    </div>
-
-                    <div class="p-3 bg-blue-50/80 rounded-xl text-xs flex justify-between items-center text-blue-900 font-bold border border-blue-100">
-                        <span class="flex items-center gap-1">🛡️ ጠቅላላ ክፍያ:</span>
-                        <span id="priceDisplay" class="text-sm font-extrabold">ብር 50</span>
-                    </div>
-
-                    <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-blue-800 transition shadow-md shadow-blue-900/10">ትዕዛዝ ላክ</button>
-                </form>
-                <div id="orderStatus" class="mt-3 text-center text-xs font-medium"></div>
-            </div>
-        </section>
-
-        <!-- 2. LOYALTY / CRM SECTION -->
-        <section id="section-loyalty" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hidden">
-            <h2 class="text-base font-bold mb-4 text-blue-900">ቋሚ ደንበኛ መለያ (Loyalty CRM)</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">ስልክ ቁጥርዎትን ያስገቡ</label>
-                    <div class="flex gap-2">
-                        <input type="tel" id="lookupPhone" placeholder="09..." class="flex-1 px-3 py-2 border rounded-xl text-sm">
-                        <button onclick="checkLoyalty()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-medium">ፈልግ</button>
-                    </div>
-                </div>
-                <div id="loyaltyResult" class="p-4 bg-slate-50 rounded-xl border border-slate-100 text-sm space-y-2 hidden">
-                    <p><strong>ስም:</strong> <span id="res-name">-</span></p>
-                    <p><strong>ጠቅላላ ማፅዳት ብዛት:</strong> <span id="res-count" class="text-blue-900 font-bold">0</span> ጊዜ</p>
-                    <p id="res-reward" class="text-xs text-green-700 font-semibold bg-green-50 p-2.5 rounded-lg border border-green-200"></p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. ADMIN / LISTRO DASHBOARD SECTION -->
-        <section id="section-admin" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hidden">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-base font-bold text-blue-900">የሊስትሮ ገቢ ትዕዛዞች</h2>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full font-semibold">● Live</span>
-                    <button onclick="logoutAdmin()" class="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg">ውጣ</button>
-                </div>
-            </div>
-            <div id="adminOrdersList" class="space-y-3 text-xs">
-                <p class="text-slate-500 text-center py-4">ትዕዛዞች በመጫን ላይ...</p>
-            </div>
-            <div class="mt-4 text-center">
-                <button id="loadMoreBtn" onclick="loadMoreAdminOrders()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg hidden">ተጨማሪ ጫን (Load More)</button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Supabase Auth Login Modal -->
-    <div id="authModal" class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-lg space-y-3">
-            <h3 class="font-bold text-sm text-slate-800">የአስተዳዳሪ Supabase Auth ግባ</h3>
-            <form onsubmit="handleAdminLogin(event)" class="space-y-3">
-                <input type="email" id="adminEmail" required placeholder="admin@listro.et" class="w-full px-3 py-2 border rounded-xl text-sm">
-                <input type="password" id="adminPassword" required placeholder="password" class="w-full px-3 py-2 border rounded-xl text-sm">
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-blue-900 text-white py-2 rounded-xl text-xs font-semibold">ግባ</button>
-                    <button type="button" onclick="closeAuthModal()" class="flex-1 bg-slate-100 text-slate-700 py-2 rounded-xl text-xs font-semibold">ሰርዝ</button>
-                </div>
-            </form>
-            <div id="authError" class="text-xs text-red-600 text-center"></div>
-        </div>
-    </div>
-
-    <!-- Application Script -->
-    <script>
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL_HERE';
-        const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY_HERE';
-
-        let supabaseClient = null;
-        let realtimeChannel = null;
-        let currentOffset = 0;
-        const PAGE_SIZE = 15;
-
-        if (SUPABASE_URL !== 'YOUR_SUPABASE_URL_HERE') {
-            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-
-        // Auto-zoom/rotate visual carousel logic
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.carousel-item');
-        if (slides.length > 0) {
-            setInterval(() => {
-                slides[currentSlide].style.opacity = '0';
-                currentSlide = (currentSlide + 1) % slides.length;
-                slides[currentSlide].style.opacity = '1';
-            }, 4500);
-        }
-
-        function selectServiceCard(val, el) {
-            document.querySelectorAll('.service-card').forEach(c => {
-                c.className = "service-card cursor-pointer p-3 rounded-xl border border-slate-200 hover:border-blue-300 bg-white transition-all flex justify-between items-center";
-                c.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-slate-100 px-2.5 py-1 rounded-lg";
-            });
-            el.className = "service-card cursor-pointer p-3 rounded-xl border-2 border-blue-600 bg-blue-50/60 transition-all flex justify-between items-center";
-            el.querySelector('span').className = "text-xs font-extrabold text-blue-900 bg-white px-2.5 py-1 rounded-lg shadow-2xs";
-            document.getElementById('serviceSelect').value = val;
-            updatePriceDisplay();
-        }
-
-        function updatePriceDisplay() {
-            const val = document.getElementById('serviceSelect').value;
-            const parts = val.split('|');
-            document.getElementById('priceDisplay').textContent = `ብር ${parts[1] || 50}`;
-        }
-
-        function isValidEthPhone(phone) {
-            return /^0[79]\d{8}$/.test(phone.trim());
-        }
-
-        function switchTab(tab) {
-            ['order', 'loyalty', 'admin'].forEach(t => {
-                document.getElementById('tab-' + t).className = "flex-1 py-2 text-xs font-semibold rounded-md text-slate-600 transition";
-                document.getElementById('section-' + t).classList.add('hidden');
-            });
-
-            if (tab === 'order') {
-                document.getElementById('tab-order').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-order').classList.remove('hidden');
-            } else if (tab === 'loyalty') {
-                document.getElementById('tab-loyalty').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-loyalty').classList.remove('hidden');
-            } else if (tab === 'admin-panel') {
-                document.getElementById('tab-admin').className = "flex-1 py-2 text-xs font-semibold rounded-md bg-blue-900 text-white transition";
-                document.getElementById('section-admin').classList.remove('hidden');
-                currentOffset = 0;
-                loadAdminOrders(true);
-            }
-        }
-
-        function openAuthModal() { document.getElementById('authModal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('authModal').classList.add('hidden'); }
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            const errDiv = document.getElementById('authError');
-
-            if (!supabaseClient) {
-                alert('Mock Admin logged in!');
-                closeAuthModal();
-                document.getElementById('tab-admin').classList.remove('hidden');
-                switchTab('admin-panel');
-                return;
-            }
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) {
-                errDiv.textContent = error.message;
-            } else {
-                closeAuthModal();
-                document.getElementById('tab-admin').classList.remove('hidden');
-                switchTab('admin-panel');
-            }
-        }
-
-        async function logoutAdmin() {
-            if (supabaseClient) await supabaseClient.auth.signOut();
-            document.getElementById('tab-admin').classList.add('hidden');
-            switchTab('order');
-        }
-
-        async function checkAuthSession() {
-            if (!supabaseClient) return;
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                document.getElementById('tab-admin').classList.remove('hidden');
-                setupRealtimeListener();
-            }
-        }
-
-        function setupRealtimeListener() {
-            if (!supabaseClient) return;
-            if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
-            realtimeChannel = supabaseClient
-                .channel('db-orders-changes')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, payload => {
-                    currentOffset = 0;
-                    loadAdminOrders(true);
-                })
-                .subscribe();
-        }
-
-        async function handleOrderSubmit(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            const statusDiv = document.getElementById('orderStatus');
-            const fullName = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const location = document.getElementById('location').value.trim();
-            const serviceRaw = document.getElementById('serviceSelect').value.split('|');
-            const serviceType = serviceRaw[0];
-            const deliveryType = document.getElementById('deliveryType').value;
-            const paymentRef = document.getElementById('paymentRef').value.trim();
-            const fileInput = document.getElementById('paymentProof');
-
-            if (!isValidEthPhone(phone)) {
-                statusDiv.textContent = '❌ እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ (09/07)';
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-                return;
-            }
-
-            // 🛡️ ጥብቅ የቴሌብር/ባንክ ሪፈረንስ ቫሊዴሽን (በ FT የሚጀምር ወይም ከ10-20 አልፋኑመርክ)
-            const refRegex = /^(FT[A-Za-z0-9]{8,15}|[A-Za-z0-9]{10,20})$/i;
-            if (!refRegex.test(paymentRef)) {
-                statusDiv.textContent = '❌ ትክክለኛ የቴሌብር/ባንክ ሪፈረንስ ቁጥር ያስገቡ (በ FT የሚጀምር ወይም 10-20 ፊደል/ቁጥር)';
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-                return;
-            }
-
-            statusDiv.textContent = "ትዕዛዝዎ በመመዝገብ ላይ ነው...";
-            statusDiv.className = "mt-3 text-center text-xs font-medium text-blue-600";
-            btn.disabled = true;
-
-            if (!supabaseClient) {
-                setTimeout(() => {
-                    statusDiv.textContent = `✅ ደርሷል! ${fullName}, ትዕዛዝዎ ተመዝግቧል። (Ref: ${paymentRef})`;
-                    statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
-                    btn.disabled = false;
-                    document.getElementById('orderForm').reset();
-                    updatePriceDisplay();
-                }, 800);
-                return;
-            }
-
-            try {
-                let proofUrl = null;
-                if (fileInput.files.length > 0 && supabaseClient) {
-                    const file = fileInput.files[0];
-                    const fileName = `${Date.now()}_${file.name}`;
-                    const { data: uploadData, error: uploadErr } = await supabaseClient.storage.from('payment-proofs').upload(fileName, file);
-                    if (!uploadErr && uploadData) {
-                        const { data: pubUrl } = supabaseClient.storage.from('payment-proofs').getPublicUrl(uploadData.path);
-                        proofUrl = pubUrl.publicUrl;
-                    }
-                }
-
-                let { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
-                let visits = 1;
-                if (!customer) {
-                    await supabaseClient.from('customers').insert([{ full_name: fullName, phone: phone, default_location: location, visit_count: 1 }]);
-                } else {
-                    visits = (customer.visit_count || 1) + 1;
-                    await supabaseClient.from('customers').update({ visit_count: visits, default_location: location }).eq('phone', phone);
-                }
-
-                const { error: orderError } = await supabaseClient.from('orders').insert([{
-                    full_name: fullName, phone: phone, location: location, service_type: serviceType, delivery_type: deliveryType, payment_ref: paymentRef, proof_url: proofUrl, status: 'pending'
-                }]);
-                if (orderError) throw orderError;
-
-                statusDiv.textContent = `✅ ትዕዛዝዎ ተመዝግቧል! (ጉብኝት #${visits})`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-green-700 bg-green-50 p-2.5 rounded-xl border border-green-200";
-                document.getElementById('orderForm').reset();
-                updatePriceDisplay();
-            } catch (err) {
-                statusDiv.textContent = `❌ ስህተት: ${err.message || 'እንደገና ይሞክሩ'}`;
-                statusDiv.className = "mt-3 text-center text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200";
-            } finally {
-                btn.disabled = false;
-            }
-        }
-
-        async function checkLoyalty() {
-            const phone = document.getElementById('lookupPhone').value.trim();
-            const resDiv = document.getElementById('loyaltyResult');
-            if (!isValidEthPhone(phone)) return alert('እባክዎ ትክክለኛ የኢትዮጵያ ስልክ ቁጥር ያስገቡ');
-
-            if (!supabaseClient) {
-                resDiv.classList.remove('hidden');
-                document.getElementById('res-name').textContent = 'ናሙና ደንበኛ';
-                document.getElementById('res-count').textContent = '3';
-                document.getElementById('res-reward').textContent = '🎁 ነፃ ማፅዳት ለማግኘት 2 ጊዜ ይቀሩታል!';
-                return;
-            }
-
-            const { data: customer } = await supabaseClient.from('customers').select('*').eq('phone', phone).maybeSingle();
-            resDiv.classList.remove('hidden');
-            if (customer) {
-                const count = customer.visit_count || 1;
-                const rem = 5 - (count % 5);
-                document.getElementById('res-name').textContent = customer.full_name;
-                document.getElementById('res-count').textContent = count;
-                if (count % 5 === 0) {
-                    document.getElementById('res-reward').textContent = '🔥 እንኳን ደስ አለዎት! 5ተኛው ጉብኝትዎ ነፃ ነው (Free Clean)';
-                } else {
-                    document.getElementById('res-reward').textContent = `🎉 ነፃ ማፅዳት ለማግኘት ${rem} ጊዜ ይቀሩታል!`;
-                }
-            } else {
-                document.getElementById('res-name').textContent = 'አልተገኘም';
-                document.getElementById('res-count').textContent = '0';
-                document.getElementById('res-reward').textContent = 'እባክዎ መጀመሪያ ትዕዛዝ ይስጡ።';
-            }
-        }
-
-        async function loadAdminOrders(reset = false) {
-            const listDiv = document.getElementById('adminOrdersList');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
-            if (reset) {
-                currentOffset = 0;
-                listDiv.innerHTML = '';
-            }
-
-            if (!supabaseClient) {
-                listDiv.innerHTML = `<div class="p-3 border rounded-xl bg-slate-50 space-y-1">
-                    <p><strong>ናሙና አበበ</strong> (0911000000) - ብር 50</p>
-                    <p class="text-slate-500">ቦሌ - Ref: TRX999</p>
-                    <span class="inline-block bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded text-[10px]">pending</span>
-                </div>`;
-                return;
-            }
-
-            const { data: orders, error } = await supabaseClient
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .range(currentOffset, currentOffset + PAGE_SIZE - 1);
-
-            if (error) {
-                if (currentOffset === 0) listDiv.innerHTML = '<p class="text-center text-red-500 py-4">ትዕዛዞችን መጫን አልተቻለም።</p>';
-                return;
-            }
-
-            if (currentOffset === 0 && (!orders || orders.length === 0)) {
-                listDiv.innerHTML = '<p class="text-center text-slate-500 py-4">ምንም ትዕዛዝ የለም።</p>';
-                loadMoreBtn.classList.add('hidden');
-                return;
-            }
-
-            orders.forEach(o => {
-                const card = document.createElement('div');
-                card.className = "p-3 border rounded-xl bg-slate-50 space-y-1.5";
-                
-                const topRow = document.createElement('div');
-                topRow.className = "flex justify-between items-start";
-                
-                const infoDiv = document.createElement('div');
-                
-                const namePhone = document.createElement('p');
-                namePhone.className = "font-bold text-slate-800";
-                namePhone.textContent = `${o.full_name} `;
-                const phoneLink = document.createElement('a');
-                phoneLink.href = `tel:${o.phone}`;
-                phoneLink.className = "text-blue-600 font-normal";
-                phoneLink.textContent = `📞 ${o.phone}`;
-                namePhone.appendChild(phoneLink);
-                
-                const locP = document.createElement('p');
-                locP.className = "text-slate-600";
-                locP.textContent = `📍 ${o.location}`;
-
-                const srvP = document.createElement('p');
-                srvP.className = "text-slate-700 font-medium";
-                srvP.innerHTML = `🧼 ${o.service_type} (<strong>ብር ${o.price}</strong>)`;
-
-                const refP = document.createElement('p');
-                refP.className = "text-[11px] text-purple-700 font-semibold";
-                refP.textContent = `💳 Ref: ${o.payment_ref || 'N/A'}`;
-                
-                infoDiv.appendChild(namePhone);
-                infoDiv.appendChild(locP);
-                infoDiv.appendChild(srvP);
-                infoDiv.appendChild(refP);
-
-                if (o.proof_url) {
-                    const proofLink = document.createElement('a');
-                    proofLink.href = o.proof_url;
-                    proofLink.target = '_blank';
-                    proofLink.className = "text-[11px] text-blue-600 underline block mt-0.5";
-                    proofLink.textContent = "🖼️ ስክሪንሾት ይመልከቱ";
-                    infoDiv.appendChild(proofLink);
-                }
-
-                const selectEl = document.createElement('select');
-                selectEl.className = "text-[11px] border rounded-lg p-1 bg-white font-medium text-blue-900";
-                ['pending', 'assigned', 'picked_up', 'cleaning', 'completed'].forEach(st => {
-                    const opt = document.createElement('option');
-                    opt.value = st;
-                    opt.textContent = st;
-                    if (o.status === st) opt.selected = true;
-                    selectEl.appendChild(opt);
-                });
-                selectEl.onchange = (e) => updateOrderStatus(o.id, e.target.value);
-
-                topRow.appendChild(infoDiv);
-                topRow.appendChild(selectEl);
-                card.appendChild(topRow);
-                listDiv.appendChild(card);
-            });
-
-            currentOffset += orders.length;
-            if (orders.length === PAGE_SIZE) {
-                loadMoreBtn.classList.remove('hidden');
-            } else {
-                loadMoreBtn.classList.add('hidden');
-            }
-        }
-
-        function loadMoreAdminOrders() {
-            loadAdminOrders(false);
-        }
-
-        async function updateOrderStatus(orderId, newStatus) {
-            if (!supabaseClient) return;
-            await supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId);
-        }
-
-        function downloadIndexFile() {
-            const htmlContent = document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            updatePriceDisplay();
-            checkAuthSession();
-        });
-    </script>
-</body>
-</html>
+    document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
+    document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
+    document.getElementById('adminMenuToggle').addEventListener('click',()=>document.getElementById('adminSidebar').classList.toggle('open'));
+    document.getElementById('refreshOrders').addEventListener('click',refresh);
+    document.getElementById('orderSearch').addEventListener('input',renderOrders);
+    document.getElementById('ordersBody').addEventListener('change',async e=>{
+      const row=e.target.closest('tr[data-order-id]');if(!row)return;const id=row.dataset.orderId;
+      if(e.target.matches('.cash-status')){const cash_payment_status=e.target.value;e.target.disabled=true;notice.textContent='Updating cash payment…';try{await adminApi('PATCH',{id,cash_payment_status});await refresh();notice.textContent='Cash payment status updated.';}catch(error){notice.textContent=error.message;await refresh();}return;}
+      if(!e.target.matches('.order-status'))return;
+      const status=e.target.value;e.target.disabled=true;notice.textContent='Updating order status…';
+      try{await adminApi('PATCH',{id,status});await refresh();notice.textContent='Order status updated.';}
+      catch(error){notice.textContent=error.message;await refresh();}
+    });
+    document.getElementById('ordersBody').addEventListener('click',e=>{const detail=e.target.closest('[data-order-detail]');if(detail){showOrderDetails(detail.dataset.orderDetail);return;}const b=e.target.closest('.delete-order');if(b)deleteOrder(b.closest('tr').dataset.orderId);});
+    document.getElementById('closeOrderDetail').addEventListener('click',()=>document.getElementById('orderDetailModal').classList.remove('open'));
+    document.getElementById('orderDetailModal').addEventListener('click',e=>{if(e.target.id==='orderDetailModal')e.currentTarget.classList.remove('open');});
+    document.querySelectorAll('[data-order-filter]').forEach(b=>b.addEventListener('click',()=>{activeOrderFilter=b.dataset.orderFilter;document.querySelectorAll('[data-order-filter]').forEach(x=>x.classList.toggle('active',x===b));renderOrders();}));
+    document.getElementById('recentOrdersBody').addEventListener('click',e=>{const b=e.target.closest('[data-delete-id]');if(b)deleteOrder(b.dataset.deleteId);});
+    document.getElementById('quickDelete').addEventListener('click',()=>{if(currentRole!=='super_admin'){notice.textContent='Only Super Admin can delete orders.';return;}navigate('orders');notice.textContent='Choose an order and use its delete control.';});
+    document.getElementById('logoutAdmin').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;panel.hidden=true;login.hidden=false;loginForm.reset();message.textContent='You have signed out.';});
+    document.getElementById('forgotPassword').addEventListener('click',async()=>{
+      message.textContent='';const email=document.getElementById('adminEmail').value.trim();if(!email){message.textContent='Enter your admin email first.';return;}
+      const button=document.getElementById('forgotPassword');button.disabled=true;
+      try{const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin/reset-password'});if(error)throw error;message.style.color='#067647';message.textContent='If this account exists, a password recovery email has been sent. Check your inbox and spam folder.';}
+      catch(e){message.textContent=e.message||'Could not send recovery email.';}finally{button.disabled=false;}
+    });
+    document.getElementById('adminResetForm').addEventListener('submit',async e=>{
+      e.preventDefault();const p=document.getElementById('newAdminPassword').value,c=document.getElementById('confirmAdminPassword').value;
+      if(p.length<8){resetMessage.textContent='Use at least 8 characters.';return;}if(p!==c){resetMessage.textContent='The passwords do not match.';return;}
+      const b=document.getElementById('saveAdminPassword');b.disabled=true;resetMessage.textContent='';
+      try{const {data:{session},error:se}=await client.auth.getSession();if(se||!session)throw new Error('Your recovery link is invalid or expired.');const {error}=await client.auth.updateUser({password:p});if(error)throw error;resetMessage.style.color='#067647';resetMessage.textContent='Password updated. Opening Admin Login…';setTimeout(()=>location.assign('/admin/login'),900);}
+      catch(err){resetMessage.textContent=err.message||'Could not update password.';}finally{b.disabled=false;}
+    });
+    const resetRoute=location.pathname.replace(/\/+$/,'')==='/admin/reset-password';
+    if(resetRoute){
+      login.hidden=true;resetPanel.hidden=false;
+      const {data:{session},error}=await client.auth.getSession();
+      if(error||!session){resetMessage.textContent='This password reset link is invalid or expired. Request a new recovery email.';document.getElementById('saveAdminPassword').disabled=true;}
+    }
+    loginForm.addEventListener('submit',async e=>{
+      e.preventDefault();message.textContent='';loginButton.disabled=true;loginButton.textContent='Signing in…';
+      try{const {data,error}=await client.auth.signInWithPassword({email:document.getElementById('adminEmail').value.trim(),password:document.getElementById('adminPassword').value});if(error)throw error;await showDashboard(data.user);}
+      catch(err){message.textContent=err.message||'Sign-in failed.';if(client)await client.auth.signOut().catch(()=>{});}
+      finally{loginButton.disabled=false;loginButton.textContent='Sign in';}
+    });
+    try{const {data:{session}}=await client.auth.getSession();if(session?.user&&!resetRoute){await showDashboard(session.user);}}
+    catch(e){panel.hidden=true;login.hidden=false;message.textContent=e.message||'Could not verify administrator permissions.';}
+  })();
+}</script></body></html>
