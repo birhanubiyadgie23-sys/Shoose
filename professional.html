@@ -12,7 +12,7 @@ button{border:0;border-radius:10px;padding:11px 15px;font-weight:750;cursor:poin
 button:disabled{opacity:.55;cursor:wait}.secondary{background:#e8eefb;color:#20365f}
 .card{background:white;border:1px solid #e3e8f2;border-radius:16px;padding:20px;margin-top:18px;box-shadow:0 8px 28px #17233d0a}
 h1{font-size:24px;margin:20px 0 6px}.muted{color:#69758c;font-size:14px}.status{margin:12px 0;color:#42516d;min-height:22px}
-input{width:100%;padding:13px;border:1px solid #cbd4e3;border-radius:10px;margin:7px 0 14px;font:inherit}
+select{width:100%;padding:13px;border:1px solid #cbd4e3;border-radius:10px;margin:7px 0 14px;font:inherit;background:white}.service-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:8px 0 16px}.service-option{display:flex;align-items:center;gap:7px;background:#f5f7fc;padding:10px;border-radius:9px}.service-option input{width:auto;margin:0}input{width:100%;padding:13px;border:1px solid #cbd4e3;border-radius:10px;margin:7px 0 14px;font:inherit}
 label{font-size:13px;font-weight:700}.login{max-width:430px;margin:42px auto}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .metric{background:#f5f7fc;border-radius:12px;padding:15px}.metric strong{display:block;font-size:25px;margin-top:5px}
@@ -53,7 +53,10 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
 <body><main class="wrap">
 <header><div><div class="brand">👟 LYSTRO</div><div class="tag">Professional workspace · Clean Steps, Happy You</div></div><button id="logout" class="secondary" hidden>Sign out</button></header>
 <section id="login" class="card login"><h1>Professional Login</h1><p class="muted">Sign in using the email address invited by LYSTRO administration.</p>
-<form id="loginForm"><label>Email</label><input id="email" type="email" autocomplete="username" required><label>Password</label><input id="password" type="password" autocomplete="current-password" required><button id="loginButton" type="submit">Sign in</button></form><p id="loginStatus" class="status" role="status"></p></section>
+<form id="loginForm"><label>Email</label><input id="email" type="email" autocomplete="username" required><label>Password</label><input id="password" type="password" autocomplete="current-password" required><button id="loginButton" type="submit">Sign in</button></form><p class="muted"><a href="#register" id="showRegister">New professional? Apply here</a> · <a href="#reset" id="showReset">Forgot password?</a></p></section>
+<section id="register" class="card login" hidden><h1>Professional application</h1><p class="muted">Create your account and verify your email. Your application will be reviewed by LYSTRO before you can receive jobs.</p>
+<form id="registerForm"><label>Full name</label><input id="regName" required maxlength="120" autocomplete="name"><label>Email</label><input id="regEmail" type="email" required autocomplete="email"><label>Phone</label><input id="regPhone" required autocomplete="tel"><label>Sub-city</label><select id="regSubCity" required><option value="">Loading areas…</option></select><label>Woreda</label><select id="regWoreda" required disabled><option value="">Choose sub-city first</option></select><label>Services you provide</label><div id="regServices" class="service-options muted">Loading services…</div><label>Experience (years)</label><input id="regExperience" type="number" min="0" max="60" value="0"><label>Address (optional)</label><input id="regAddress" maxlength="400"><label>Create password</label><input id="regPassword" type="password" minlength="8" required autocomplete="new-password"><button id="registerButton" type="submit">Submit application</button></form><p id="registerStatus" class="status" role="status"></p><p class="muted"><a href="#login" id="backLogin">Back to sign in</a></p></section>
+<section id="reset" class="card login" hidden><h1>Reset password</h1><p class="muted">We will email you a secure password-reset link.</p><form id="resetForm"><label>Email</label><input id="resetEmail" type="email" required autocomplete="email"><button type="submit">Send reset link</button></form><p id="resetStatus" class="status" role="status"></p><p class="muted"><a href="#login" id="resetBack">Back to sign in</a></p></section>
 <section id="setPassword" class="card login" hidden><h1>Set your password</h1><p class="muted">Choose a password for your professional account.</p><form id="passwordForm"><label>New password</label><input id="newPassword" type="password" minlength="8" required autocomplete="new-password"><label>Confirm password</label><input id="confirmPassword" type="password" minlength="8" required autocomplete="new-password"><button type="submit">Save password</button></form><p id="passwordStatus" class="status" role="status"></p></section>
 <section id="dashboard" hidden><h1 id="welcome">Your work</h1><p class="muted">Your professional space — stay organized, do great work, and make every pair feel new.</p>
 <div class="motivation"><div><div class="eyebrow">THE LYSTRO STANDARD</div><h2>Every clean pair tells a story of care.</h2><p>Your skill makes a real difference. Bring care, attention, and pride to every order — one pair at a time.</p></div><div class="spark" aria-hidden="true">✦</div></div>
@@ -69,6 +72,24 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
  const login=$('login'),dashboard=$('dashboard'),setPassword=$('setPassword'),logout=$('logout');
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let client,session,profile;
+ let locationOptions={sub_cities:[],woredas:[],services:[]};
+ function panel(name){login.hidden=name!=='login';$('register').hidden=name!=='register';$('reset').hidden=name!=='reset';setPassword.hidden=name!=='password';dashboard.hidden=true;}
+ async function loadRegistrationOptions(){
+  const r=await fetch('/api/locations',{cache:'no-store'});if(!r.ok)throw new Error('Registration options could not be loaded.');
+  locationOptions=await r.json();
+  $('regSubCity').innerHTML='<option value="">Select sub-city</option>'+locationOptions.sub_cities.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');
+  $('regServices').innerHTML=locationOptions.services.map(x=>'<label class="service-option"><input type="checkbox" name="service" value="'+esc(x.id)+'"> '+esc(x.name)+'</label>').join('')||'No services are available yet.';
+ }
+ function updateWoredas(){const id=$('regSubCity').value;const rows=locationOptions.woredas.filter(x=>x.sub_city_id===id);$('regWoreda').innerHTML='<option value="">Select woreda</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.name)+'</option>').join('');$('regWoreda').disabled=!rows.length;}
+ async function finishRegistration(){
+  const {data:{session:s}}=await client.auth.getSession();if(!s?.access_token)return null;
+  const u=s.user||{};if(!u.user_metadata?.sub_city_id)return null;
+  const r=await fetch('/api/professional-registration',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token},body:'{}'});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||'Could not complete your application.');
+  return d;
+ }
+
  const statusText=s=>({assigned:'Assigned',in_progress:'In progress',completed:'Completed'}[s]||s);
  async function sdk(){if(window.supabase?.createClient)return window.supabase;await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=resolve;s.onerror=()=>reject(new Error('Could not load sign-in service.'));document.head.appendChild(s)});return window.supabase;}
  async function api(method='GET',body){const {data:{session:s},error}=await client.auth.getSession();if(error||!s?.access_token)throw new Error('Session expired. Sign in again.');const r=await fetch('/api/professional',{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token},body:body?JSON.stringify(body):undefined});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'Request failed.');return d;}
@@ -81,15 +102,33 @@ h1{font-size:clamp(25px,4vw,34px);letter-spacing:-.035em;color:#14213b;margin:26
  async function load(){ $('notice').textContent='Loading your jobs…';try{const d=await api();render(d);$('notice').textContent='Your work list is up to date.';}catch(e){$('notice').textContent=e.message;}}
  async function show(){const {data:{session:s}}=await client.auth.getSession();session=s;if(!s){login.hidden=false;dashboard.hidden=true;logout.hidden=true;return;}try{const d=await api();login.hidden=true;setPassword.hidden=true;dashboard.hidden=false;logout.hidden=false;render(d);$('notice').textContent='Your work list is up to date.';}catch(e){login.hidden=false;dashboard.hidden=true;logout.hidden=false;$('loginStatus').textContent=e.message;}}
  try{const supabaseModule=await sdk();client=supabaseModule.createClient(SUPABASE_URL,SUPABASE_KEY);const {data:{session:s}}=await client.auth.getSession();
-  const invite=/type=invite/i.test(location.hash);
-  if(s&&invite){login.hidden=true;setPassword.hidden=false;logout.hidden=false;}
-  else if(s){await show();}
+  const invite=/type=(invite|recovery)/i.test(location.hash);
+  if(s&&invite){panel('password');logout.hidden=false;}
+  else if(s){try{const result=await finishRegistration();if(result?.status==='pending_review'){$('loginStatus').textContent=result.message;login.hidden=false;dashboard.hidden=true;logout.hidden=false;}else await show();}catch(e){$('loginStatus').textContent=e.message;login.hidden=false;dashboard.hidden=true;logout.hidden=false;}}
  }catch(e){$('loginStatus').textContent=e.message;}
- $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginButton').disabled=true;$('loginStatus').textContent='Signing in…';try{const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;await show();}catch(err){$('loginStatus').textContent=err.message;}finally{$('loginButton').disabled=false;}});
+ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginButton').disabled=true;$('loginStatus').textContent='Signing in…';try{const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;const registered=await finishRegistration();if(registered?.status==='pending_review'){$('loginStatus').textContent=registered.message;logout.hidden=false;return;}await show();}catch(err){$('loginStatus').textContent=err.message;}finally{$('loginButton').disabled=false;}});
  $('passwordForm').addEventListener('submit',async e=>{e.preventDefault();const p=$('newPassword').value;if(p.length<8||p!==$('confirmPassword').value){$('passwordStatus').textContent='Use at least 8 characters and make both passwords match.';return;}try{const {error}=await client.auth.updateUser({password:p});if(error)throw error;history.replaceState(null,'',location.pathname);await show();}catch(err){$('passwordStatus').textContent=err.message;}});
+
+ $('showRegister').addEventListener('click',async e=>{e.preventDefault();panel('register');try{await loadRegistrationOptions();}catch(err){$('registerStatus').textContent=err.message;}});
+ $('showReset').addEventListener('click',e=>{e.preventDefault();panel('reset');});
+ $('backLogin').addEventListener('click',e=>{e.preventDefault();panel('login');});
+ $('resetBack').addEventListener('click',e=>{e.preventDefault();panel('login');});
+ $('regSubCity').addEventListener('change',updateWoredas);
+ $('registerForm').addEventListener('submit',async e=>{
+  e.preventDefault();const selected=[...document.querySelectorAll('input[name="service"]:checked')].map(x=>x.value);
+  if(!selected.length){$('registerStatus').textContent='Select at least one service.';return;}
+  $('registerButton').disabled=true;$('registerStatus').textContent='Creating your account…';
+  try{
+   const {data,error}=await client.auth.signUp({email:$('regEmail').value.trim(),password:$('regPassword').value,options:{emailRedirectTo:location.origin+'/professional',data:{full_name:$('regName').value.trim(),phone:$('regPhone').value.trim(),sub_city_id:$('regSubCity').value,woreda_id:$('regWoreda').value,service_ids:selected,experience_years:Number($('regExperience').value)||0,address:$('regAddress').value.trim()}}});
+   if(error)throw error;
+   if(data.session){const done=await finishRegistration();$('registerStatus').textContent=done?.message||'Application submitted. Verify your email if prompted.';}
+   else $('registerStatus').textContent='Account created. Check your email and confirm your address, then return here to sign in and complete your application.';
+  }catch(err){$('registerStatus').textContent=err.message;}finally{$('registerButton').disabled=false;}
+ });
+ $('resetForm').addEventListener('submit',async e=>{e.preventDefault();$('resetStatus').textContent='Sending reset link…';try{const {error}=await client.auth.resetPasswordForEmail($('resetEmail').value.trim(),{redirectTo:location.origin+'/professional'});if(error)throw error;$('resetStatus').textContent='If this email has an account, a password-reset link has been sent. Check your inbox.';}catch(err){$('resetStatus').textContent=err.message;}});
  $('refresh').addEventListener('click',load);
  $('orders').addEventListener('click',async e=>{const b=e.target.closest('[data-action]');if(!b)return;b.disabled=true;$('notice').textContent='Saving job update…';try{await api('PATCH',{order_id:b.dataset.id,action:b.dataset.action});await load();$('notice').textContent=b.dataset.action==='start'?'Job started successfully.':'Job marked completed. Administration can now see the updated status.';}catch(err){$('notice').textContent=err.message;b.disabled=false;}});
  logout.addEventListener('click',async()=>{await client.auth.signOut();session=null;dashboard.hidden=true;setPassword.hidden=true;login.hidden=false;logout.hidden=true;$('loginForm').reset();});
- client?.auth.onAuthStateChange((_event,s)=>{session=s;});
+ client?.auth.onAuthStateChange((_event,s)=>{session=s;if(_event==='PASSWORD_RECOVERY'){panel('password');logout.hidden=false;}});
 })();
 </script></body></html>
