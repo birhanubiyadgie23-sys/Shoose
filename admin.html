@@ -232,25 +232,25 @@ if(location.pathname.startsWith('/admin')){
       try{await adminApi('DELETE',{id});await refresh();notice.textContent='Order deleted successfully.';}
       catch(e){notice.textContent=e.message;}
     }
-    document.getElementById('professionalSubCity').addEventListener('change',()=>refreshProfessionalWoreda());
-    document.getElementById('manageWoredasFromProfessional').addEventListener('click',()=>{
+    document.getElementById('professionalSubCity')?.addEventListener('change',()=>refreshProfessionalWoreda());
+    document.getElementById('manageWoredasFromProfessional')?.addEventListener('click',()=>{
       const subId=document.getElementById('professionalSubCity').value;
       navigate('settings');
       document.getElementById('woredaSubCity').value=subId;
       document.querySelector('#woredaForm textarea[name="names"]').focus();
     });
-    document.getElementById('assignmentOrder').addEventListener('change',renderOperations);
-    document.getElementById('refreshOperations').addEventListener('click',loadOperations);document.getElementById('operationsSettingsSummary').addEventListener('click',async e=>{const b=e.target.closest('[data-edit-service]');if(!b)return;const service=operations.services.find(x=>x.id===b.dataset.editService);if(!service)return;const entered=prompt('Set price in ETB for '+service.name, String(Number(service.price)||0));if(entered===null)return;const price=Number(entered);if(!Number.isFinite(price)||price<=0){notice.textContent='Price must be greater than zero.';return;}b.disabled=true;try{await operationsApi('PATCH','service',{id:service.id,name:service.name,description:service.description||'',price,duration_minutes:Number(service.duration_minutes)||60,is_active:service.is_active!==false});await loadOperations();notice.textContent='Service price updated. New bookings will use this price; existing orders keep their saved price.';}catch(err){notice.textContent=err.message;}finally{b.disabled=false;}});
-    document.getElementById('assignmentsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-assignment-review]');if(!b)return;try{await operationsApi('PATCH','assignment',{id:b.dataset.assignmentReview,status:b.dataset.status});await refresh();await loadOperations();notice.textContent='Assignment decision saved.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('professionalsBody').addEventListener('click',async e=>{const b=e.target.closest('[data-review]');if(!b)return;try{await operationsApi('PATCH','professional',{id:b.dataset.review,status:b.dataset.status});await loadOperations();notice.textContent='Professional review saved.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('professionalsBody').addEventListener('click',async e=>{
+    document.getElementById('assignmentOrder')?.addEventListener('change',renderOperations);
+    document.getElementById('refreshOperations')?.addEventListener('click',loadOperations);document.getElementById('operationsSettingsSummary')?.addEventListener('click',async e=>{const b=e.target.closest('[data-edit-service]');if(!b)return;const service=operations.services.find(x=>x.id===b.dataset.editService);if(!service)return;const entered=prompt('Set price in ETB for '+service.name, String(Number(service.price)||0));if(entered===null)return;const price=Number(entered);if(!Number.isFinite(price)||price<=0){notice.textContent='Price must be greater than zero.';return;}b.disabled=true;try{await operationsApi('PATCH','service',{id:service.id,name:service.name,description:service.description||'',price,duration_minutes:Number(service.duration_minutes)||60,is_active:service.is_active!==false});await loadOperations();notice.textContent='Service price updated. New bookings will use this price; existing orders keep their saved price.';}catch(err){notice.textContent=err.message;}finally{b.disabled=false;}});
+    document.getElementById('assignmentsBody')?.addEventListener('click',async e=>{const b=e.target.closest('[data-assignment-review]');if(!b)return;try{await operationsApi('PATCH','assignment',{id:b.dataset.assignmentReview,status:b.dataset.status});await refresh();await loadOperations();notice.textContent='Assignment decision saved.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('professionalsBody')?.addEventListener('click',async e=>{const b=e.target.closest('[data-review]');if(!b)return;try{await operationsApi('PATCH','professional',{id:b.dataset.review,status:b.dataset.status});await loadOperations();notice.textContent='Professional review saved.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('professionalsBody')?.addEventListener('click',async e=>{
       const b=e.target.closest('[data-invite]');if(!b)return;
       if(!confirm('Send a secure professional portal invitation to the registered email address?'))return;
       b.disabled=true;notice.textContent='Sending professional invitation…';
       try{await operationsApi('POST','invite',{professional_id:b.dataset.invite});await loadOperations();notice.textContent='Portal invitation sent. The professional must open the email and set a password.';}
       catch(err){notice.textContent=err.message;b.disabled=false;}
     });
-    document.getElementById('professionalsBody').addEventListener('change',async e=>{
+    document.getElementById('professionalsBody')?.addEventListener('change',async e=>{
       const control=e.target.closest('.capacity-control');if(!control)return;
       const p=operations.professionals.find(x=>x.id===control.dataset.capacityId);if(!p)return;
       control.disabled=true;
@@ -261,8 +261,8 @@ if(location.pathname.startsWith('/admin')){
     const professionalForm=document.getElementById('professionalForm');
     const professionalFormStatus=document.getElementById('professionalFormStatus');
     const professionalSubmitButton=document.getElementById('professionalSubmitButton');
-    professionalForm.noValidate=true;
-    professionalForm.addEventListener('submit',async e=>{
+    if(professionalForm)professionalForm.noValidate=true;
+    professionalForm?.addEventListener('submit',async e=>{
       e.preventDefault();
       professionalFormStatus.textContent='';
       if(!professionalForm.checkValidity()){
@@ -296,8 +296,8 @@ if(location.pathname.startsWith('/admin')){
         professionalSubmitButton.textContent='Register Professional';
       }
     });
-    document.getElementById('subCityForm').addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','sub_city',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='Sub-city added.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('woredaForm').addEventListener('submit',async e=>{
+    document.getElementById('subCityForm')?.addEventListener('submit',async e=>{e.preventDefault();try{await operationsApi('POST','sub_city',Object.fromEntries(new FormData(e.target).entries()));e.target.reset();await loadOperations();notice.textContent='Sub-city added.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('woredaForm')?.addEventListener('submit',async e=>{
       e.preventDefault();
       const data=Object.fromEntries(new FormData(e.target).entries()),subId=data.sub_city_id;
       try{
@@ -310,18 +310,18 @@ if(location.pathname.startsWith('/admin')){
         notice.textContent='Woredas added: '+(result.inserted||0)+' new; '+(result.duplicates||0)+' already existed.';
       }catch(err){notice.textContent=err.message;}
     });
-    document.getElementById('serviceForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','service',d);e.target.reset();await loadOperations();notice.textContent='Service added.';}catch(err){notice.textContent=err.message;}});
-    document.getElementById('assignmentForm').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','assign',d);await refresh();await loadOperations();notice.textContent='Assignment suggestion submitted for Super Admin approval.';}catch(err){notice.textContent=err.message;}});
-     document.getElementById('saveWebsiteContent').addEventListener('click',saveWebsiteEditor);
-     document.getElementById('reloadWebsiteContent').addEventListener('click',loadWebsiteEditor);
-     document.getElementById('resetWebsiteContent').addEventListener('click',async()=>{try{const r=await fetch('/api/site-content',{cache:'no-store'}),d=await r.json();document.getElementById('websiteContentJson').value=JSON.stringify(d.content,null,2);document.getElementById('websiteContentStatus').textContent='Sample defaults loaded in the editor. Click Save to publish.';}catch(e){document.getElementById('websiteContentStatus').textContent='Could not load sample defaults.';}});
+    document.getElementById('serviceForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','service',d);e.target.reset();await loadOperations();notice.textContent='Service added.';}catch(err){notice.textContent=err.message;}});
+    document.getElementById('assignmentForm')?.addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target).entries());try{await operationsApi('POST','assign',d);await refresh();await loadOperations();notice.textContent='Assignment suggestion submitted for Super Admin approval.';}catch(err){notice.textContent=err.message;}});
+     document.getElementById('saveWebsiteContent')?.addEventListener('click',saveWebsiteEditor);
+     document.getElementById('reloadWebsiteContent')?.addEventListener('click',loadWebsiteEditor);
+     document.getElementById('resetWebsiteContent')?.addEventListener('click',async()=>{try{const r=await fetch('/api/site-content',{cache:'no-store'}),d=await r.json();document.getElementById('websiteContentJson').value=JSON.stringify(d.content,null,2);document.getElementById('websiteContentStatus').textContent='Sample defaults loaded in the editor. Click Save to publish.';}catch(e){document.getElementById('websiteContentStatus').textContent='Could not load sample defaults.';}});
 
     document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.view)));
     document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
-    document.getElementById('adminMenuToggle').addEventListener('click',()=>document.getElementById('adminSidebar').classList.toggle('open'));
-    document.getElementById('refreshOrders').addEventListener('click',refresh);
-    document.getElementById('orderSearch').addEventListener('input',renderOrders);
-    document.getElementById('ordersBody').addEventListener('change',async e=>{
+    document.getElementById('adminMenuToggle')?.addEventListener('click',()=>document.getElementById('adminSidebar').classList.toggle('open'));
+    document.getElementById('refreshOrders')?.addEventListener('click',refresh);
+    document.getElementById('orderSearch')?.addEventListener('input',renderOrders);
+    document.getElementById('ordersBody')?.addEventListener('change',async e=>{
       const row=e.target.closest('tr[data-order-id]');if(!row)return;const id=row.dataset.orderId;
       if(e.target.matches('.cash-status')){const cash_payment_status=e.target.value;e.target.disabled=true;notice.textContent='Updating cash payment…';try{await adminApi('PATCH',{id,cash_payment_status});await refresh();notice.textContent='Cash payment status updated.';}catch(error){notice.textContent=error.message;await refresh();}return;}
       if(!e.target.matches('.order-status'))return;
@@ -329,20 +329,20 @@ if(location.pathname.startsWith('/admin')){
       try{await adminApi('PATCH',{id,status});await refresh();notice.textContent='Order status updated.';}
       catch(error){notice.textContent=error.message;await refresh();}
     });
-    document.getElementById('ordersBody').addEventListener('click',e=>{const detail=e.target.closest('[data-order-detail]');if(detail){showOrderDetails(detail.dataset.orderDetail);return;}const b=e.target.closest('.delete-order');if(b)deleteOrder(b.closest('tr').dataset.orderId);});
-    document.getElementById('closeOrderDetail').addEventListener('click',()=>document.getElementById('orderDetailModal').classList.remove('open'));
-    document.getElementById('orderDetailModal').addEventListener('click',e=>{if(e.target.id==='orderDetailModal')e.currentTarget.classList.remove('open');});
+    document.getElementById('ordersBody')?.addEventListener('click',e=>{const detail=e.target.closest('[data-order-detail]');if(detail){showOrderDetails(detail.dataset.orderDetail);return;}const b=e.target.closest('.delete-order');if(b)deleteOrder(b.closest('tr').dataset.orderId);});
+    document.getElementById('closeOrderDetail')?.addEventListener('click',()=>document.getElementById('orderDetailModal').classList.remove('open'));
+    document.getElementById('orderDetailModal')?.addEventListener('click',e=>{if(e.target.id==='orderDetailModal')e.currentTarget.classList.remove('open');});
     document.querySelectorAll('[data-order-filter]').forEach(b=>b.addEventListener('click',()=>{activeOrderFilter=b.dataset.orderFilter;document.querySelectorAll('[data-order-filter]').forEach(x=>x.classList.toggle('active',x===b));renderOrders();}));
-    document.getElementById('recentOrdersBody').addEventListener('click',e=>{const b=e.target.closest('[data-delete-id]');if(b)deleteOrder(b.dataset.deleteId);});
-    document.getElementById('quickDelete').addEventListener('click',()=>{if(currentRole!=='super_admin'){notice.textContent='Only Super Admin can delete orders.';return;}navigate('orders');notice.textContent='Choose an order and use its delete control.';});
-    document.getElementById('logoutAdmin').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;panel.hidden=true;login.hidden=false;loginForm.reset();message.textContent='You have signed out.';});
-    document.getElementById('forgotPassword').addEventListener('click',async()=>{
+    document.getElementById('recentOrdersBody')?.addEventListener('click',e=>{const b=e.target.closest('[data-delete-id]');if(b)deleteOrder(b.dataset.deleteId);});
+    document.getElementById('quickDelete')?.addEventListener('click',()=>{if(currentRole!=='super_admin'){notice.textContent='Only Super Admin can delete orders.';return;}navigate('orders');notice.textContent='Choose an order and use its delete control.';});
+    document.getElementById('logoutAdmin')?.addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;panel.hidden=true;login.hidden=false;loginForm.reset();message.textContent='You have signed out.';});
+    document.getElementById('forgotPassword')?.addEventListener('click',async()=>{
       message.textContent='';const email=document.getElementById('adminEmail').value.trim();if(!email){message.textContent='Enter your admin email first.';return;}
       const button=document.getElementById('forgotPassword');button.disabled=true;
       try{const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin/reset-password'});if(error)throw error;message.style.color='#067647';message.textContent='If this account exists, a password recovery email has been sent. Check your inbox and spam folder.';}
       catch(e){message.textContent=e.message||'Could not send recovery email.';}finally{button.disabled=false;}
     });
-    document.getElementById('adminResetForm').addEventListener('submit',async e=>{
+    document.getElementById('adminResetForm')?.addEventListener('submit',async e=>{
       e.preventDefault();const p=document.getElementById('newAdminPassword').value,c=document.getElementById('confirmAdminPassword').value;
       if(p.length<8){resetMessage.textContent='Use at least 8 characters.';return;}if(p!==c){resetMessage.textContent='The passwords do not match.';return;}
       const b=document.getElementById('saveAdminPassword');b.disabled=true;resetMessage.textContent='';
