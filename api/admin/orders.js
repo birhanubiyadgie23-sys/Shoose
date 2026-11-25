@@ -79,6 +79,22 @@ module.exports = async function handler(req, res) {
     if (!UUID_RE.test(id)) return reply(res, 400, { error: 'A valid order ID is required.' });
 
     if (req.method === 'PATCH') {
+      if (body.cash_payment_action === 'verify') {
+        if (!['admin','super_admin'].includes(role)) return reply(res,403,{error:'Administrator access required.'});
+        const currentResponse=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+encodeURIComponent(id)+'&select=id,status,cash_payment_status,cash_reported_at', {headers});
+        const rows=await currentResponse.json().catch(()=>[]);
+        if(!currentResponse.ok)return reply(res,502,{error:'Payment report could not be checked.'});
+        const current=Array.isArray(rows)?rows[0]:null;
+        if(!current)return reply(res,404,{error:'Order not found.'});
+        if(current.status!=='completed')return reply(res,409,{error:'Payment can only be verified after service completion.'});
+        if(!current.cash_reported_at)return reply(res,409,{error:'The professional has not reported cash collection yet.'});
+        if(current.cash_payment_status==='paid')return reply(res,409,{error:'This payment is already verified.'});
+        const verifiedAt=new Date().toISOString();
+        const update=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{...headers,Prefer:'return=representation'},body:JSON.stringify({cash_payment_status:'paid',cash_paid_at:verifiedAt,cash_verified_at:verifiedAt,cash_verified_by:user.id})});
+        const updated=await update.json().catch(()=>null);
+        if(!update.ok)return reply(res,502,{error:'Payment verification could not be saved.'});
+        return reply(res,200,{success:true,order:Array.isArray(updated)?updated[0]:updated});
+      }
       if (typeof body.cash_payment_status === 'string') {
         if (!['paid','unpaid'].includes(body.cash_payment_status)) return reply(res, 400, { error: 'Choose paid or unpaid.' });
         const currentResponse = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id) + '&select=id,status', { headers });
@@ -86,7 +102,7 @@ module.exports = async function handler(req, res) {
         if (!currentResponse.ok) return reply(res, 502, { error: 'Current order could not be checked.' });
         const current = Array.isArray(currentRows) ? currentRows[0] : null;
         if (!current) return reply(res, 404, { error: 'Order not found.' });
-        if (body.cash_payment_status === 'paid' && current.status !== 'completed') return reply(res, 409, { error: 'Cash can only be marked paid after the service is completed.' });
+        if (body.cash_payment_status === 'paid') return reply(res, 409, { error: 'Use the Verify payment action after the professional reports cash collection.' });
         if (body.cash_payment_status === 'unpaid' && role !== 'super_admin') return reply(res, 403, { error: 'Only Super Admin can reverse a cash payment record.' });
         const paymentResponse = await fetch(SUPABASE_URL + '/rest/v1/orders?id=eq.' + encodeURIComponent(id), {
           method: 'PATCH', headers: { ...headers, Prefer: 'return=representation' },
