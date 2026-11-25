@@ -90,10 +90,11 @@ module.exports = async function handler(req, res) {
         if(!current.cash_reported_at)return reply(res,409,{error:'The professional has not reported cash collection yet.'});
         if(current.cash_payment_status==='paid')return reply(res,409,{error:'This payment is already verified.'});
         const verifiedAt=new Date().toISOString();
-        const update=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{...headers,Prefer:'return=representation'},body:JSON.stringify({cash_payment_status:'paid',cash_paid_at:verifiedAt,cash_verified_at:verifiedAt,cash_verified_by:user.id})});
+        const update=await fetch(SUPABASE_URL+'/rest/v1/orders?id=eq.'+encodeURIComponent(id)+'&status=eq.completed&cash_reported_at=not.is.null&cash_payment_status=neq.paid',{method:'PATCH',headers:{...headers,Prefer:'return=representation'},body:JSON.stringify({cash_payment_status:'paid',cash_paid_at:verifiedAt,cash_verified_at:verifiedAt,cash_verified_by:user.id})});
         const updated=await update.json().catch(()=>null);
         if(!update.ok)return reply(res,502,{error:'Payment verification could not be saved.'});
-        return reply(res,200,{success:true,order:Array.isArray(updated)?updated[0]:updated});
+        if(!Array.isArray(updated)||!updated.length)return reply(res,409,{error:'Payment state changed. Refresh the order before verifying again.'});
+        return reply(res,200,{success:true,order:updated[0]});
       }
       if (typeof body.cash_payment_status === 'string') {
         if (!['paid','unpaid'].includes(body.cash_payment_status)) return reply(res, 400, { error: 'Choose paid or unpaid.' });
