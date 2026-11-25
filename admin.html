@@ -37,9 +37,11 @@ if(location.pathname.startsWith('/admin')){
   '</div><footer class="ad-footer"><span>© 2026 LYSTRO. Clean Steps, Happy You.</span><span>📍 Admin Panel • Addis Ababa, Ethiopia</span></footer></main></div>';
   const loadSupabase=()=>new Promise((resolve,reject)=>{if(window.supabase?.createClient)return resolve(window.supabase);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);});
   (async()=>{
+    await new Promise(resolve=>requestAnimationFrame(resolve));
     const login=document.getElementById('adminLogin'),panel=document.getElementById('adminPanel'),resetPanel=document.getElementById('adminResetPanel');
     const message=document.getElementById('loginMessage'),resetMessage=document.getElementById('resetMessage'),notice=document.getElementById('adminNotice');
     const loginForm=document.getElementById('adminLoginForm'),loginButton=document.getElementById('loginButton');
+    if(!login||!panel||!resetPanel||!loginForm||!loginButton){document.body.innerHTML='<main style="font:16px Arial;padding:32px;color:#17213c"><h2>LYSTRO Admin could not initialize</h2><p>Some required page elements were not created. Please reload this page.</p></main>';return;}
     const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let client,orders=[],currentRole='',currentUser=null;
     try{const sdk=await loadSupabase();client=sdk.createClient('https://molvnallhdhmmubqbkqq.supabase.co','sb_publishable_iD4WwybpbfKhj951QntX1A_7ZrIDn7J');}
@@ -363,7 +365,7 @@ if(location.pathname.startsWith('/admin')){
       finally{loginButton.disabled=false;loginButton.textContent='Sign in';}
     });
     try{const {data:{session}}=await client.auth.getSession();if(session?.user&&!resetRoute){await showDashboard(session.user);}}
-    catch(e){panel.hidden=true;login.hidden=false;message.textContent=e.message||'Could not verify administrator permissions.';}
+    catch(e){if(panel)panel.hidden=true;if(login)login.hidden=false;if(message)message.textContent=e.message||'Could not verify administrator permissions.';}
   })();
 }
 </script></body></html>
