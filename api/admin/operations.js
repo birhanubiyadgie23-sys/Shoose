@@ -189,7 +189,7 @@ module.exports=async function(req,res){
    }
    if(resource==='professional'){
     const status=clean(b.status,30);if(!['approved','rejected','suspended','pending_review'].includes(status))return reply(res,400,{error:'Invalid professional status.'});
-    if(status!=='pending_review'&&role!=='super_admin')return reply(res,403,{error:'Only Super Admin can review professionals.'});
+    // Both Admin and Super Admin may approve, reject, suspend or reopen professional applications.
     const patch={status,reviewed_by:user.id,reviewed_at:new Date().toISOString()};
     if(b.availability!==undefined){if(!['available','busy','unavailable'].includes(b.availability))return reply(res,400,{error:'Invalid availability.'});patch.availability=b.availability;}
     if(b.max_active_jobs!==undefined){
