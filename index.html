@@ -20,7 +20,7 @@
 <section class="section" id="book" style="padding-top:10px"><div class="wrap"><div class="section-head"><div><h2>✨ Ready for a Fresh Step?</h2><p>ጫማዎ ትኩረት ይፈልጋል? አሁኑኑ ያስይዙ!</p></div></div><div class="booking"><h3>▦ Book Your Service Now</h3><form id="bookingForm"><div class="formgrid"><div class="field"><label>ስም / Full Name</label><input name="customer_name" required maxlength="120" autocomplete="name" placeholder="ሙሉ ስምዎ"></div><div class="field"><label>ስልክ / Phone</label><input name="phone" required type="tel" maxlength="30" autocomplete="tel" placeholder="+251 9..."></div><div class="field"><label>Select Service</label><select name="service_type" id="bookingService" required><option value="">የአገልግሎት ዝርዝር በመጫን ላይ...</option></select></div><div class="field"><label>Select Sub-City</label><select name="sub_city_id" id="bookingSubCity" required><option value="">የክፍለ ከተማ ዝርዝር በመጫን ላይ...</option></select></div><div class="field"><label>ወረዳ / Woreda</label><select name="woreda_id" id="bookingWoreda" required disabled><option value="">መጀመሪያ ክፍለ ከተማ ይምረጡ</option></select></div><div class="field"><label>የቤት አድራሻ / Address</label><input name="address" required maxlength="500" autocomplete="street-address" placeholder="የመገኛ አድራሻ"></div><div class="field"><label>የጫማ ብዛት / Number of pairs</label><input name="shoe_count" type="number" min="1" max="30" value="1" required></div><div class="field"><label>የመውሰጃ ቀን / Pickup date</label><input name="pickup_date" type="date" required></div><div class="field"><label>የመውሰጃ ሰዓት / Pickup time</label><input name="pickup_time" type="time" required></div><div class="field"><label>የአገልግሎት አቀራረብ / Service type</label><select name="delivery_type"><option value="pickup_and_return">ወስዶ መመለስ / Pickup & return</option><option value="on_site">በቦታው ማጽዳት / On-site</option></select></div></div><p id="bookingPrice" class="ad-muted" style="margin:12px 0">ዋጋ፦ ከአድሚን የተወሰነው የአንድ ጫማ ዋጋ × ብዛት</p><p class="ad-muted">ክፍያ፦ አገልግሎቱ ሲጠናቀቅ በጥሬ ገንዘብ (Cash on service)።</p><button class="btn blue" type="submit">➤ Book Now →</button><small id="bookingLocationStatus" role="status" aria-live="polite" style="display:block;color:#7a8499;margin-top:8px">የክፍለ ከተማና ወረዳ ዝርዝር ከዳታቤዝ ይጫናል።</small><small id="bookingStatus" role="status" aria-live="polite" style="display:block;color:#7a8499;margin-top:10px">ትዕዛዝዎ ከተላከ በኋላ በዳታቤዝ ይመዘገባል።</small><div id="trackingResult" hidden style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:12px"><b>የትዕዛዝ መከታተያ / Track order</b><p id="trackingCodeText" style="font-size:13px;word-break:break-all"></p><button type="button" class="btn blue" id="trackOrderButton">የትዕዛዝ ሁኔታ አይ / Check status</button>
 <a class="btn" id="sendTelegramSaved" href="#" target="_blank" rel="noopener noreferrer" hidden style="display:inline-block;margin-top:10px;text-align:center">✈️ ወደ Telegram Saved Messages ላክ</a>
 <small id="telegramSavedHint" style="display:block;margin-top:8px;color:#65718b">Telegram ሲከፈት Saved Messages ይምረጡና Send ይጫኑ።</small><p id="trackingStatus" role="status"></p></div></form></div></div></section>
-</main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
+<section class="section" id="join-lystro" style="background:#edf2ff"><div class="wrap"><div class="section-head"><div class="section-intro"><div class="section-kicker">WORK WITH LYSTRO</div><h2>በLYSTRO ባለሙያ ይሁኑ / Become a Professional</h2><p>በጫማ እንክብካቤ ልምድ አለዎት? ማመልከቻዎን ይላኩ፤ ቡድናችን ከገመገመ በኋላ እናገኝዎታለን።</p></div></div><div class="booking"><form id="professionalApplicationForm"><div class="formgrid"><div class="field"><label>ሙሉ ስም / Full name</label><input name="full_name" required maxlength="120" autocomplete="name"></div><div class="field"><label>ስልክ / Phone</label><input name="phone" required type="tel" maxlength="30" autocomplete="tel"></div><div class="field"><label>ኢሜይል / Email (optional)</label><input name="email" type="email" maxlength="160" autocomplete="email"></div><div class="field"><label>ንዑስ ከተማ / Sub-city</label><select name="sub_city_id" id="applicationSubCity" required><option value="">ንዑስ ከተማ ይምረጡ</option></select></div><div class="field"><label>ወረዳ / Woreda</label><select name="woreda_id" id="applicationWoreda" required disabled><option value="">መጀመሪያ ንዑስ ከተማ ይምረጡ</option></select></div><div class="field"><label>የልምድ ዓመታት / Experience (years)</label><input name="experience_years" type="number" min="0" max="60" value="0"></div><div class="field ad-wide"><label>አድራሻ / Address</label><input name="address" maxlength="400" placeholder="የመገኛ አድራሻ"></div><div class="field ad-wide"><label>የሚያቀርቡት አገልግሎት / Services you can provide</label><div id="applicationServices" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;padding:10px 0"><small>የአገልግሎት ዝርዝር በመጫን ላይ...</small></div></div><div class="field ad-wide"><label>ተጨማሪ መረጃ / Additional information</label><textarea name="notes" rows="3" maxlength="1000" style="width:100%;padding:12px;border:1px solid #d4def7;border-radius:11px"></textarea></div><div class="field" hidden aria-hidden="true"><label>Website</label><input name="website" tabindex="-1" autocomplete="off"></div></div><p id="professionalApplicationStatus" role="status" aria-live="polite" style="color:#65718b;font-size:13px"></p><button class="btn blue" id="professionalApplicationSubmit" type="submit">ማመልከቻ ላክ / Submit application</button><small style="display:block;color:#65718b;margin-top:12px">ማሳሰቢያ፦ ማመልከቻው በአድሚን ከመጸደቁ በፊት የስራ መዳረሻ አይከፈትም።</small></form></div></div></section></main><footer class="footer" id="contact"><div class="wrap"><div class="footrow"><a class="brand" href="#"><span class="brand-mark">👟</span><span>LYSTRO<small>Clean Steps, Happy You</small></span></a><div class="footlinks"><a href="#">Home</a><a href="#services">Services</a><a href="#why">About</a><a href="#tips">Shoe Care Tips</a><a href="mailto:info@lystro.com">Contact</a></div><b>📍 Addis Ababa, Ethiopia</b></div><div class="footnote">© 2026 LYSTRO. Clean Steps, Happy You. &nbsp; | &nbsp; Customer care with every step.</div></div></footer><div class="toast" id="toast"></div>
 <script>
 if(!location.pathname.startsWith('/admin')){
 const toast=document.getElementById('toast');function notify(s){toast.textContent=s;toast.style.display='block';setTimeout(()=>toast.style.display='none',4200)}
@@ -129,6 +129,53 @@ bookingForm.addEventListener('submit',async e=>{
     submitButton.textContent='➤ Book Now →';
   }
 });
+
+// Public professional application: no account is required to apply.
+const applicationForm=document.getElementById('professionalApplicationForm');
+if(applicationForm){
+ const appSub=document.getElementById('applicationSubCity');
+ const appWoreda=document.getElementById('applicationWoreda');
+ const appServices=document.getElementById('applicationServices');
+ const appStatus=document.getElementById('professionalApplicationStatus');
+ let appWoredaRows=[];
+ const safeText=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ async function loadApplicationOptions(){
+  try{
+   const response=await fetch('/api/locations',{cache:'no-store'});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(data.error||'Could not load application options.');
+   appWoredaRows=Array.isArray(data.woredas)?data.woredas:[];
+   appSub.innerHTML='<option value="">ንዑስ ከተማ ይምረጡ</option>'+(data.sub_cities||[]).map(x=>'<option value="'+safeText(x.id)+'">'+safeText(x.name)+'</option>').join('');
+   appServices.innerHTML=(data.services||[]).map(x=>'<label style="display:flex;gap:8px;align-items:center;font-size:13px;font-weight:600"><input type="checkbox" name="service_ids" value="'+safeText(x.id)+'" style="width:auto"> '+safeText(x.name)+'</label>').join('')||'<small>አሁን የሚገኝ አገልግሎት የለም።</small>';
+   if(!(data.services||[]).length)throw new Error('አገልግሎቶች አልተገኙም።');
+  }catch(error){appStatus.textContent='የምዝገባ ዝርዝሮች አልተጫኑም። '+(error.message||'');}
+ }
+ appSub.addEventListener('change',()=>{
+  const id=appSub.value, rows=appWoredaRows.filter(x=>x.sub_city_id===id&&x.is_active!==false);
+  appWoreda.innerHTML='<option value="">ወረዳ ይምረጡ</option>'+rows.map(x=>'<option value="'+safeText(x.id)+'">'+safeText(x.name)+'</option>').join('');
+  appWoreda.disabled=!id||!rows.length;
+ });
+ loadApplicationOptions();
+ applicationForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const button=document.getElementById('professionalApplicationSubmit');
+  const serviceIds=[...applicationForm.querySelectorAll('input[name="service_ids"]:checked')].map(x=>x.value);
+  if(!serviceIds.length){appStatus.textContent='ቢያንስ አንድ አገልግሎት ይምረጡ።';return;}
+  const payload=Object.fromEntries(new FormData(applicationForm).entries());
+  payload.service_ids=serviceIds;
+  button.disabled=true;appStatus.textContent='ማመልከቻዎን በመላክ ላይ...';
+  try{
+   const response=await fetch('/api/professional-application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+   const result=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(result.error||'ማመልከቻው አልተላከም።');
+   applicationForm.reset();appWoreda.innerHTML='<option value="">መጀመሪያ ንዑስ ከተማ ይምረጡ</option>';appWoreda.disabled=true;
+   appStatus.textContent='ማመልከቻዎ ተቀብሏል። አድሚን ከገመገመው በኋላ እናገኝዎታለን። / Application received. Pending admin review.';
+   notify('ማመልከቻዎ ተቀብሏል!');
+  }catch(error){appStatus.textContent=error.message||'ማመልከቻው አልተላከም።';}
+  finally{button.disabled=false;}
+ });
+}
+
 document.getElementById('lang').addEventListener('click',()=>{
   const english=document.documentElement.lang!=='en';
   document.documentElement.lang=english?'en':'am';
