@@ -65,7 +65,8 @@ if(location.pathname.startsWith('/admin')){
       if(!response.ok)throw new Error(result.error||'Admin request failed.');
       return result;
     }
-    let operations={sub_cities:[],woredas:[],services:[],professionals:[],assignments:[],active_orders:[]};\n    let activeOrderFilter='all';
+    let operations={sub_cities:[],woredas:[],services:[],professionals:[],assignments:[],active_orders:[]};
+    let activeOrderFilter='all';
     async function operationsApi(method='GET',resource='',body){
       const {data:{session},error}=await client.auth.getSession();if(error||!session?.access_token)throw new Error('Session expired. Sign in again.');
       const response=await fetch('/api/admin/operations'+(resource?'?resource='+encodeURIComponent(resource):''),{method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:body?JSON.stringify(body):undefined});
