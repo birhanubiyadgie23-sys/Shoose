@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>LYSTRO | Admin</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+Ethiopic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"></head><body><script>
+document.addEventListener('DOMContentLoaded',()=>{
 if(location.pathname.startsWith('/admin')){
   document.body.innerHTML = '<style>'+
   ':root{--ad-navy:#17213c;--ad-blue:#1769f5;--ad-ink:#101a3a;--ad-muted:#69748d;--ad-line:#e1e6f2;--ad-bg:#f4f6fc}'+
@@ -37,7 +38,6 @@ if(location.pathname.startsWith('/admin')){
   '</div><footer class="ad-footer"><span>© 2026 LYSTRO. Clean Steps, Happy You.</span><span>📍 Admin Panel • Addis Ababa, Ethiopia</span></footer></main></div>';
   const loadSupabase=()=>new Promise((resolve,reject)=>{if(window.supabase?.createClient)return resolve(window.supabase);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=()=>resolve(window.supabase);s.onerror=()=>reject(new Error('Could not load authentication library.'));document.head.appendChild(s);});
   (async()=>{
-    await new Promise(resolve=>requestAnimationFrame(resolve));
     const login=document.getElementById('adminLogin'),panel=document.getElementById('adminPanel'),resetPanel=document.getElementById('adminResetPanel');
     const message=document.getElementById('loginMessage'),resetMessage=document.getElementById('resetMessage'),notice=document.getElementById('adminNotice');
     const loginForm=document.getElementById('adminLoginForm'),loginButton=document.getElementById('loginButton');
@@ -368,4 +368,5 @@ if(location.pathname.startsWith('/admin')){
     catch(e){if(panel)panel.hidden=true;if(login)login.hidden=false;if(message)message.textContent=e.message||'Could not verify administrator permissions.';}
   })();
 }
+});
 </script></body></html>
