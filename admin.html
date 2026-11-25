@@ -465,7 +465,7 @@ if(location.pathname.startsWith('/admin')){
        else if(view==='reports'){document.getElementById('pageTitle').textContent='Order Overview Report';document.getElementById('pageSubtitle').textContent='Review order totals and status breakdown';}
        else if(view==='settings'){document.getElementById('pageTitle').textContent='Settings & Service Areas';document.getElementById('pageSubtitle').textContent='Manage sub-cities, woredas and services';}
        else if(view==='website'){document.getElementById('pageTitle').textContent='Website Content';document.getElementById('pageSubtitle').textContent='Edit public homepage content and navigation';}
-       const target=b.dataset.navTarget;if(target){const el=document.getElementById(target);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});if(target==='websiteContentJson')el.focus({preventScroll:true});}}
+       const target=b.dataset.navTarget;if(target){const el=document.getElementById(target);if(el){if(target==='reloadWebsiteContent'||target==='saveWebsiteContent'){el.click();}else{el.scrollIntoView({behavior:'smooth',block:'center'});if(target==='websiteContentJson')el.focus({preventScroll:true});}}}
      }));
      
      document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();navigate(b.dataset.goto);}));
