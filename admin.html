@@ -252,7 +252,7 @@ if(location.pathname.startsWith('/admin')){
       try{await adminApi('DELETE',{id});await refresh();notice.textContent='Order deleted successfully.';}
       catch(e){notice.textContent=e.message;}
     }
-    document.querySelectorAll('[data-prof-view]').forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.profView;document.querySelectorAll('[data-prof-panel]').forEach(panel=>panel.hidden=panel.dataset.profPanel!==key);document.querySelectorAll('[data-prof-view]').forEach(item=>item.classList.toggle('active',item===btn));}));
+    document.querySelectorAll('[data-prof-view]').forEach(btn=>btn.addEventListener('click',()=>{navigate('professionals');const key=btn.dataset.profView;document.querySelectorAll('[data-prof-panel]').forEach(panel=>panel.hidden=panel.dataset.profPanel!==key);document.querySelectorAll('[data-prof-view]').forEach(item=>item.classList.toggle('active',item===btn));}));
     document.getElementById('professionalSubCity')?.addEventListener('change',()=>refreshProfessionalWoreda());
     document.getElementById('manageWoredasFromProfessional')?.addEventListener('click',()=>{
       const subId=document.getElementById('professionalSubCity').value;
